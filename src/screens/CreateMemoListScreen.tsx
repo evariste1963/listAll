@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 
 export default function CreateMemoListScreen() {
   const db = useDB();
@@ -25,10 +25,10 @@ export default function CreateMemoListScreen() {
       .from(schema.memoList)
       .orderBy(schema.memoList.id)
       .limit(1)
-      .run();
+      .get();
 
-    if (newList.length > 0) {
-      navigation.replace('MemoDetail', { listId: newList[0].id });
+    if (newList) {
+      navigation.replace('MemoDetail', { listId: newList.id });
     } else {
       navigation.goBack();
     }

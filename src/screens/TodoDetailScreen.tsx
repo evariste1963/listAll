@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal, 
-  Pressable 
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { eq } from 'drizzle-orm';
 import type { TodoDetailProps } from '../navigation/types';
 
 type Priority = 'low' | 'medium' | 'high' | null;
 
-interface TodoItem extends schema.TodoItem {
+interface TodoItemType {
+  id: number;
+  listId: number;
+  title: string;
+  isDone: boolean | null;
+  dueDate: number | null;
+  priority: string | null;
+  order: number | null;
   dueDateFormatted?: string;
 }
 
@@ -21,8 +28,8 @@ export default function TodoDetailScreen() {
   const db = useDB();
   const { listId } = route.params;
 
-  const [list, setList] = useState<schema.TodoList | null>(null);
-  const [items, setItems] = useState<TodoItem[]>([]);
+  const [list, setList] = useState<typeof schema.todoList.$inferSelect | null>(null);
+  const [items, setItems] = useState<TodoItemType[]>([]);
   const [newItemText, setNewItemText] = useState('');
   const [editTitle, setEditTitle] = useState(false);
   const [title, setTitle] = useState('');
@@ -31,28 +38,31 @@ export default function TodoDetailScreen() {
   const [newPriority, setNewPriority] = useState<Priority>(null);
 
   const listResult = useLiveQuery(
-    db.select().from(schema.todoList).where(schema.todoList.id.eq(listId))
+    db.select().from(schema.todoList).where(eq(schema.todoList.id, listId))
   );
 
   const itemsResult = useLiveQuery(
     db.select().from(schema.todoItem)
-      .where(schema.todoItem.listId.eq(listId))
+      .where(eq(schema.todoItem.listId, listId))
       .orderBy(schema.todoItem.order)
   );
 
   useEffect(() => {
-    if (listResult && listResult.length > 0) {
-      setList(listResult[0]);
-      setTitle(listResult[0].title);
+    if (listResult && listResult.data) {
+      const data = listResult.data;
+      if (data.length > 0) {
+        setList(data[0]);
+        setTitle(data[0].title);
+      }
     }
   }, [listResult]);
 
   useEffect(() => {
-    if (itemsResult) {
-      const formatted = itemsResult.map(item => ({
+    if (itemsResult && itemsResult.data) {
+      const formatted = itemsResult.data.map((item: any) => ({
         ...item,
-        dueDateFormatted: item.dueDate 
-          ? new Date(item.dueDate).toLocaleDateString() 
+        dueDateFormatted: item.dueDate
+          ? new Date(item.dueDate).toLocaleDateString()
           : undefined
       }));
       setItems(formatted);
@@ -78,33 +88,40 @@ export default function TodoDetailScreen() {
     setShowAddModal(false);
   };
 
-  const handleToggleItem = async (itemId: number, isDone: boolean) => {
+  const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
+    const newDone = currentDone ? false : true;
     await db.update(schema.todoItem)
-      .set({ isDone: isDone ? 0 : 1 })
-      .where(schema.todoItem.id.eq(itemId))
+      .set({ isDone: newDone })
+      .where(eq(schema.todoItem.id, itemId))
       .run();
   };
 
   const handleDeleteItem = async (itemId: number) => {
-    await db.delete(schema.todoItem).where(schema.todoItem.id.eq(itemId)).run();
+    await db.delete(schema.todoItem).where(eq(schema.todoItem.id, itemId)).run();
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
-    Alert.prompt('Edit Item', '', async (newTitle) => {
-      if (newTitle && newTitle.trim()) {
-        await db.update(schema.todoItem)
-          .set({ title: newTitle.trim() })
-          .where(schema.todoItem.id.eq(itemId))
-          .run();
-      }
-    }, 'plain-default', currentTitle);
+    Alert.prompt('Edit Item', '', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Save',
+        onPress: async (newTitle?: string) => {
+          if (newTitle && newTitle.trim()) {
+            await db.update(schema.todoItem)
+              .set({ title: newTitle.trim() })
+              .where(eq(schema.todoItem.id, itemId))
+              .run();
+          }
+        },
+      },
+    ], undefined, currentTitle);
   };
 
   const handleUpdateTitle = async () => {
     if (title.trim() && list) {
       await db.update(schema.todoList)
         .set({ title: title.trim() })
-        .where(schema.todoList.id.eq(listId))
+        .where(eq(schema.todoList.id, listId))
         .run();
       setEditTitle(false);
     }
@@ -131,7 +148,6 @@ export default function TodoDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         {editTitle ? (
           <TextInput
@@ -150,21 +166,19 @@ export default function TodoDetailScreen() {
         <Text style={styles.countText}>{remainingCount} remaining</Text>
       </View>
 
-      {/* Add Item Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addItemButton}
         onPress={() => setShowAddModal(true)}
       >
         <Text style={styles.addItemButtonText}>+ Add Todo</Text>
       </TouchableOpacity>
 
-      {/* Items */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.itemRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkbox}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
@@ -172,8 +186,8 @@ export default function TodoDetailScreen() {
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.itemTitle}
               onPress={() => handleEditItem(item.id, item.title)}
             >
@@ -191,8 +205,8 @@ export default function TodoDetailScreen() {
                 )}
               </View>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.deleteItem}
               onPress={() => handleDeleteItem(item.id)}
             >
@@ -205,12 +219,11 @@ export default function TodoDetailScreen() {
         }
       />
 
-      {/* Add Modal */}
       <Modal visible={showAddModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add Todo</Text>
-            
+
             <TextInput
               style={styles.modalInput}
               placeholder="What needs to be done?"
@@ -241,10 +254,9 @@ export default function TodoDetailScreen() {
             </View>
 
             <Text style={styles.modalLabel}>Due Date (optional)</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.dateButton}
               onPress={() => {
-                // Simple date input - in production would use a proper date picker
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 setNewDueDate(tomorrow);
@@ -256,16 +268,16 @@ export default function TodoDetailScreen() {
             </TouchableOpacity>
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.modalButton}
                 onPress={() => { setShowAddModal(false); setNewItemText(''); }}
               >
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
-                  styles.modalButton, 
-                  styles.modalButtonPrimary, 
+                  styles.modalButton,
+                  styles.modalButtonPrimary,
                   !newItemText.trim() && styles.modalButtonDisabled
                 ]}
                 onPress={handleAddItem}

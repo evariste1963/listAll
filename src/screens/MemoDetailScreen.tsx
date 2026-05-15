@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert 
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, TextInputProps
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { eq, and } from 'drizzle-orm';
 import type { MemoDetailProps } from '../navigation/types';
 
 export default function MemoDetailScreen() {
@@ -14,32 +15,35 @@ export default function MemoDetailScreen() {
   const db = useDB();
   const { listId } = route.params;
 
-  const [list, setList] = useState<schema.MemoList | null>(null);
-  const [items, setItems] = useState<schema.MemoItem[]>([]);
+  const [list, setList] = useState<typeof schema.memoList.$inferSelect | null>(null);
+  const [items, setItems] = useState<typeof schema.memoItem.$inferSelect[]>([]);
   const [newItemText, setNewItemText] = useState('');
   const [editTitle, setEditTitle] = useState(false);
   const [title, setTitle] = useState('');
 
   const listResult = useLiveQuery(
-    db.select().from(schema.memoList).where(schema.memoList.id.eq(listId))
+    db.select().from(schema.memoList).where(eq(schema.memoList.id, listId))
   );
 
   const itemsResult = useLiveQuery(
     db.select().from(schema.memoItem)
-      .where(schema.memoItem.listId.eq(listId))
+      .where(eq(schema.memoItem.listId, listId))
       .orderBy(schema.memoItem.order)
   );
 
   useEffect(() => {
-    if (listResult && listResult.length > 0) {
-      setList(listResult[0]);
-      setTitle(listResult[0].title);
+    if (listResult && listResult.data) {
+      const data = listResult.data;
+      if (data.length > 0) {
+        setList(data[0]);
+        setTitle(data[0].title);
+      }
     }
   }, [listResult]);
 
   useEffect(() => {
-    if (itemsResult) {
-      setItems(itemsResult);
+    if (itemsResult && itemsResult.data) {
+      setItems([...itemsResult.data]);
     }
   }, [itemsResult]);
 
@@ -58,33 +62,40 @@ export default function MemoDetailScreen() {
     setNewItemText('');
   };
 
-  const handleToggleItem = async (itemId: number, isDone: boolean) => {
+  const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
+    const newDone = currentDone ? false : true;
     await db.update(schema.memoItem)
-      .set({ isDone: isDone ? 0 : 1 })
-      .where(schema.memoItem.id.eq(itemId))
+      .set({ isDone: newDone })
+      .where(eq(schema.memoItem.id, itemId))
       .run();
   };
 
   const handleDeleteItem = async (itemId: number) => {
-    await db.delete(schema.memoItem).where(schema.memoItem.id.eq(itemId)).run();
+    await db.delete(schema.memoItem).where(eq(schema.memoItem.id, itemId)).run();
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
-    Alert.prompt('Edit Item', '', async (newTitle) => {
-      if (newTitle && newTitle.trim()) {
-        await db.update(schema.memoItem)
-          .set({ title: newTitle.trim() })
-          .where(schema.memoItem.id.eq(itemId))
-          .run();
-      }
-    }, 'plain-default', currentTitle);
+    Alert.prompt('Edit Item', '', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Save',
+        onPress: async (newTitle?: string) => {
+          if (newTitle && newTitle.trim()) {
+            await db.update(schema.memoItem)
+              .set({ title: newTitle.trim() })
+              .where(eq(schema.memoItem.id, itemId))
+              .run();
+          }
+        },
+      },
+    ], undefined, currentTitle);
   };
 
   const handleUpdateTitle = async () => {
     if (title.trim() && list) {
       await db.update(schema.memoList)
         .set({ title: title.trim() })
-        .where(schema.memoList.id.eq(listId))
+        .where(eq(schema.memoList.id, listId))
         .run();
       setEditTitle(false);
     }
@@ -102,7 +113,6 @@ export default function MemoDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         {editTitle ? (
           <TextInput
@@ -121,7 +131,6 @@ export default function MemoDetailScreen() {
         <Text style={styles.countText}>{remainingCount} remaining</Text>
       </View>
 
-      {/* Add Item */}
       <View style={styles.inputRow}>
         <TextInput
           style={styles.itemInput}
@@ -131,7 +140,7 @@ export default function MemoDetailScreen() {
           onChangeText={setNewItemText}
           onSubmitEditing={handleAddItem}
         />
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.addButton, !newItemText.trim() && styles.addButtonDisabled]}
           onPress={handleAddItem}
           disabled={!newItemText.trim()}
@@ -140,13 +149,12 @@ export default function MemoDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Items */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.itemRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkbox}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
@@ -154,7 +162,7 @@ export default function MemoDetailScreen() {
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.itemTitle}
               onPress={() => handleEditItem(item.id, item.title)}
             >
@@ -162,7 +170,7 @@ export default function MemoDetailScreen() {
                 {item.title}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.deleteItem}
               onPress={() => handleDeleteItem(item.id)}
             >

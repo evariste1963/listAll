@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { eq } from 'drizzle-orm';
 
 interface MemoWithCount {
   id: number;
@@ -22,17 +23,19 @@ export default function MemosTabScreen() {
   const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
 
   useEffect(() => {
-    if (result) {
-      loadMemoCounts(result);
+    if (result && result.data) {
+      loadMemoCounts(result.data);
     }
   }, [result]);
 
   const loadMemoCounts = async (lists: typeof schema.memoList.$inferSelect[]) => {
     const withCounts: MemoWithCount[] = [];
     for (const list of lists) {
-      const items = await db.select().from(schema.memoItem)
-        .where(schema.memoItem.listId.eq(list.id))
-        .run();
+      const itemsResult = await db.select().from(schema.memoItem)
+        .where(eq(schema.memoItem.listId, list.id))
+        .get();
+      
+      const items = itemsResult ? [itemsResult] : [];
       const remaining = items.filter(i => !i.isDone).length;
       withCounts.push({
         ...list,
@@ -61,10 +64,8 @@ export default function MemosTabScreen() {
           text: 'Delete', 
           style: 'destructive',
           onPress: async () => {
-            // Delete items first
-            await db.delete(schema.memoItem).where(schema.memoItem.listId.eq(listId)).run();
-            // Then delete list
-            await db.delete(schema.memoList).where(schema.memoList.id.eq(listId)).run();
+            await db.delete(schema.memoItem).where(eq(schema.memoItem.listId, listId)).run();
+            await db.delete(schema.memoList).where(eq(schema.memoList.id, listId)).run();
           }
         },
       ]

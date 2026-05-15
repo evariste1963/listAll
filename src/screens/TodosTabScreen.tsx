@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { eq } from 'drizzle-orm';
 
 interface TodoWithCount {
   id: number;
@@ -22,17 +23,19 @@ export default function TodosTabScreen() {
   const result = useLiveQuery(db.select().from(schema.todoList).orderBy(schema.todoList.createdAt));
 
   useEffect(() => {
-    if (result) {
-      loadTodoCounts(result);
+    if (result && result.data) {
+      loadTodoCounts(result.data);
     }
   }, [result]);
 
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
     for (const list of lists) {
-      const items = await db.select().from(schema.todoItem)
-        .where(schema.todoItem.listId.eq(list.id))
-        .run();
+      const itemsResult = await db.select().from(schema.todoItem)
+        .where(eq(schema.todoItem.listId, list.id))
+        .get();
+      
+      const items = itemsResult ? [itemsResult] : [];
       const remaining = items.filter(i => !i.isDone).length;
       withCounts.push({
         ...list,
@@ -61,8 +64,8 @@ export default function TodosTabScreen() {
           text: 'Delete', 
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.todoItem).where(schema.todoItem.listId.eq(listId)).run();
-            await db.delete(schema.todoList).where(schema.todoList.id.eq(listId)).run();
+            await db.delete(schema.todoItem).where(eq(schema.todoItem.listId, listId)).run();
+            await db.delete(schema.todoList).where(eq(schema.todoList.id, listId)).run();
           }
         },
       ]

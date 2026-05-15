@@ -2,8 +2,9 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { openDatabaseSync } from 'expo-sqlite';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
+import type { ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as schema from './schema';
-import migrationStatements from './migrations';
+import migrationStatements from './migrations/migrations';
 
 const expoDb = openDatabaseSync('listAll.db', { enableChangeListener: true });
 const db = drizzle(expoDb, { schema });
@@ -19,7 +20,7 @@ interface DBProviderProps {
 }
 
 export function DBProvider({ children }: DBProviderProps) {
-  const { success, error } = useMigrations(expoDb, migrationStatements);
+  const { success, error } = useMigrations(expoDb as unknown as ExpoSQLiteDatabase, migrationStatements);
 
   const [ready, setReady] = useState(false);
 
@@ -50,9 +51,9 @@ export function DBProvider({ children }: DBProviderProps) {
 }
 
 async function seedListTypes() {
-  const existing = await db.select().from(schema.listType).limit(1).run();
+  const existing = await db.select().from(schema.listType).limit(1).get();
   
-  if (existing.length === 0) {
+  if (!existing) {
     await db.insert(schema.listType).values([
       { id: 1, name: 'shopping', icon: '🛒', fieldsConfig: '{}', isDefault: true },
       { id: 2, name: 'memo', icon: '📝', fieldsConfig: '{"isCheckable":true}', isDefault: true },

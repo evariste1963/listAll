@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
+import { eq } from 'drizzle-orm';
 
 export default function CreateShoppingListScreen() {
   const db = useDB();
@@ -18,34 +19,32 @@ export default function CreateShoppingListScreen() {
     // Check if there's already an active shopping list
     const existing = await db.select()
       .from(schema.shoppingList)
-      .where(schema.shoppingList.isActive.eq(1))
-      .limit(1)
-      .run();
+      .where(eq(schema.shoppingList.isActive, true))
+      .get();
 
-    if (existing.length > 0) {
+    if (existing) {
       Alert.alert('Error', 'You already have an active shopping list. End it first.');
       return;
     }
 
     // Create new shopping list
-    const result = await db.insert(schema.shoppingList)
+    await db.insert(schema.shoppingList)
       .values({ 
         title: title.trim(), 
-        isActive: 1,
+        isActive: true,
         createdAt: new Date()
       })
       .run();
 
-    // Navigate to detail to add first shop
-    // We need to get the ID - let's fetch the latest
+    // Get the latest list
     const newList = await db.select()
       .from(schema.shoppingList)
       .orderBy(schema.shoppingList.id)
       .limit(1)
-      .run();
+      .get();
 
-    if (newList.length > 0) {
-      navigation.replace('ShoppingDetail', { listId: newList[0].id });
+    if (newList) {
+      navigation.replace('ShoppingDetail', { listId: newList.id });
     } else {
       navigation.goBack();
     }

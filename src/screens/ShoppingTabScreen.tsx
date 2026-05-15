@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { eq } from 'drizzle-orm';
 
 interface ShopSummary {
   id: number;
@@ -19,15 +20,20 @@ export default function ShoppingTabScreen() {
   const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopSummary[]>([]);
 
-  // Load active shopping list
   const result = useLiveQuery(
-    db.select().from(schema.shoppingList).where(schema.shoppingList.isActive.eq(1)).limit(1)
+    db.select().from(schema.shoppingList).where(eq(schema.shoppingList.isActive, true))
   );
 
   useEffect(() => {
-    if (result && result.length > 0) {
-      setShopList(result[0]);
-      loadShops(result[0].id);
+    if (result && result.data) {
+      const data = result.data;
+      if (data.length > 0) {
+        setShopList(data[0]);
+        loadShops(data[0].id);
+      } else {
+        setShopList(null);
+        setShops([]);
+      }
     } else {
       setShopList(null);
       setShops([]);
@@ -35,16 +41,24 @@ export default function ShoppingTabScreen() {
   }, [result]);
 
   const loadShops = async (listId: number) => {
-    const shopTabs = await db.select().from(schema.shopTab)
-      .where(schema.shopTab.listId.eq(listId))
+    const shopTabsResult = await db.select().from(schema.shopTab)
+      .where(eq(schema.shopTab.listId, listId))
       .orderBy(schema.shopTab.order)
-      .run();
-
+      .get();
+    
+    if (!shopTabsResult) {
+      setShops([]);
+      return;
+    }
+    
+    const shopTabs = [shopTabsResult];
     const summaries: ShopSummary[] = [];
     for (const shop of shopTabs) {
-      const items = await db.select().from(schema.shoppingItem)
-        .where(schema.shoppingItem.shopTabId.eq(shop.id))
-        .run();
+      const itemsResult = await db.select().from(schema.shoppingItem)
+        .where(eq(schema.shoppingItem.shopTabId, shop.id))
+        .get();
+      
+      const items = itemsResult ? [itemsResult] : [];
       const remaining = items.filter(i => !i.isDone).length;
       summaries.push({
         id: shop.id,
@@ -64,7 +78,7 @@ export default function ShoppingTabScreen() {
     navigation.navigate('CreateShoppingList');
   };
 
-  const handleOpenShop = (shopId: number) => {
+  const handleOpenShop = () => {
     if (shopList) {
       navigation.navigate('ShoppingDetail', { listId: shopList.id });
     }
@@ -82,8 +96,8 @@ export default function ShoppingTabScreen() {
           onPress: async () => {
             if (shopList) {
               await db.update(schema.shoppingList)
-                .set({ isActive: 0 })
-                .where(schema.shoppingList.id.eq(shopList.id))
+                .set({ isActive: false })
+                .where(eq(schema.shoppingList.id, shopList.id))
                 .run();
             }
           }
@@ -124,7 +138,7 @@ export default function ShoppingTabScreen() {
           <Text style={styles.emptyShopsSubtext}>Add your first shop to start</Text>
           <TouchableOpacity 
             style={styles.addShopButton}
-            onPress={() => navigation.navigate('ShoppingDetail', { listId: shopList.id })}
+            onPress={handleOpenShop}
           >
             <Text style={styles.addShopButtonText}>+ Add First Shop</Text>
           </TouchableOpacity>
@@ -137,7 +151,7 @@ export default function ShoppingTabScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity 
               style={styles.shopCard}
-              onPress={() => handleOpenShop(item.id)}
+              onPress={handleOpenShop}
             >
               <View style={styles.shopInfo}>
                 <Text style={styles.shopName}>{item.name}</Text>

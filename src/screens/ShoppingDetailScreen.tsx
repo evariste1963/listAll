@@ -1,16 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, 
-  Alert, ScrollView, Modal 
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
+  Alert, ScrollView, Modal
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { eq } from 'drizzle-orm';
 import type { ShoppingDetailProps } from '../navigation/types';
 
-interface ShopTab extends schema.ShopTab {
-  items: schema.ShoppingItem[];
+interface ShopTabType {
+  id: number;
+  listId: number;
+  name: string;
+  order: number | null;
+  items: {
+    id: number;
+    shopTabId: number;
+    title: string;
+    isDone: boolean | null;
+    order: number | null;
+  }[];
 }
 
 export default function ShoppingDetailScreen() {
@@ -19,8 +30,8 @@ export default function ShoppingDetailScreen() {
   const db = useDB();
   const { listId } = route.params;
 
-  const [list, setList] = useState<schema.ShoppingList | null>(null);
-  const [shops, setShops] = useState<ShopTab[]>([]);
+  const [list, setList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
+  const [shops, setShops] = useState<ShopTabType[]>([]);
   const [activeTabId, setActiveTabId] = useState<number | null>(null);
   const [newItemText, setNewItemText] = useState('');
   const [showAddShop, setShowAddShop] = useState(false);
@@ -28,40 +39,41 @@ export default function ShoppingDetailScreen() {
   const [editListTitle, setEditListTitle] = useState(false);
   const [listTitle, setListTitle] = useState('');
 
-  // Load list
   const listResult = useLiveQuery(
-    db.select().from(schema.shoppingList).where(schema.shoppingList.id.eq(listId))
+    db.select().from(schema.shoppingList).where(eq(schema.shoppingList.id, listId))
   );
 
-  // Load shops
   const shopsResult = useLiveQuery(
     db.select().from(schema.shopTab)
-      .where(schema.shopTab.listId.eq(listId))
+      .where(eq(schema.shopTab.listId, listId))
       .orderBy(schema.shopTab.order)
   );
 
   useEffect(() => {
-    if (listResult && listResult.length > 0) {
-      setList(listResult[0]);
-      setListTitle(listResult[0].title);
+    if (listResult && listResult.data) {
+      const data = listResult.data;
+      if (data.length > 0) {
+        setList(data[0]);
+        setListTitle(data[0].title);
+      }
     }
   }, [listResult]);
 
   useEffect(() => {
-    if (shopsResult) {
-      loadShopItems(shopsResult);
+    if (shopsResult && shopsResult.data) {
+      loadShopItems(shopsResult.data);
     }
   }, [shopsResult]);
 
-  const loadShopItems = async (shopTabs: schema.ShopTab[]) => {
-    const withItems: ShopTab[] = [];
+  const loadShopItems = async (shopTabs: typeof schema.shopTab.$inferSelect[]) => {
+    const withItems: ShopTabType[] = [];
     for (const shop of shopTabs) {
       const items = await db.select()
         .from(schema.shoppingItem)
-        .where(schema.shoppingItem.shopTabId.eq(shop.id))
+        .where(eq(schema.shoppingItem.shopTabId, shop.id))
         .orderBy(schema.shoppingItem.order)
-        .run();
-      withItems.push({ ...shop, items });
+        .get();
+      withItems.push({ ...shop, items: items ? [items] : [] });
     }
     setShops(withItems);
     if (withItems.length > 0 && !activeTabId) {
@@ -77,13 +89,13 @@ export default function ShoppingDetailScreen() {
   };
 
   const activeShop = shops.find(s => s.id === activeTabId);
-  const totalItems = shops.reduce((sum, s) => sum + s.items.length, 0);
-  const remainingItems = shops.reduce((sum, s) => sum + s.items.filter(i => !i.isDone).length, 0);
+  const totalItems = shops.reduce((sum, s) => sum + (s.items?.length || 0), 0);
+  const remainingItems = shops.reduce((sum, s) => sum + (s.items?.filter(i => !i.isDone).length || 0), 0);
 
   const handleAddItem = async () => {
     if (!newItemText.trim() || !activeTabId) return;
 
-    const maxOrder = activeShop?.items.length || 0;
+    const maxOrder = activeShop?.items?.length || 0;
     await db.insert(schema.shoppingItem).values({
       shopTabId: activeTabId,
       title: newItemText.trim(),
@@ -94,26 +106,33 @@ export default function ShoppingDetailScreen() {
     setNewItemText('');
   };
 
-  const handleToggleItem = async (itemId: number, isDone: boolean) => {
+  const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
+    const newDone = currentDone ? false : true;
     await db.update(schema.shoppingItem)
-      .set({ isDone: isDone ? 0 : 1 })
-      .where(schema.shoppingItem.id.eq(itemId))
+      .set({ isDone: newDone })
+      .where(eq(schema.shoppingItem.id, itemId))
       .run();
   };
 
   const handleDeleteItem = async (itemId: number) => {
-    await db.delete(schema.shoppingItem).where(schema.shoppingItem.id.eq(itemId)).run();
+    await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, itemId)).run();
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
-    Alert.prompt('Edit Item', '', async (newTitle) => {
-      if (newTitle && newTitle.trim()) {
-        await db.update(schema.shoppingItem)
-          .set({ title: newTitle.trim() })
-          .where(schema.shoppingItem.id.eq(itemId))
-          .run();
-      }
-    }, 'plain-default', currentTitle);
+    Alert.prompt('Edit Item', '', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Save',
+        onPress: async (newTitle?: string) => {
+          if (newTitle && newTitle.trim()) {
+            await db.update(schema.shoppingItem)
+              .set({ title: newTitle.trim() })
+              .where(eq(schema.shoppingItem.id, itemId))
+              .run();
+          }
+        },
+      },
+    ], undefined, currentTitle);
   };
 
   const handleAddShop = async () => {
@@ -136,14 +155,14 @@ export default function ShoppingDetailScreen() {
       `Delete "${shopName}" and all its items?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             await db.delete(schema.shoppingItem).where(
-              schema.shoppingItem.shopTabId.eq(shopId)
+              eq(schema.shoppingItem.shopTabId, shopId)
             ).run();
-            await db.delete(schema.shopTab).where(schema.shopTab.id.eq(shopId)).run();
+            await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shopId)).run();
           }
         },
       ]
@@ -151,10 +170,10 @@ export default function ShoppingDetailScreen() {
   };
 
   const handleDeleteCompleted = async () => {
-    if (!activeShop) return;
+    if (!activeShop || !activeShop.items) return;
     const completedIds = activeShop.items.filter(i => i.isDone).map(i => i.id);
     for (const id of completedIds) {
-      await db.delete(schema.shoppingItem).where(schema.shoppingItem.id.eq(id)).run();
+      await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, id)).run();
     }
   };
 
@@ -162,7 +181,7 @@ export default function ShoppingDetailScreen() {
     if (listTitle.trim() && list) {
       await db.update(schema.shoppingList)
         .set({ title: listTitle.trim() })
-        .where(schema.shoppingList.id.eq(list.id))
+        .where(eq(schema.shoppingList.id, listId))
         .run();
       setEditListTitle(false);
     }
@@ -174,19 +193,19 @@ export default function ShoppingDetailScreen() {
       'Are you sure you want to end this shopping list? This will delete all shops and items.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'End List', 
+        {
+          text: 'End List',
           style: 'destructive',
           onPress: async () => {
-            // Delete all items and shops
             for (const shop of shops) {
-              await db.delete(schema.shoppingItem).where(
-                schema.shoppingItem.shopTabId.eq(shop.id)
-              ).run();
-              await db.delete(schema.shopTab).where(schema.shopTab.id.eq(shop.id)).run();
+              if (shop.items) {
+                for (const item of shop.items) {
+                  await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, item.id)).run();
+                }
+              }
+              await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shop.id)).run();
             }
-            // Delete list
-            await db.delete(schema.shoppingList).where(schema.shoppingList.id.eq(listId)).run();
+            await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, listId)).run();
             navigation.goBack();
           }
         },
@@ -204,7 +223,6 @@ export default function ShoppingDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         {editListTitle ? (
           <TextInput
@@ -225,17 +243,15 @@ export default function ShoppingDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Summary */}
       <View style={styles.summary}>
         <Text style={styles.summaryText}>
           {remainingItems} of {totalItems} items remaining
         </Text>
       </View>
 
-      {/* Shop Tabs */}
       {shops.length > 0 && (
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           style={styles.tabBar}
           contentContainerStyle={styles.tabContent}
           showsHorizontalScrollIndicator={false}
@@ -251,11 +267,11 @@ export default function ShoppingDetailScreen() {
                 {shop.name}
               </Text>
               <Text style={styles.tabCount}>
-                {shop.items.filter(i => !i.isDone).length}
+                {shop.items?.filter(i => !i.isDone).length || 0}
               </Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.addTab}
             onPress={() => setShowAddShop(true)}
           >
@@ -267,7 +283,7 @@ export default function ShoppingDetailScreen() {
       {shops.length === 0 && (
         <View style={styles.noShops}>
           <Text style={styles.noShopsText}>Add your first shop</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.addShopButton}
             onPress={() => setShowAddShop(true)}
           >
@@ -276,10 +292,8 @@ export default function ShoppingDetailScreen() {
         </View>
       )}
 
-      {/* Items */}
       {activeShop && (
         <View style={styles.itemsContainer}>
-          {/* Add Item Input */}
           <View style={styles.inputRow}>
             <TextInput
               style={styles.itemInput}
@@ -289,7 +303,7 @@ export default function ShoppingDetailScreen() {
               onChangeText={setNewItemText}
               onSubmitEditing={handleAddItem}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.addButton, !newItemText.trim() && styles.addButtonDisabled]}
               onPress={handleAddItem}
               disabled={!newItemText.trim()}
@@ -298,20 +312,18 @@ export default function ShoppingDetailScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Delete completed button */}
-          {activeShop.items.some(i => i.isDone) && (
+          {activeShop.items?.some(i => i.isDone) && (
             <TouchableOpacity style={styles.deleteCompleted} onPress={handleDeleteCompleted}>
               <Text style={styles.deleteCompletedText}>🗑️ Delete Completed</Text>
             </TouchableOpacity>
           )}
 
-          {/* Items list */}
           <FlatList
-            data={activeShop.items}
+            data={activeShop.items || []}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.itemRow}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.checkbox}
                   onPress={() => handleToggleItem(item.id, item.isDone)}
                 >
@@ -319,7 +331,7 @@ export default function ShoppingDetailScreen() {
                     {item.isDone ? '✓' : '○'}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.itemTitle}
                   onPress={() => handleEditItem(item.id, item.title)}
                 >
@@ -327,7 +339,7 @@ export default function ShoppingDetailScreen() {
                     {item.title}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.deleteItem}
                   onPress={() => handleDeleteItem(item.id)}
                 >
@@ -342,7 +354,6 @@ export default function ShoppingDetailScreen() {
         </View>
       )}
 
-      {/* Add Shop Modal */}
       <Modal visible={showAddShop} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -356,13 +367,13 @@ export default function ShoppingDetailScreen() {
               autoFocus
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled]}
                 onPress={handleAddShop}
                 disabled={!newShopName.trim()}

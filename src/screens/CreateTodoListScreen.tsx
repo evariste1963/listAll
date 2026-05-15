@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
-import { schema } from '../db/schema';
+import { schema } from '../db/index';
 
 export default function CreateTodoListScreen() {
   const db = useDB();
@@ -24,10 +24,10 @@ export default function CreateTodoListScreen() {
       .from(schema.todoList)
       .orderBy(schema.todoList.id)
       .limit(1)
-      .run();
+      .get();
 
-    if (newList.length > 0) {
-      navigation.replace('TodoDetail', { listId: newList[0].id });
+    if (newList) {
+      navigation.replace('TodoDetail', { listId: newList.id });
     } else {
       navigation.goBack();
     }
