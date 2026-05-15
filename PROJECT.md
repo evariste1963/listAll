@@ -105,3 +105,60 @@ listAll/
 1. **New template:** Add row to `ListType` + define fields + create screen component
 2. **New field:** Add to `fields_config` JSON + render in detail screen
 3. **Shop tabs:** Add/remove `ShopTab` rows freely
+
+## Build & Installation
+
+### Prerequisites
+- Node.js 18+
+- Android SDK (for Android builds)
+- Java 17+
+
+### Development
+
+```bash
+# Install dependencies
+cd listAll
+npm install
+
+# Start Metro bundler
+npx expo start
+
+# Run on Android
+npx expo run:android
+```
+
+### Build APK
+
+**Debug Build:**
+```bash
+cd android
+./gradlew assembleDebug
+# Output: app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Release Build:**
+```bash
+cd android
+./gradlew assembleRelease
+# Output: app/build/outputs/apk/release/app-release.apk
+```
+
+### Install on Device
+
+**Method 1: ADB (USB debugging)**
+```bash
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Method 2: Transfer APK**
+- Copy the APK file to your device
+- Open file manager, tap the APK
+- Enable "Install from unknown sources" if prompted
+
+### Release Signing
+The release build is configured with a default keystore. For production:
+1. Generate your own keystore:
+   ```bash
+   keytool -genkeypair -v -storetype PKCS12 -keystore myapp.keystore -alias myapp -keyalg RSA -keysize 2048 -validity 10000
+   ```
+2. Update `android/app/build.gradle` with your keystore details
