@@ -165,10 +165,25 @@ cd android
 
 **Method 1: ADB (USB debugging)**
 ```bash
+# Enable USB debugging on device: Settings > Developer Options > USB debugging
+
+# List connected devices
+adb devices
+
+# Install debug APK
 adb install app/build/outputs/apk/debug/app-debug.apk
+
+# Install release APK
+adb install app/build/outputs/apk/release/app-release.apk
+
+# Install specific ABI APK (smaller size)
+adb install app/build/outputs/apk/release/app-arm64-v8a-release.apk
+
+# Reinstall (overwrite existing)
+adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-**Method 2: Transfer APK**
+**Method 2: Manual Transfer**
 - Copy the APK file to your device
 - Open file manager, tap the APK
 - Enable "Install from unknown sources" if prompted
