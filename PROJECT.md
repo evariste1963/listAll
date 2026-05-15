@@ -141,7 +141,25 @@ cd android
 cd android
 ./gradlew assembleRelease
 # Output: app/build/outputs/apk/release/app-release.apk
+#         app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+#         app/build/outputs/apk/release/app-arm64-v8a-release.apk
+#         app/build/outputs/apk/release/app-x86-release.apk
+#         app/build/outputs/apk/release/app-x86_64-release.apk
 ```
+
+### Build Optimizations
+
+**ABI Splits:**
+- Splits the APK into architecture-specific variants (armeabi-v7a, arm64-v8a, x86, x86_64)
+- Each APK is smaller since it only includes native code for one architecture
+- Universal APK (all architectures) is also generated
+- Configured in `android/app/build.gradle` under `splits.abi`
+
+**R8 Minification:**
+- Enabled by default for release builds
+- Strips unused code, obfuscates names, optimizes DEX
+- Can be disabled in `gradle.properties`: `android.enableMinifyInReleaseBuilds=false`
+- Add custom ProGuard rules in `android/app/proguard-rules.pro` if needed
 
 ### Install on Device
 
