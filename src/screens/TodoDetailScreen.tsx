@@ -41,6 +41,14 @@ export default function TodoDetailScreen() {
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickerDate, setPickerDate] = useState<Date | null>(null);
+
+  const openDatePicker = () => {
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
+    setPickerDate(newDueDate || startDate);
+    setShowDatePicker(true);
+  };
 
   const listResult = useLiveQuery(
     db.select().from(schema.todoList).where(eq(schema.todoList.id, listId))
@@ -172,7 +180,11 @@ export default function TodoDetailScreen() {
 
       <TouchableOpacity
         style={styles.addItemButton}
-        onPress={() => setShowAddModal(true)}
+        onPress={() => { 
+          setNewDueDate(null); 
+          setPickerDate(new Date()); 
+          setShowAddModal(true); 
+        }}
       >
         <Text style={styles.addItemButtonText}>+ Add Todo</Text>
       </TouchableOpacity>
@@ -261,7 +273,7 @@ export default function TodoDetailScreen() {
             <View style={styles.dateRow}>
               <TouchableOpacity
                 style={styles.dateButton}
-                onPress={() => setShowDatePicker(true)}
+                onPress={openDatePicker}
               >
                 <Text style={styles.dateButtonText}>
                   {newDueDate ? newDueDate.toLocaleDateString() : 'Select date'}
@@ -273,15 +285,21 @@ export default function TodoDetailScreen() {
                 </TouchableOpacity>
               )}
             </View>
+
             {showDatePicker && (
               <DateTimePicker
-                value={newDueDate || new Date()}
+                value={pickerDate || new Date()}
                 mode="date"
-                display="calendar"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={new Date()}
+                maximumDate={new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)}
                 onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) {
+                  if (event.type === 'set' && selectedDate) {
                     setNewDueDate(selectedDate);
+                    setPickerDate(selectedDate);
+                    setShowDatePicker(false);
+                  } else if (event.type === 'dismissed') {
+                    setShowDatePicker(false);
                   }
                 }}
               />
