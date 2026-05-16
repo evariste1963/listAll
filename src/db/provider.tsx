@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, AppState, AppStateStatus } from 'react-native';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { openDatabaseSync } from 'expo-sqlite';
 
@@ -40,6 +40,23 @@ export function DBProvider({ children }: DBProviderProps) {
       }
     }
     runMigrations();
+  }, []);
+
+  useEffect(() => {
+    let lastBackgroundTime: number | null = null;
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        const now = Date.now();
+        if (!lastBackgroundTime || now - lastBackgroundTime > 5000) {
+          lastBackgroundTime = now;
+          expoDb.execAsync('VACUUM').catch(() => {});
+        }
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription.remove();
   }, []);
 
   if (error) {

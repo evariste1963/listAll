@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, FlatList, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useDB, vacuumDatabase } from '../db/provider';
+import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { eq } from 'drizzle-orm';
 
@@ -53,31 +53,6 @@ export default function PreferencesTabScreen() {
     );
   };
 
-  const handleClearData = () => {
-    Alert.alert(
-      'Clear All Data',
-      'This will delete all your lists and items. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Clear All', 
-          style: 'destructive',
-          onPress: async () => {
-            await db.delete(schema.shoppingItem).run();
-            await db.delete(schema.shopTab).run();
-            await db.delete(schema.shoppingList).run();
-            await db.delete(schema.memoItem).run();
-            await db.delete(schema.memoList).run();
-            await db.delete(schema.todoItem).run();
-            await db.delete(schema.todoList).run();
-            await vacuumDatabase();
-            Alert.alert('Done', 'All data cleared and space reclaimed');
-          }
-        },
-      ]
-    );
-  };
-
   const handleResetTemplates = () => {
     Alert.alert(
       'Reset Templates',
@@ -120,9 +95,6 @@ export default function PreferencesTabScreen() {
           <Text style={styles.sectionTitle}>Data</Text>
           <TouchableOpacity style={styles.option} onPress={handleResetTemplates}>
             <Text style={styles.optionText}>Reset Templates</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={handleClearData}>
-            <Text style={styles.optionTextDanger}>Clear All Data</Text>
           </TouchableOpacity>
         </View>
 

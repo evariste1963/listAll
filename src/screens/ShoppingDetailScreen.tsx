@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useDB, vacuumDatabase } from '../db/provider';
+import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { eq } from 'drizzle-orm';
@@ -238,7 +238,6 @@ export default function ShoppingDetailScreen() {
               await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shop.id)).run();
             }
             await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, listId)).run();
-            await vacuumDatabase();
             navigation.goBack();
           }
         },
