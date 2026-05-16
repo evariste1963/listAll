@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal, Platform
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
@@ -39,6 +40,7 @@ export default function TodoDetailScreen() {
   const [newPriority, setNewPriority] = useState<Priority>(null);
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const listResult = useLiveQuery(
     db.select().from(schema.todoList).where(eq(schema.todoList.id, listId))
@@ -256,18 +258,35 @@ export default function TodoDetailScreen() {
             </View>
 
             <Text style={styles.modalLabel}>Due Date (optional)</Text>
-            <TouchableOpacity
-              style={styles.dateButton}
-              onPress={() => {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                setNewDueDate(tomorrow);
-              }}
-            >
-              <Text style={styles.dateButtonText}>
-                {newDueDate ? newDueDate.toLocaleDateString() : 'Set date (tomorrow)'}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.dateRow}>
+              <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={styles.dateButtonText}>
+                  {newDueDate ? newDueDate.toLocaleDateString() : 'Select date'}
+                </Text>
+              </TouchableOpacity>
+              {newDueDate && (
+                <TouchableOpacity onPress={() => setNewDueDate(null)}>
+                  <Text style={styles.clearDateText}>Clear</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {showDatePicker && (
+              <DateTimePicker
+                value={newDueDate || new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={new Date()}
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(Platform.OS === 'ios');
+                  if (selectedDate) {
+                    setNewDueDate(selectedDate);
+                  }
+                }}
+              />
+            )}
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -504,6 +523,17 @@ const styles = StyleSheet.create({
   dateButtonText: {
     color: '#fff',
     textAlign: 'center',
+  },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  clearDateText: {
+    color: '#e94560',
+    fontSize: 14,
+    marginLeft: 12,
   },
   modalButtons: {
     flexDirection: 'row',
