@@ -15,6 +15,10 @@ export function useDB() {
   return useContext(DBContext);
 }
 
+export async function vacuumDatabase() {
+  await expoDb.execAsync('VACUUM');
+}
+
 interface DBProviderProps {
   children: ReactNode;
 }
