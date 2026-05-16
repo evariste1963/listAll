@@ -116,7 +116,7 @@ export default function ShoppingTabScreen() {
   const handleEndList = () => {
     Alert.alert(
       'End Shopping List',
-      'Are you sure you want to end this shopping list?',
+      'Are you sure you want to end this shopping list? This will delete all shops.',
       [
         { text: 'Cancel', style: 'cancel' },
         { 
@@ -124,6 +124,11 @@ export default function ShoppingTabScreen() {
           style: 'destructive',
           onPress: async () => {
             if (shopList) {
+              const shopTabs = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).all();
+              for (const shop of shopTabs) {
+                await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.shopTabId, shop.id)).run();
+              }
+              await db.delete(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).run();
               await db.update(schema.shoppingList)
                 .set({ isActive: false })
                 .where(eq(schema.shoppingList.id, shopList.id))
@@ -133,6 +138,32 @@ export default function ShoppingTabScreen() {
         },
       ]
     );
+  };
+
+  const handleSyncDefaults = async () => {
+    if (!shopList) return;
+    
+    const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+    const existingShops = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).all();
+    const existingShopNames = existingShops.map(s => s.name.toLowerCase());
+    
+    let addedCount = 0;
+    for (let i = 0; i < defaultShops.length; i++) {
+      if (!existingShopNames.includes(defaultShops[i].name.toLowerCase())) {
+        await db.insert(schema.shopTab).values({
+          listId: shopList.id,
+          name: defaultShops[i].name,
+          order: existingShops.length + addedCount + 1,
+        }).run();
+        addedCount++;
+      }
+    }
+    
+    if (addedCount > 0) {
+      Alert.alert('Done', `Added ${addedCount} new default shop(s)`);
+    } else {
+      Alert.alert('Done', 'All default shops already exist');
+    }
   };
 
   if (!shopList) {
@@ -164,13 +195,16 @@ export default function ShoppingTabScreen() {
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
         <Text style={styles.listTitle}>{shopList.title}</Text>
-        {shops.length === 0 ? (
-          <TouchableOpacity onPress={handleEndList}>
-            <Text style={styles.endButton}>End List</Text>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <TouchableOpacity onPress={handleSyncDefaults}>
+            <Text style={styles.syncButton}>Sync</Text>
           </TouchableOpacity>
-        ) : (
-          <View style={{ width: 40 }} />
-        )}
+          {shops.length === 0 && (
+            <TouchableOpacity onPress={handleEndList}>
+              <Text style={styles.endButton}>End</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {shops.length === 0 ? (
@@ -245,6 +279,10 @@ const styles = StyleSheet.create({
   },
   endButton: {
     color: '#e94560',
+    fontSize: 16,
+  },
+  syncButton: {
+    color: '#4ade80',
     fontSize: 16,
   },
   emptyState: {

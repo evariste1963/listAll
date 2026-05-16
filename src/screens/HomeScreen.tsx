@@ -1,10 +1,54 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useDB } from '../db/provider';
+import { schema } from '../db/index';
+import { eq } from 'drizzle-orm';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
+  const db = useDB();
+
+  const handleShoppingPress = async () => {
+    const existingList = await db.select()
+      .from(schema.shoppingList)
+      .where(eq(schema.shoppingList.isActive, true))
+      .get();
+
+    if (existingList) {
+      navigation.navigate('ShoppingDetail', { listId: existingList.id });
+      return;
+    }
+
+    const newList = await db.insert(schema.shoppingList)
+      .values({ 
+        title: 'Shopping List', 
+        isActive: true,
+        createdAt: new Date()
+      })
+      .run();
+
+    const createdList = await db.select()
+      .from(schema.shoppingList)
+      .orderBy(schema.shoppingList.id)
+      .limit(1)
+      .get();
+
+    if (createdList) {
+      const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+      
+      for (let i = 0; i < defaultShops.length; i++) {
+        await db.insert(schema.shopTab).values({
+          listId: createdList.id,
+          name: defaultShops[i].name,
+          order: i + 1,
+        }).run();
+      }
+
+      navigation.navigate('ShoppingDetail', { listId: createdList.id });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -19,7 +63,7 @@ export default function HomeScreen() {
       <View style={styles.cardsContainer}>
         <TouchableOpacity 
           style={[styles.card, styles.shoppingCard]}
-          onPress={() => navigation.navigate('MainTabs', { screen: 'ShoppingTab' })}
+          onPress={handleShoppingPress}
         >
           <Text style={styles.cardIcon}>🛒</Text>
           <Text style={styles.cardTitle}>Shopping</Text>
