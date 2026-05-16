@@ -3,7 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DBProvider } from './src/db/provider';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
@@ -22,12 +23,12 @@ const Tab = createBottomTabNavigator();
 
 function TabIcon({ icon, label, focused }: { icon: string; label: string; focused: boolean }) {
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 4, minWidth: 60 }}>
       <Text style={{ fontSize: 24 }}>{icon}</Text>
       <Text style={{ 
         fontSize: 10, 
         color: focused ? '#e94560' : '#888',
-        marginTop: 2 
+        marginTop: 2,
       }}>
         {label}
       </Text>
@@ -36,6 +37,8 @@ function TabIcon({ icon, label, focused }: { icon: string; label: string; focuse
 }
 
 function MainTabs() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -43,57 +46,59 @@ function MainTabs() {
         tabBarStyle: {
           backgroundColor: '#16213e',
           borderTopColor: '#0f3460',
-          height: 70,
-          paddingBottom: 10,
-          paddingTop: 10,
+          height: 60 + insets.bottom,
+          paddingBottom: 4 + insets.bottom,
+          paddingTop: 4,
         },
         tabBarShowLabel: false,
+        tabBarHideOnKeyboard: true,
       }}
     >
-      <Tab.Screen 
-        name="ShoppingTab" 
-        component={ShoppingTabScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🛒" label="Shopping" focused={focused} />
-          ),
-        }}
-      />
-      <Tab.Screen 
-        name="MemosTab" 
-        component={MemosTabScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon="📝" label="Memos" focused={focused} />
-          ),
-        }}
-      />
-      <Tab.Screen 
-        name="TodosTab" 
-        component={TodosTabScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon="✅" label="Todos" focused={focused} />
-          ),
-        }}
-      />
-      <Tab.Screen 
-        name="PreferencesTab" 
-        component={PreferencesTabScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon="⚙️" label="Prefs" focused={focused} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        <Tab.Screen 
+          name="ShoppingTab" 
+          component={ShoppingTabScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="🛒" label="Shopping" focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen 
+          name="MemosTab" 
+          component={MemosTabScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="📝" label="Memos" focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen 
+          name="TodosTab" 
+          component={TodosTabScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="✅" label="Todos" focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen 
+          name="PreferencesTab" 
+          component={PreferencesTabScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="⚙️" label="Prefs" focused={focused} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <DBProvider>
-      <NavigationContainer>
+    <SafeAreaProvider>
+      <DBProvider>
+        <NavigationContainer>
         <StatusBar style="light" />
         <Stack.Navigator
           screenOptions={{
@@ -144,5 +149,6 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </DBProvider>
+    </SafeAreaProvider>
   );
 }
