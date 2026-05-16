@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { View, Text } from 'react-native';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { openDatabaseSync } from 'expo-sqlite';
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import type { ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
+
 import * as schema from './schema';
 import migrationStatements from './migrations';
 
@@ -20,30 +20,37 @@ interface DBProviderProps {
 }
 
 export function DBProvider({ children }: DBProviderProps) {
-  const { success, error } = useMigrations(expoDb as unknown as ExpoSQLiteDatabase, migrationStatements);
-
   const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (success) {
-      seedListTypes();
-      setReady(true);
+    async function runMigrations() {
+      try {
+        for (const stmt of migrationStatements) {
+          await expoDb.execAsync(stmt);
+        }
+        await seedListTypes();
+        setReady(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Migration failed');
+      }
     }
-  }, [success]);
+    runMigrations();
+  }, []);
 
   if (error) {
     return (
-      <div style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <p>Migration error: {error.message}</p>
-      </div>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Migration error: {error}</Text>
+      </View>
     );
   }
 
-  if (!success || !ready) {
+  if (!ready) {
     return (
-      <div style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <p>Setting up database...</p>
-      </div>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Setting up database...</Text>
+      </View>
     );
   }
 
