@@ -277,10 +277,9 @@ export default function TodoDetailScreen() {
               <DateTimePicker
                 value={newDueDate || new Date()}
                 mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                minimumDate={new Date()}
+                display="calendar"
                 onChange={(event, selectedDate) => {
-                  setShowDatePicker(Platform.OS === 'ios');
+                  setShowDatePicker(false);
                   if (selectedDate) {
                     setNewDueDate(selectedDate);
                   }
