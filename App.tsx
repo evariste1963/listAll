@@ -12,7 +12,6 @@ import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
 import MemosTabScreen from './src/screens/MemosTabScreen';
 import TodosTabScreen from './src/screens/TodosTabScreen';
 import PreferencesTabScreen from './src/screens/PreferencesTabScreen';
-import CreateShoppingListScreen from './src/screens/CreateShoppingListScreen';
 import CreateMemoListScreen from './src/screens/CreateMemoListScreen';
 import CreateTodoListScreen from './src/screens/CreateTodoListScreen';
 import ShoppingDetailScreen from './src/screens/ShoppingDetailScreen';
@@ -122,11 +121,6 @@ export default function App() {
             name="MainTabs" 
             component={MainTabs}
             options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="CreateShoppingList" 
-            component={CreateShoppingListScreen}
-            options={{ title: 'New Shopping List' }}
           />
           <Stack.Screen 
             name="CreateMemoList" 

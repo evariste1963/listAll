@@ -76,7 +76,10 @@ export default function TodosTabScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>✅ Todos</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.homeButton}>🏠</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Todos</Text>
         <TouchableOpacity onPress={handleCreate}>
           <Text style={styles.addButton}>+</Text>
         </TouchableOpacity>
@@ -139,6 +142,9 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  homeButton: {
+    fontSize: 24,
   },
   addButton: {
     fontSize: 28,

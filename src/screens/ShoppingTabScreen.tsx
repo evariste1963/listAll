@@ -6,6 +6,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { eq } from 'drizzle-orm';
+import { TouchableOpacity as RNTouchable } from 'react-native';
 
 interface ShopSummary {
   id: number;
@@ -71,12 +72,39 @@ export default function ShoppingTabScreen() {
     setShops(summaries);
   };
 
-  const handleCreateList = () => {
+  const handleCreateList = async () => {
     if (shopList) {
       Alert.alert('Shopping List Active', 'You already have an active shopping list. Close it first?');
       return;
     }
-    navigation.navigate('CreateShoppingList');
+
+    const newList = await db.insert(schema.shoppingList)
+      .values({ 
+        title: 'Shopping List', 
+        isActive: true,
+        createdAt: new Date()
+      })
+      .run();
+
+    const createdList = await db.select()
+      .from(schema.shoppingList)
+      .orderBy(schema.shoppingList.id)
+      .limit(1)
+      .get();
+
+    if (createdList) {
+      const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+      
+      for (let i = 0; i < defaultShops.length; i++) {
+        await db.insert(schema.shopTab).values({
+          listId: createdList.id,
+          name: defaultShops[i].name,
+          order: i + 1,
+        }).run();
+      }
+
+      navigation.navigate('ShoppingDetail', { listId: createdList.id });
+    }
   };
 
   const handleOpenShop = () => {
@@ -110,6 +138,13 @@ export default function ShoppingTabScreen() {
   if (!shopList) {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <Text style={styles.homeButton}>🏠</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Shopping</Text>
+          <View style={{ width: 40 }} />
+        </View>
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>🛒</Text>
           <Text style={styles.emptyTitle}>No Active Shopping List</Text>
@@ -125,11 +160,16 @@ export default function ShoppingTabScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.homeButton}>🏠</Text>
+        </TouchableOpacity>
         <Text style={styles.listTitle}>{shopList.title}</Text>
-        {shops.length === 0 && (
+        {shops.length === 0 ? (
           <TouchableOpacity onPress={handleEndList}>
             <Text style={styles.endButton}>End List</Text>
           </TouchableOpacity>
+        ) : (
+          <View style={{ width: 40 }} />
         )}
       </View>
 
@@ -189,6 +229,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#16213e',
     borderBottomWidth: 1,
     borderBottomColor: '#0f3460',
+  },
+  homeButton: {
+    fontSize: 24,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
   },
   listTitle: {
     fontSize: 22,
