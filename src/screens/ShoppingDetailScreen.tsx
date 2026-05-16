@@ -39,6 +39,8 @@ export default function ShoppingDetailScreen() {
   const [newShopName, setNewShopName] = useState('');
   const [editListTitle, setEditListTitle] = useState(false);
   const [listTitle, setListTitle] = useState('');
+  const [editItemId, setEditItemId] = useState<number | null>(null);
+  const [editItemText, setEditItemText] = useState('');
 
   const listResult = useLiveQuery(
     db.select().from(schema.shoppingList).where(eq(schema.shoppingList.id, listId))
@@ -96,6 +98,23 @@ export default function ShoppingDetailScreen() {
   const handleAddItem = async () => {
     if (!newItemText.trim() || !activeTabId) return;
 
+    const newItemLower = newItemText.trim().toLowerCase();
+
+    const existingItems = await db.select()
+      .from(schema.shoppingItem)
+      .where(eq(schema.shoppingItem.shopTabId, activeTabId))
+      .all();
+
+    const existingItem = existingItems.find(
+      item => item.title.toLowerCase() === newItemLower
+    );
+
+    if (existingItem) {
+      Alert.alert('Item Already Exists', `"${existingItem.title}" is already in this shop's list.`);
+      setNewItemText('');
+      return;
+    }
+
     const maxOrder = activeShop?.items?.length || 0;
     await db.insert(schema.shoppingItem).values({
       shopTabId: activeTabId,
@@ -120,20 +139,19 @@ export default function ShoppingDetailScreen() {
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
-    Alert.prompt('Edit Item', '', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Save',
-        onPress: async (newTitle?: string) => {
-          if (newTitle && newTitle.trim()) {
-            await db.update(schema.shoppingItem)
-              .set({ title: newTitle.trim() })
-              .where(eq(schema.shoppingItem.id, itemId))
-              .run();
-          }
-        },
-      },
-    ], undefined, currentTitle);
+    setEditItemId(itemId);
+    setEditItemText(currentTitle);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editItemId && editItemText.trim()) {
+      await db.update(schema.shoppingItem)
+        .set({ title: editItemText.trim() })
+        .where(eq(schema.shoppingItem.id, editItemId))
+        .run();
+    }
+    setEditItemId(null);
+    setEditItemText('');
   };
 
   const handleAddShop = async () => {
@@ -197,9 +215,19 @@ export default function ShoppingDetailScreen() {
   };
 
   const handleEndList = () => {
+    const totalItems = shops.reduce((sum, shop) => sum + (shop.items?.length || 0), 0);
+    if (totalItems > 0) {
+      Alert.alert(
+        'Cannot End List',
+        `This shopping list has ${totalItems} item${totalItems > 1 ? 's' : ''} in ${shops.length} shop${shops.length > 1 ? 's' : ''}. Delete all items first.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     Alert.alert(
       'End Shopping List',
-      'Are you sure you want to end this shopping list? This will delete all shops and items.',
+      'Are you sure you want to end this shopping list? This will delete all shops.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -207,11 +235,6 @@ export default function ShoppingDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             for (const shop of shops) {
-              if (shop.items) {
-                for (const item of shop.items) {
-                  await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, item.id)).run();
-                }
-              }
               await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shop.id)).run();
             }
             await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, listId)).run();
@@ -388,6 +411,37 @@ export default function ShoppingDetailScreen() {
                 disabled={!newShopName.trim()}
               >
                 <Text style={styles.modalButtonTextPrimary}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={editItemId !== null} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Item</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Item name"
+              placeholderTextColor="#666"
+              value={editItemText}
+              onChangeText={setEditItemText}
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => { setEditItemId(null); setEditItemText(''); }}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled]}
+                onPress={handleSaveEdit}
+                disabled={!editItemText.trim()}
+              >
+                <Text style={styles.modalButtonTextPrimary}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>

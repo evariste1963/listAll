@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, TextInputProps
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, TextInputProps, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -21,6 +21,8 @@ export default function MemoDetailScreen() {
   const [newItemText, setNewItemText] = useState('');
   const [editTitle, setEditTitle] = useState(false);
   const [title, setTitle] = useState('');
+  const [editItemId, setEditItemId] = useState<number | null>(null);
+  const [editItemText, setEditItemText] = useState('');
 
   const listResult = useLiveQuery(
     db.select().from(schema.memoList).where(eq(schema.memoList.id, listId))
@@ -76,20 +78,19 @@ export default function MemoDetailScreen() {
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
-    Alert.prompt('Edit Item', '', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Save',
-        onPress: async (newTitle?: string) => {
-          if (newTitle && newTitle.trim()) {
-            await db.update(schema.memoItem)
-              .set({ title: newTitle.trim() })
-              .where(eq(schema.memoItem.id, itemId))
-              .run();
-          }
-        },
-      },
-    ], undefined, currentTitle);
+    setEditItemId(itemId);
+    setEditItemText(currentTitle);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editItemId && editItemText.trim()) {
+      await db.update(schema.memoItem)
+        .set({ title: editItemText.trim() })
+        .where(eq(schema.memoItem.id, editItemId))
+        .run();
+    }
+    setEditItemId(null);
+    setEditItemText('');
   };
 
   const handleUpdateTitle = async () => {
@@ -183,6 +184,37 @@ export default function MemoDetailScreen() {
           <Text style={styles.emptyItems}>No notes yet</Text>
         }
       />
+
+      <Modal visible={editItemId !== null} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Note</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Note text"
+              placeholderTextColor="#666"
+              value={editItemText}
+              onChangeText={setEditItemText}
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => { setEditItemId(null); setEditItemText(''); }}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled]}
+                onPress={handleSaveEdit}
+                disabled={!editItemText.trim()}
+              >
+                <Text style={styles.modalButtonTextPrimary}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -298,5 +330,56 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginTop: 32,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#16213e',
+    borderRadius: 16,
+    padding: 24,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 16,
+  },
+  modalInput: {
+    backgroundColor: '#0f3460',
+    padding: 12,
+    borderRadius: 8,
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginLeft: 8,
+  },
+  modalButtonPrimary: {
+    backgroundColor: '#e94560',
+    borderRadius: 8,
+  },
+  modalButtonDisabled: {
+    opacity: 0.5,
+  },
+  modalButtonText: {
+    color: '#aaa',
+    fontSize: 16,
+  },
+  modalButtonTextPrimary: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

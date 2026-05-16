@@ -61,6 +61,12 @@ export const todoItem = sqliteTable('todo_item', {
   order: integer('order').default(0),
 });
 
+export const defaultShop = sqliteTable('default_shop', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  order: integer('order').default(0),
+});
+
 // Types
 export type ListType = typeof listType.$inferSelect;
 export type ShoppingList = typeof shoppingList.$inferSelect;
@@ -70,3 +76,4 @@ export type TodoList = typeof todoList.$inferSelect;
 export type ShoppingItem = typeof shoppingItem.$inferSelect;
 export type MemoItem = typeof memoItem.$inferSelect;
 export type TodoItem = typeof todoItem.$inferSelect;
+export type DefaultShop = typeof defaultShop.$inferSelect;

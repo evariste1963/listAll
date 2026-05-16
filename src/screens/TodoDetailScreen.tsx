@@ -37,6 +37,8 @@ export default function TodoDetailScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newDueDate, setNewDueDate] = useState<Date | null>(null);
   const [newPriority, setNewPriority] = useState<Priority>(null);
+  const [editItemId, setEditItemId] = useState<number | null>(null);
+  const [editItemText, setEditItemText] = useState('');
 
   const listResult = useLiveQuery(
     db.select().from(schema.todoList).where(eq(schema.todoList.id, listId))
@@ -102,20 +104,19 @@ export default function TodoDetailScreen() {
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
-    Alert.prompt('Edit Item', '', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Save',
-        onPress: async (newTitle?: string) => {
-          if (newTitle && newTitle.trim()) {
-            await db.update(schema.todoItem)
-              .set({ title: newTitle.trim() })
-              .where(eq(schema.todoItem.id, itemId))
-              .run();
-          }
-        },
-      },
-    ], undefined, currentTitle);
+    setEditItemId(itemId);
+    setEditItemText(currentTitle);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editItemId && editItemText.trim()) {
+      await db.update(schema.todoItem)
+        .set({ title: editItemText.trim() })
+        .where(eq(schema.todoItem.id, editItemId))
+        .run();
+    }
+    setEditItemId(null);
+    setEditItemText('');
   };
 
   const handleUpdateTitle = async () => {
@@ -285,6 +286,37 @@ export default function TodoDetailScreen() {
                 disabled={!newItemText.trim()}
               >
                 <Text style={styles.modalButtonTextPrimary}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={editItemId !== null} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Todo</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Todo text"
+              placeholderTextColor="#666"
+              value={editItemText}
+              onChangeText={setEditItemText}
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => { setEditItemId(null); setEditItemText(''); }}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled]}
+                onPress={handleSaveEdit}
+                disabled={!editItemText.trim()}
+              >
+                <Text style={styles.modalButtonTextPrimary}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>

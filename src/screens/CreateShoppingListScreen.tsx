@@ -17,7 +17,6 @@ export default function CreateShoppingListScreen() {
       return;
     }
 
-    // Check if there's already an active shopping list
     const existing = await db.select()
       .from(schema.shoppingList)
       .where(eq(schema.shoppingList.isActive, true))
@@ -28,8 +27,7 @@ export default function CreateShoppingListScreen() {
       return;
     }
 
-    // Create new shopping list
-    await db.insert(schema.shoppingList)
+    const result = await db.insert(schema.shoppingList)
       .values({ 
         title: title.trim(), 
         isActive: true,
@@ -37,7 +35,6 @@ export default function CreateShoppingListScreen() {
       })
       .run();
 
-    // Get the latest list
     const newList = await db.select()
       .from(schema.shoppingList)
       .orderBy(schema.shoppingList.id)
@@ -45,6 +42,16 @@ export default function CreateShoppingListScreen() {
       .get();
 
     if (newList) {
+      const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+      
+      for (let i = 0; i < defaultShops.length; i++) {
+        await db.insert(schema.shopTab).values({
+          listId: newList.id,
+          name: defaultShops[i].name,
+          order: i + 1,
+        }).run();
+      }
+
       navigation.replace('ShoppingDetail', { listId: newList.id });
     } else {
       navigation.goBack();

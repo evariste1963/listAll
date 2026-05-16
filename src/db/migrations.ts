@@ -56,6 +56,11 @@ export const migrationStatements = [
 	\`title\` text NOT NULL,
 	\`created_at\` integer NOT NULL
 );`,
+  `CREATE TABLE \`default_shop\` (
+	\`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	\`name\` text NOT NULL,
+	\`order\` integer DEFAULT 0
+);`,
 ];
 
 export default migrationStatements;
