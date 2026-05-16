@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -51,7 +52,7 @@ export default function CreateShoppingListScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Create Shopping List</Text>
       <Text style={styles.subtitle}>Give your shopping list a name</Text>
 
@@ -80,7 +81,7 @@ export default function CreateShoppingListScreen() {
       >
         <Text style={styles.cancelText}>Cancel</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

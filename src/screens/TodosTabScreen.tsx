@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -73,7 +74,7 @@ export default function TodosTabScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>✅ Todos</Text>
         <TouchableOpacity onPress={handleCreate}>
@@ -116,7 +117,7 @@ export default function TodosTabScreen() {
           )}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

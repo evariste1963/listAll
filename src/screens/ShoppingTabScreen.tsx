@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -44,21 +45,21 @@ export default function ShoppingTabScreen() {
     const shopTabsResult = await db.select().from(schema.shopTab)
       .where(eq(schema.shopTab.listId, listId))
       .orderBy(schema.shopTab.order)
-      .get();
+      .all();
     
-    if (!shopTabsResult) {
+    if (!shopTabsResult || shopTabsResult.length === 0) {
       setShops([]);
       return;
     }
     
-    const shopTabs = [shopTabsResult];
+    const shopTabs = shopTabsResult;
     const summaries: ShopSummary[] = [];
     for (const shop of shopTabs) {
       const itemsResult = await db.select().from(schema.shoppingItem)
         .where(eq(schema.shoppingItem.shopTabId, shop.id))
-        .get();
+        .all();
       
-      const items = itemsResult ? [itemsResult] : [];
+      const items = itemsResult || [];
       const remaining = items.filter(i => !i.isDone).length;
       summaries.push({
         id: shop.id,
@@ -108,7 +109,7 @@ export default function ShoppingTabScreen() {
 
   if (!shopList) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>🛒</Text>
           <Text style={styles.emptyTitle}>No Active Shopping List</Text>
@@ -117,12 +118,12 @@ export default function ShoppingTabScreen() {
             <Text style={styles.createButtonText}>+ Create Shopping List</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.listTitle}>{shopList.title}</Text>
         {shops.length === 0 && (
@@ -171,7 +172,7 @@ export default function ShoppingTabScreen() {
           )}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

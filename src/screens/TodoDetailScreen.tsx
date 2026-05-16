@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -138,16 +139,16 @@ export default function TodoDetailScreen() {
 
   if (!list) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.loading}>Loading...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   const remainingCount = items.filter(i => !i.isDone).length;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         {editTitle ? (
           <TextInput
@@ -289,7 +290,7 @@ export default function TodoDetailScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 

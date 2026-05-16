@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
   Alert, ScrollView, Modal
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -72,8 +73,8 @@ export default function ShoppingDetailScreen() {
         .from(schema.shoppingItem)
         .where(eq(schema.shoppingItem.shopTabId, shop.id))
         .orderBy(schema.shoppingItem.order)
-        .get();
-      withItems.push({ ...shop, items: items ? [items] : [] });
+        .all();
+      withItems.push({ ...shop, items: items || [] });
     }
     setShops(withItems);
     if (withItems.length > 0 && !activeTabId) {
@@ -149,20 +150,28 @@ export default function ShoppingDetailScreen() {
     setShowAddShop(false);
   };
 
-  const handleDeleteShop = (shopId: number, shopName: string) => {
+  const handleDeleteShop = (shopId: number, shopName: string, itemCount: number) => {
+    if (itemCount > 0) {
+      Alert.alert(
+        'Cannot Delete Shop',
+        `"${shopName}" has ${itemCount} item${itemCount > 1 ? 's' : ''} in its list. Delete all items first.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
     Alert.alert(
       'Delete Shop',
-      `Delete "${shopName}" and all its items?`,
+      `Delete "${shopName}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.shoppingItem).where(
-              eq(schema.shoppingItem.shopTabId, shopId)
-            ).run();
             await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shopId)).run();
+            if (activeTabId === shopId) {
+              setActiveTabId(shops.find(s => s.id !== shopId)?.id || null);
+            }
           }
         },
       ]
@@ -215,14 +224,14 @@ export default function ShoppingDetailScreen() {
 
   if (!list) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.loading}>Loading...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         {editListTitle ? (
           <TextInput
@@ -261,7 +270,7 @@ export default function ShoppingDetailScreen() {
               key={shop.id}
               style={[styles.tab, activeTabId === shop.id && styles.tabActive]}
               onPress={() => setActiveTabId(shop.id)}
-              onLongPress={() => handleDeleteShop(shop.id, shop.name)}
+              onLongPress={() => handleDeleteShop(shop.id, shop.name, shop.items?.length || 0)}
             >
               <Text style={[styles.tabText, activeTabId === shop.id && styles.tabTextActive]}>
                 {shop.name}
@@ -384,7 +393,7 @@ export default function ShoppingDetailScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
