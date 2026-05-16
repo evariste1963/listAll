@@ -7,6 +7,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DBProvider } from './src/db/provider';
+import HomeScreen from './src/screens/HomeScreen';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
 import MemosTabScreen from './src/screens/MemosTabScreen';
 import TodosTabScreen from './src/screens/TodosTabScreen';
@@ -101,6 +102,7 @@ export default function App() {
         <NavigationContainer>
         <StatusBar style="light" />
         <Stack.Navigator
+          initialRouteName="Home"
           screenOptions={{
             headerStyle: {
               backgroundColor: '#16213e',
@@ -111,6 +113,11 @@ export default function App() {
             },
           }}
         >
+          <Stack.Screen 
+            name="Home" 
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen 
             name="MainTabs" 
             component={MainTabs}
