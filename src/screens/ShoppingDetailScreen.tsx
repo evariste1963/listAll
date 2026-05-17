@@ -269,9 +269,6 @@ export default function ShoppingDetailScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.homeButton}>← Summary</Text>
-        </TouchableOpacity>
         {editListTitle ? (
           <TextInput
             style={styles.titleInput}
@@ -286,9 +283,6 @@ export default function ShoppingDetailScreen() {
             <Text style={styles.headerTitle}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.homeButton}>🏠</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.summary}>

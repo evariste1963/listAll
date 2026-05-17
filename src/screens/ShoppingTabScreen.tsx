@@ -153,11 +153,16 @@ export default function ShoppingTabScreen() {
     if (createdList) {
       setShopList(createdList);
       
-      await db.insert(schema.shopTab).values({
-        listId: createdList.id,
-        name: shopName,
-        order: 1,
-      }).run();
+      const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+      let order = 1;
+      
+      for (const shop of defaultShops) {
+        await db.insert(schema.shopTab).values({
+          listId: createdList.id,
+          name: shop.name,
+          order: order++,
+        }).run();
+      }
       
       const tabs = await db.select().from(schema.shopTab)
         .where(eq(schema.shopTab.listId, createdList.id))
@@ -185,11 +190,17 @@ export default function ShoppingTabScreen() {
       
       if (createdList) {
         setShopList(createdList);
-        await db.insert(schema.shopTab).values({
-          listId: createdList.id,
-          name: shopName.trim(),
-          order: 1,
-        }).run();
+        
+        const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+        let order = 1;
+        
+        for (const shop of defaultShops) {
+          await db.insert(schema.shopTab).values({
+            listId: createdList.id,
+            name: shop.name,
+            order: order++,
+          }).run();
+        }
         
         const tabs = await db.select().from(schema.shopTab)
           .where(eq(schema.shopTab.listId, createdList.id))
@@ -315,17 +326,10 @@ export default function ShoppingTabScreen() {
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
         <Text style={styles.listTitle}>{shopList ? shopList.title : 'Summary'}</Text>
-        {shopList && (
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <TouchableOpacity onPress={handleSyncDefaults}>
-              <Text style={styles.syncButton}>Sync</Text>
-            </TouchableOpacity>
-            {shops.length === 0 && (
-              <TouchableOpacity onPress={handleEndList}>
-                <Text style={styles.endButton}>End</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+        {shopList && shops.length === 0 && (
+          <TouchableOpacity onPress={handleEndList}>
+            <Text style={styles.endButton}>End</Text>
+          </TouchableOpacity>
         )}
       </View>
 
