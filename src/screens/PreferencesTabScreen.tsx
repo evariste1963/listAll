@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, FlatList, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { eq } from 'drizzle-orm';
@@ -17,6 +17,12 @@ export default function PreferencesTabScreen() {
   useEffect(() => {
     loadDefaultShops();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadDefaultShops();
+    }, [])
+  );
 
   const loadDefaultShops = async () => {
     const shops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
