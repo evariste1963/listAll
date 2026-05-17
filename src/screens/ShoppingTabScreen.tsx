@@ -62,6 +62,8 @@ export default function ShoppingTabScreen() {
   useEffect(() => {
     if (!shopList || shops.length === 0) {
       loadDefaultShops();
+    } else if (shopList) {
+      syncDefaultsToList();
     }
   }, [defaultShopsResult?.data, shopList, shops]);
 
@@ -261,7 +263,7 @@ export default function ShoppingTabScreen() {
     }
   };
 
-  const handleSyncDefaults = async () => {
+  const syncDefaultsToList = async () => {
     if (!shopList) return;
     
     const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
@@ -281,9 +283,24 @@ export default function ShoppingTabScreen() {
     }
     
     if (addedCount > 0) {
-      Alert.alert('Done', `Added ${addedCount} new default shop(s)`);
-    } else {
+      loadShops(shopList.id);
+    }
+  };
+
+  const handleSyncDefaults = async () => {
+    await syncDefaultsToList();
+    
+    const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+    const existingShops = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList!.id)).all();
+    const existingShopNames = existingShops.map(s => s.name.toLowerCase());
+    const allExist = defaultShops.every(d => existingShopNames.includes(d.name.toLowerCase()));
+    
+    if (existingShops.length === 0) {
       Alert.alert('Done', 'All default shops already exist');
+    } else if (allExist) {
+      Alert.alert('Done', 'All default shops already exist');
+    } else {
+      Alert.alert('Done', 'Added default shops to list');
     }
   };
 
