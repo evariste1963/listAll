@@ -135,17 +135,22 @@ export default function App() {
           <Stack.Screen 
             name="ShoppingDetail" 
             component={ShoppingDetailScreen}
-            options={{ title: 'Shopping List' }}
+            options={{ 
+              headerTitle: '',
+              headerBackTitle: 'Summary',
+              headerBackVisible: true,
+              gestureEnabled: true,
+            }}
           />
           <Stack.Screen 
             name="MemoDetail" 
             component={MemoDetailScreen}
-            options={{ title: 'Memo' }}
+            options={{ title: 'Memo', headerBackTitle: 'Summary' }}
           />
           <Stack.Screen 
             name="TodoDetail" 
             component={TodoDetailScreen}
-            options={{ title: 'Todo List' }}
+            options={{ title: 'Todo List', headerBackTitle: 'Summary' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

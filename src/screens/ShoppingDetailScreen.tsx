@@ -254,7 +254,7 @@ export default function ShoppingDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={styles.header}>
         {editListTitle ? (
           <TextInput
@@ -465,13 +465,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     backgroundColor: '#16213e',
     borderBottomWidth: 1,
     borderBottomColor: '#0f3460',
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -490,7 +491,7 @@ const styles = StyleSheet.create({
     color: '#e94560',
   },
   summary: {
-    padding: 12,
+    padding: 8,
     backgroundColor: '#0f3460',
   },
   summaryText: {
