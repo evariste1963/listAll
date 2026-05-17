@@ -60,10 +60,10 @@ export default function ShoppingTabScreen() {
   };
 
   useEffect(() => {
-    if (!shopList) {
+    if (!shopList || shops.length === 0) {
       loadDefaultShops();
     }
-  }, [defaultShopsResult, shopList]);
+  }, [defaultShopsResult, shopList, shops]);
 
   useEffect(() => {
     if (shopList) {
