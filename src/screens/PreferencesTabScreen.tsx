@@ -205,18 +205,14 @@ export default function PreferencesTabScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   header: {
     padding: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
   },
   content: {
     flex: 1,
@@ -228,43 +224,35 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#e94560',
     marginBottom: 12,
     textTransform: 'uppercase',
   },
   appName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 4,
   },
   version: {
     fontSize: 14,
-    color: '#888',
     marginBottom: 12,
   },
   description: {
     fontSize: 14,
-    color: '#aaa',
     lineHeight: 20,
   },
   option: {
-    backgroundColor: '#16213e',
     padding: 16,
     borderRadius: 8,
     marginBottom: 8,
   },
   optionText: {
     fontSize: 16,
-    color: '#fff',
   },
   optionTextDanger: {
     fontSize: 16,
-    color: '#e94560',
   },
   infoText: {
     fontSize: 14,
-    color: '#aaa',
     lineHeight: 24,
   },
   sectionHeader: {
@@ -274,12 +262,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   addButton: {
-    color: '#e94560',
     fontSize: 16,
     fontWeight: '600',
   },
   emptyText: {
-    color: '#666',
     fontSize: 14,
     fontStyle: 'italic',
     marginBottom: 8,
@@ -288,22 +274,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#16213e',
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
   },
   shopName: {
-    color: '#fff',
     fontSize: 16,
   },
   deleteButton: {
-    color: '#e94560',
     fontSize: 18,
     padding: 4,
   },
   hintText: {
-    color: '#666',
     fontSize: 12,
     marginTop: 4,
   },
@@ -314,7 +296,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#16213e',
     borderRadius: 16,
     padding: 24,
     width: '80%',
@@ -322,14 +303,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 16,
   },
   modalInput: {
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     fontSize: 16,
     marginBottom: 16,
   },
@@ -343,18 +321,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   modalButtonPrimary: {
-    backgroundColor: '#e94560',
     borderRadius: 8,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: '#aaa',
     fontSize: 16,
   },
   modalButtonTextPrimary: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -366,19 +341,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     borderRadius: 8,
-    backgroundColor: '#16213e',
     alignItems: 'center',
   },
-  themeOptionActive: {
-    backgroundColor: '#e94560',
-  },
+  themeOptionActive: {},
   themeOptionText: {
-    color: '#aaa',
     fontSize: 14,
     textTransform: 'capitalize',
   },
   themeOptionTextActive: {
-    color: '#fff',
     fontWeight: '600',
   },
 });

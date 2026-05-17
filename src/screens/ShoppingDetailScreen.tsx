@@ -474,10 +474,8 @@ export default function ShoppingDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   loading: {
-    color: '#fff',
     textAlign: 'center',
     marginTop: 50,
   },
@@ -487,25 +485,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
     textAlign: 'center',
   },
   homeButton: {
     fontSize: 20,
-    color: '#e94560',
   },
   titleInput: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
-    backgroundColor: '#0f3460',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -513,18 +505,14 @@ const styles = StyleSheet.create({
   },
   endButton: {
     fontSize: 16,
-    color: '#e94560',
   },
   summary: {
     padding: 8,
-    backgroundColor: '#0f3460',
   },
   summaryText: {
-    color: '#aaa',
     textAlign: 'center',
   },
   tabBar: {
-    backgroundColor: '#16213e',
     maxHeight: 60,
   },
   tabContent: {
@@ -537,36 +525,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#0f3460',
     borderRadius: 20,
     marginRight: 8,
   },
-  tabActive: {
-    backgroundColor: '#e94560',
-  },
+  tabActive: {},
   tabText: {
-    color: '#aaa',
     fontSize: 14,
   },
   tabTextActive: {
-    color: '#fff',
     fontWeight: '600',
   },
   tabCount: {
     marginLeft: 8,
-    color: '#888',
     fontSize: 12,
   },
   addTab: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#e94560',
     borderRadius: 20,
     borderStyle: 'dashed',
   },
   addTabText: {
-    color: '#e94560',
     fontSize: 14,
   },
   noShops: {
@@ -575,18 +555,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noShopsText: {
-    color: '#888',
     fontSize: 16,
     marginBottom: 16,
   },
   addShopButton: {
-    backgroundColor: '#e94560',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   addShopButtonText: {
-    color: '#fff',
     fontSize: 16,
   },
   itemsContainer: {
@@ -599,14 +576,11 @@ const styles = StyleSheet.create({
   },
   itemInput: {
     flex: 1,
-    backgroundColor: '#16213e',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     marginRight: 8,
   },
   addButton: {
-    backgroundColor: '#e94560',
     width: 48,
     justifyContent: 'center',
     alignItems: 'center',
@@ -617,7 +591,6 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 24,
-    color: '#fff',
     fontWeight: 'bold',
   },
   deleteCompleted: {
@@ -625,7 +598,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   deleteCompletedText: {
-    color: '#e94560',
     fontSize: 14,
   },
   itemRow: {
@@ -633,7 +605,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#16213e',
   },
   checkbox: {
     marginRight: 12,
@@ -644,43 +615,35 @@ const styles = StyleSheet.create({
   },
   checkboxUnchecked: {
     fontSize: 24,
-    color: '#aaa',
   },
   checkboxChecked: {
     fontSize: 24,
-    color: '#4ade80',
   },
   itemTitle: {
     flex: 1,
   },
   itemText: {
     fontSize: 16,
-    color: '#fff',
   },
   itemDone: {
     textDecorationLine: 'line-through',
-    color: '#666',
   },
   deleteItem: {
     padding: 8,
   },
   deleteItemText: {
-    color: '#e94560',
     fontSize: 18,
   },
   emptyItems: {
     textAlign: 'center',
-    color: '#666',
     marginTop: 32,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#16213e',
     borderRadius: 16,
     padding: 24,
     width: '80%',
@@ -688,14 +651,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 16,
   },
   modalInput: {
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     fontSize: 16,
     marginBottom: 16,
   },
@@ -709,18 +669,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   modalButtonPrimary: {
-    backgroundColor: '#e94560',
     borderRadius: 8,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: '#aaa',
     fontSize: 16,
   },
   modalButtonTextPrimary: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },

@@ -466,16 +466,13 @@ export default function ShoppingTabScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   homeButton: {
     fontSize: 24,
@@ -483,19 +480,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
   },
   listTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
   },
   endButton: {
-    color: '#e94560',
     fontSize: 16,
   },
   syncButton: {
-    color: '#4ade80',
     fontSize: 16,
   },
   emptyState: {
@@ -511,23 +504,19 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#888',
     marginBottom: 24,
     textAlign: 'center',
   },
   createButton: {
-    backgroundColor: '#e94560',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   createButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -539,22 +528,18 @@ const styles = StyleSheet.create({
   },
   emptyShopsText: {
     fontSize: 18,
-    color: '#fff',
     marginBottom: 8,
   },
   emptyShopsSubtext: {
     fontSize: 14,
-    color: '#888',
     marginBottom: 16,
   },
   addShopButton: {
-    backgroundColor: '#0f3460',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   addShopButtonText: {
-    color: '#e94560',
     fontSize: 16,
   },
   list: {
@@ -564,7 +549,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#16213e',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -575,26 +559,20 @@ const styles = StyleSheet.create({
   shopName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 4,
   },
   shopItems: {
     fontSize: 14,
-    color: '#888',
   },
   badge: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e94560',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  badgeComplete: {
-    backgroundColor: '#4ade80',
-  },
+  badgeComplete: {},
   badgeText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -607,28 +585,23 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#0f3460',
     justifyContent: 'center',
     alignItems: 'center',
   },
   defaultButtonText: {
-    color: '#e94560',
     fontSize: 18,
     fontWeight: 'bold',
   },
   addShopText: {
-    color: '#4ade80',
     fontSize: 16,
     fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#16213e',
     borderRadius: 16,
     padding: 24,
     width: '80%',
@@ -636,14 +609,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 16,
   },
   modalInput: {
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     fontSize: 16,
     marginBottom: 16,
   },
@@ -657,18 +627,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   modalButtonPrimary: {
-    backgroundColor: '#e94560',
     borderRadius: 8,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: '#aaa',
     fontSize: 16,
   },
   modalButtonTextPrimary: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },

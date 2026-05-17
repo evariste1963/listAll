@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   createButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },

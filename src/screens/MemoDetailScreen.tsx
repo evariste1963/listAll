@@ -224,10 +224,8 @@ export default function MemoDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   loading: {
-    color: '#fff',
     textAlign: 'center',
     marginTop: 50,
   },
@@ -236,27 +234,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
   },
   titleInput: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
-    backgroundColor: '#0f3460',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
     minWidth: 200,
   },
   countText: {
-    color: '#aaa',
     fontSize: 14,
   },
   inputRow: {
@@ -266,14 +258,11 @@ const styles = StyleSheet.create({
   },
   itemInput: {
     flex: 1,
-    backgroundColor: '#16213e',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     marginRight: 8,
   },
   addButton: {
-    backgroundColor: '#e94560',
     width: 48,
     justifyContent: 'center',
     alignItems: 'center',
@@ -284,7 +273,6 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 24,
-    color: '#fff',
     fontWeight: 'bold',
   },
   itemRow: {
@@ -293,7 +281,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#16213e',
   },
   checkbox: {
     marginRight: 12,
@@ -304,43 +291,35 @@ const styles = StyleSheet.create({
   },
   checkboxUnchecked: {
     fontSize: 24,
-    color: '#aaa',
   },
   checkboxChecked: {
     fontSize: 24,
-    color: '#4ade80',
   },
   itemTitle: {
     flex: 1,
   },
   itemText: {
     fontSize: 16,
-    color: '#fff',
   },
   itemDone: {
     textDecorationLine: 'line-through',
-    color: '#666',
   },
   deleteItem: {
     padding: 8,
   },
   deleteItemText: {
-    color: '#e94560',
     fontSize: 18,
   },
   emptyItems: {
     textAlign: 'center',
-    color: '#666',
     marginTop: 32,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#16213e',
     borderRadius: 16,
     padding: 24,
     width: '80%',
@@ -348,14 +327,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 16,
   },
   modalInput: {
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     fontSize: 16,
     marginBottom: 16,
   },
@@ -369,18 +345,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   modalButtonPrimary: {
-    backgroundColor: '#e94560',
     borderRadius: 8,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: '#aaa',
     fontSize: 16,
   },
   modalButtonTextPrimary: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },

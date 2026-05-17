@@ -141,15 +141,6 @@ export default function TodoDetailScreen() {
     }
   };
 
-  const getPriorityColor = (priority: string | null) => {
-    switch (priority) {
-      case 'high': return '#e94560';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#10b981';
-      default: return '#666';
-    }
-  };
-
   if (!list) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -379,10 +370,8 @@ export default function TodoDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   loading: {
-    color: '#fff',
     textAlign: 'center',
     marginTop: 50,
   },
@@ -391,38 +380,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
   },
   titleInput: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
-    backgroundColor: '#0f3460',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
     minWidth: 200,
   },
   countText: {
-    color: '#aaa',
     fontSize: 14,
   },
   addItemButton: {
     margin: 16,
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   addItemButtonText: {
-    color: '#e94560',
     fontSize: 16,
   },
   itemRow: {
@@ -431,7 +412,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#16213e',
   },
   checkbox: {
     marginRight: 12,
@@ -443,23 +423,19 @@ const styles = StyleSheet.create({
   },
   checkboxUnchecked: {
     fontSize: 24,
-    color: '#aaa',
   },
   checkboxChecked: {
     fontSize: 24,
-    color: '#4ade80',
   },
   itemTitle: {
     flex: 1,
   },
   itemText: {
     fontSize: 16,
-    color: '#fff',
     marginBottom: 4,
   },
   itemDone: {
     textDecorationLine: 'line-through',
-    color: '#666',
   },
   itemMeta: {
     flexDirection: 'row',
@@ -468,7 +444,6 @@ const styles = StyleSheet.create({
   },
   dueDate: {
     fontSize: 12,
-    color: '#888',
   },
   priorityBadge: {
     paddingHorizontal: 8,
@@ -477,7 +452,6 @@ const styles = StyleSheet.create({
   },
   priorityText: {
     fontSize: 10,
-    color: '#fff',
     textTransform: 'uppercase',
     fontWeight: 'bold',
   },
@@ -486,22 +460,18 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   deleteItemText: {
-    color: '#e94560',
     fontSize: 18,
   },
   emptyItems: {
     textAlign: 'center',
-    color: '#666',
     marginTop: 32,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#16213e',
     borderRadius: 16,
     padding: 24,
     width: '85%',
@@ -509,19 +479,15 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 16,
   },
   modalInput: {
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
-    color: '#fff',
     fontSize: 16,
     marginBottom: 16,
   },
   modalLabel: {
-    color: '#aaa',
     fontSize: 14,
     marginBottom: 8,
   },
@@ -534,25 +500,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     borderRadius: 8,
-    backgroundColor: '#0f3460',
     alignItems: 'center',
   },
   priorityOptionText: {
-    color: '#aaa',
     textTransform: 'capitalize',
   },
   priorityOptionTextSelected: {
-    color: '#fff',
     fontWeight: 'bold',
   },
   dateButton: {
-    backgroundColor: '#0f3460',
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
   },
   dateButtonText: {
-    color: '#fff',
     textAlign: 'center',
   },
   dateRow: {
@@ -562,7 +523,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   clearDateText: {
-    color: '#e94560',
     fontSize: 14,
     marginLeft: 12,
   },
@@ -576,18 +536,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   modalButtonPrimary: {
-    backgroundColor: '#e94560',
     borderRadius: 8,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: '#aaa',
     fontSize: 16,
   },
   modalButtonTextPrimary: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },

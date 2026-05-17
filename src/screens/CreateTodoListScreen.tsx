@@ -73,20 +73,17 @@ export default function CreateTodoListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
     padding: 24,
     justifyContent: 'center',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#888',
     marginBottom: 32,
     textAlign: 'center',
   },
@@ -94,16 +91,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   input: {
-    backgroundColor: '#16213e',
     borderRadius: 12,
     padding: 16,
     fontSize: 18,
-    color: '#fff',
     borderWidth: 1,
-    borderColor: '#0f3460',
   },
   button: {
-    backgroundColor: '#e94560',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -112,7 +105,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   buttonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -121,7 +113,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelText: {
-    color: '#888',
     fontSize: 16,
   },
 });
