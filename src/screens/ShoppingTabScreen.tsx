@@ -63,7 +63,7 @@ export default function ShoppingTabScreen() {
     if (!shopList || shops.length === 0) {
       loadDefaultShops();
     }
-  }, [defaultShopsResult, shopList, shops]);
+  }, [defaultShopsResult?.data, shopList, shops]);
 
   useEffect(() => {
     if (shopList) {
