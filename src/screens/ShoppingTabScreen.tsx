@@ -72,7 +72,7 @@ export default function ShoppingTabScreen() {
       .all();
     
     if (!shopTabsResult || shopTabsResult.length === 0) {
-      setShops([]);
+      loadDefaultShops();
       return;
     }
     
