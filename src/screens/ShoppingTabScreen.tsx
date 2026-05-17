@@ -60,10 +60,16 @@ export default function ShoppingTabScreen() {
   };
 
   useEffect(() => {
-    if (!shopList && defaultShopsResult?.data) {
+    if (!shopList) {
       loadDefaultShops();
     }
   }, [defaultShopsResult, shopList]);
+
+  useEffect(() => {
+    if (shopList) {
+      loadShops(shopList.id);
+    }
+  }, [shopList]);
 
   const loadShops = async (listId: number) => {
     const shopTabsResult = await db.select().from(schema.shopTab)
@@ -343,7 +349,8 @@ export default function ShoppingTabScreen() {
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={styles.listTitle}>{shopList ? shopList.title : 'Summary'}</Text>
+        <Text style={styles.headerTitle}>Summary</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <FlatList
