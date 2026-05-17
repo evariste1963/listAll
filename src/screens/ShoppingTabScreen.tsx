@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -70,6 +70,12 @@ export default function ShoppingTabScreen() {
       loadShops(shopList.id);
     }
   }, [shopList]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadDefaultShops();
+    }, [])
+  );
 
   const loadShops = async (listId: number) => {
     const shopTabsResult = await db.select().from(schema.shopTab)
