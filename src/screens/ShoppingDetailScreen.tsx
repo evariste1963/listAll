@@ -79,11 +79,11 @@ export default function ShoppingDetailScreen() {
       withItems.push({ ...shop, items: items || [] });
     }
     setShops(withItems);
-    if (withItems.length > 0 && !activeTabId) {
-      setActiveTabId(withItems[0].id);
-    } else if (withItems.length > 0 && activeTabId) {
-      const stillExists = withItems.find(s => s.id === activeTabId);
-      if (!stillExists) {
+    if (withItems.length > 0) {
+      if (initialActiveTabId) {
+        const selectedShop = withItems.find(s => s.id === initialActiveTabId);
+        setActiveTabId(selectedShop ? initialActiveTabId : withItems[0].id);
+      } else if (!activeTabId) {
         setActiveTabId(withItems[0].id);
       }
     } else {
