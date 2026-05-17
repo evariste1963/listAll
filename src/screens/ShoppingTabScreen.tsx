@@ -176,7 +176,10 @@ export default function ShoppingTabScreen() {
         .all();
       
       const matchingShop = tabs.find(t => t.name === shopName);
-      navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
+      
+      setTimeout(() => {
+        navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
+      }, 100);
     }
   };
 
