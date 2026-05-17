@@ -298,7 +298,7 @@ export default function ShoppingTabScreen() {
   };
 
   const defaults = defaultShopsResult?.data || [];
-  const hasNoShops = !shopList && defaults.length === 0 && shops.length === 0;
+  const hasNoShops = (defaults.length === 0 && shops.length === 0);
 
   if (hasNoShops) {
     return (
