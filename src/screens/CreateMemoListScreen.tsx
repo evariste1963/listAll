@@ -4,10 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
+import { useTheme } from '../styles/theme';
 
 export default function CreateMemoListScreen() {
   const db = useDB();
   const navigation = useNavigation<any>();
+  const { colors } = useTheme();
   const [title, setTitle] = useState('');
 
   const handleCreate = async () => {

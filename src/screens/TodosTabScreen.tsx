@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 
 interface TodoWithCount {
@@ -18,6 +19,7 @@ interface TodoWithCount {
 export default function TodosTabScreen() {
   const db = useDB();
   const navigation = useNavigation<any>();
+  const { colors } = useTheme();
   
   const [todos, setTodos] = useState<TodoWithCount[]>([]);
 
@@ -74,23 +76,23 @@ export default function TodosTabScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Todos</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Todos</Text>
         <TouchableOpacity onPress={handleCreate}>
-          <Text style={styles.addButton}>+</Text>
+          <Text style={[styles.addButton, { color: colors.primary }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {todos.length === 0 ? (
-        <View style={styles.emptyState}>
+        <View style={[styles.emptyState, { backgroundColor: colors.background }]}>
           <Text style={styles.emptyIcon}>✅</Text>
-          <Text style={styles.emptyTitle}>No Todo Lists Yet</Text>
-          <Text style={styles.emptySubtitle}>Create a todo list to track tasks</Text>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No Todo Lists Yet</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>Create a todo list to track tasks</Text>
+          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.primary }]} onPress={handleCreate}>
             <Text style={styles.createButtonText}>+ Create Todo List</Text>
           </TouchableOpacity>
         </View>
@@ -101,18 +103,18 @@ export default function TodosTabScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity 
-              style={styles.todoCard}
+              style={[styles.todoCard, { backgroundColor: colors.surface }]}
               onPress={() => handleOpen(item.id)}
               onLongPress={() => handleDelete(item.id, item.title)}
             >
               <View style={styles.todoInfo}>
-                <Text style={styles.todoTitle}>{item.title}</Text>
-                <Text style={styles.todoItems}>
+                <Text style={[styles.todoTitle, { color: colors.text }]}>{item.title}</Text>
+                <Text style={[styles.todoItems, { color: colors.textTertiary }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
               <View style={styles.todoMeta}>
-                <Text style={styles.todoDate}>
+                <Text style={[styles.todoDate, { color: colors.textMuted }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
@@ -127,28 +129,23 @@ export default function TodosTabScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
   },
   homeButton: {
     fontSize: 24,
   },
   addButton: {
     fontSize: 28,
-    color: '#e94560',
     fontWeight: 'bold',
   },
   emptyState: {
@@ -164,17 +161,14 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#888',
     marginBottom: 24,
     textAlign: 'center',
   },
   createButton: {
-    backgroundColor: '#e94560',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -188,7 +182,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   todoCard: {
-    backgroundColor: '#16213e',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -202,18 +195,15 @@ const styles = StyleSheet.create({
   todoTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 4,
   },
   todoItems: {
     fontSize: 14,
-    color: '#888',
   },
   todoMeta: {
     alignItems: 'flex-end',
   },
   todoDate: {
     fontSize: 12,
-    color: '#666',
   },
 });

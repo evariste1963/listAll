@@ -5,6 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 import { TouchableOpacity as RNTouchable } from 'react-native';
 
@@ -18,6 +19,7 @@ interface ShopSummary {
 export default function ShoppingTabScreen() {
   const db = useDB();
   const navigation = useNavigation<any>();
+  const { colors } = useTheme();
   
   const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopSummary[]>([]);

@@ -7,6 +7,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DBProvider } from './src/db/provider';
+import { ThemeProvider } from './src/styles/theme';
 import HomeScreen from './src/screens/HomeScreen';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
 import MemosTabScreen from './src/screens/MemosTabScreen';
@@ -98,20 +99,21 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <DBProvider>
-        <NavigationContainer>
-        <StatusBar style="light" />
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: '#16213e',
-            },
-            headerTintColor: '#fff',
-            contentStyle: {
-              backgroundColor: '#1a1a2e',
-            },
-          }}
-        >
+        <ThemeProvider>
+          <NavigationContainer>
+          <StatusBar style="light" />
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: '#16213e',
+              },
+              headerTintColor: '#fff',
+              contentStyle: {
+                backgroundColor: '#1a1a2e',
+              },
+            }}
+          >
           <Stack.Screen 
             name="Home" 
             component={HomeScreen}
@@ -153,8 +155,9 @@ export default function App() {
             options={{ title: 'Todo List', headerBackTitle: 'Summary' }}
           />
         </Stack.Navigator>
-      </NavigationContainer>
-    </DBProvider>
+        </NavigationContainer>
+        </ThemeProvider>
+      </DBProvider>
     </SafeAreaProvider>
   );
 }

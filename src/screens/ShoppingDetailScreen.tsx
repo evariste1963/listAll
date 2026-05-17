@@ -8,6 +8,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 import type { ShoppingDetailProps } from '../navigation/types';
 
@@ -29,6 +30,7 @@ export default function ShoppingDetailScreen() {
   const route = useRoute<ShoppingDetailProps['route']>();
   const navigation = useNavigation<any>();
   const db = useDB();
+  const { colors } = useTheme();
   const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
 
   const [list, setList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
@@ -260,15 +262,15 @@ export default function ShoppingDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.loading}>Loading...</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loading, { color: colors.text }]}>Loading...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         {editListTitle ? (
           <TextInput
             style={styles.titleInput}
@@ -285,8 +287,8 @@ export default function ShoppingDetailScreen() {
         )}
       </View>
 
-      <View style={styles.summary}>
-        <Text style={styles.summaryText}>
+      <View style={[styles.summary, { backgroundColor: colors.surfaceAlt }]}>
+        <Text style={[styles.summaryText, { color: colors.textSecondary }]}>
           {remainingItems} of {totalItems} items remaining
         </Text>
       </View>
@@ -294,7 +296,7 @@ export default function ShoppingDetailScreen() {
       {shops.length > 0 && (
         <ScrollView
           horizontal
-          style={styles.tabBar}
+          style={[styles.tabBar, { backgroundColor: colors.surface }]}
           contentContainerStyle={styles.tabContent}
           showsHorizontalScrollIndicator={false}
         >

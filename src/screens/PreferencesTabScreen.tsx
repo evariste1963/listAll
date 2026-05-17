@@ -4,11 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
+import { useTheme, ThemeName } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 
 export default function PreferencesTabScreen() {
   const db = useDB();
   const navigation = useNavigation<any>();
+  const { theme, setTheme, colors } = useTheme();
 
   const [defaultShops, setDefaultShops] = useState<typeof schema.defaultShop.$inferSelect[]>([]);
   const [showAddShop, setShowAddShop] = useState(false);
@@ -82,19 +84,44 @@ export default function PreferencesTabScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>⚙️ Preferences</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>⚙️ Preferences</Text>
       </View>
 
-      <View style={styles.content}>
+      <View style={[styles.content, { backgroundColor: colors.background }]}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
-          <Text style={styles.appName}>listAll</Text>
-          <Text style={styles.version}>Version 1.0.0</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>About</Text>
+          <Text style={[styles.appName, { color: colors.text }]}>listAll</Text>
+          <Text style={[styles.version, { color: colors.textTertiary }]}>Version 1.0.0</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             A scalable list app for Shopping Lists, Memos, and Todos.
           </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>Theme</Text>
+          <View style={styles.themeRow}>
+            {(['dark', 'green', 'light'] as ThemeName[]).map((t) => (
+              <TouchableOpacity
+                key={t}
+                style={[
+                  styles.themeOption,
+                  { backgroundColor: colors.surface },
+                  theme === t && { backgroundColor: colors.primary }
+                ]}
+                onPress={() => setTheme(t)}
+              >
+                <Text style={[
+                  styles.themeOptionText,
+                  { color: colors.textSecondary },
+                  theme === t && { color: colors.text, fontWeight: '600' }
+                ]}>
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -329,6 +356,29 @@ const styles = StyleSheet.create({
   modalButtonTextPrimary: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  themeRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  themeOption: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#16213e',
+    alignItems: 'center',
+  },
+  themeOptionActive: {
+    backgroundColor: '#e94560',
+  },
+  themeOptionText: {
+    color: '#aaa',
+    fontSize: 14,
+    textTransform: 'capitalize',
+  },
+  themeOptionTextActive: {
+    color: '#fff',
     fontWeight: '600',
   },
 });

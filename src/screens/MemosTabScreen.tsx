@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 
 interface MemoWithCount {
@@ -18,6 +19,7 @@ interface MemoWithCount {
 export default function MemosTabScreen() {
   const db = useDB();
   const navigation = useNavigation<any>();
+  const { colors } = useTheme();
   
   const [memos, setMemos] = useState<MemoWithCount[]>([]);
 
@@ -74,23 +76,23 @@ export default function MemosTabScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Memos</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Memos</Text>
         <TouchableOpacity onPress={handleCreate}>
-          <Text style={styles.addButton}>+</Text>
+          <Text style={[styles.addButton, { color: colors.primary }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {memos.length === 0 ? (
-        <View style={styles.emptyState}>
+        <View style={[styles.emptyState, { backgroundColor: colors.background }]}>
           <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyTitle}>No Memos Yet</Text>
-          <Text style={styles.emptySubtitle}>Create a memo to remember things</Text>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No Memos Yet</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>Create a memo to remember things</Text>
+          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.primary }]} onPress={handleCreate}>
             <Text style={styles.createButtonText}>+ Create Memo</Text>
           </TouchableOpacity>
         </View>
@@ -101,18 +103,18 @@ export default function MemosTabScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity 
-              style={styles.memoCard}
+              style={[styles.memoCard, { backgroundColor: colors.surface }]}
               onPress={() => handleOpen(item.id)}
               onLongPress={() => handleDelete(item.id, item.title)}
             >
               <View style={styles.memoInfo}>
-                <Text style={styles.memoTitle}>{item.title}</Text>
-                <Text style={styles.memoItems}>
+                <Text style={[styles.memoTitle, { color: colors.text }]}>{item.title}</Text>
+                <Text style={[styles.memoItems, { color: colors.textTertiary }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
               <View style={styles.memoMeta}>
-                <Text style={styles.memoDate}>
+                <Text style={[styles.memoDate, { color: colors.textMuted }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
@@ -127,28 +129,23 @@ export default function MemosTabScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#16213e',
     borderBottomWidth: 1,
-    borderBottomColor: '#0f3460',
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
   },
   homeButton: {
     fontSize: 24,
   },
   addButton: {
     fontSize: 28,
-    color: '#e94560',
     fontWeight: 'bold',
   },
   emptyState: {
@@ -164,17 +161,14 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#888',
     marginBottom: 24,
     textAlign: 'center',
   },
   createButton: {
-    backgroundColor: '#e94560',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -188,7 +182,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   memoCard: {
-    backgroundColor: '#16213e',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -202,18 +195,15 @@ const styles = StyleSheet.create({
   memoTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 4,
   },
   memoItems: {
     fontSize: 14,
-    color: '#888',
   },
   memoMeta: {
     alignItems: 'flex-end',
   },
   memoDate: {
     fontSize: 12,
-    color: '#666',
   },
 });

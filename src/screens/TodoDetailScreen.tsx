@@ -8,6 +8,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 import type { TodoDetailProps } from '../navigation/types';
 
@@ -28,6 +29,7 @@ export default function TodoDetailScreen() {
   const route = useRoute<TodoDetailProps['route']>();
   const navigation = useNavigation<any>();
   const db = useDB();
+  const { colors } = useTheme();
   const { listId } = route.params;
 
   const [list, setList] = useState<typeof schema.todoList.$inferSelect | null>(null);

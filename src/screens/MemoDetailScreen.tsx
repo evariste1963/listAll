@@ -7,6 +7,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useTheme } from '../styles/theme';
 import { eq, and } from 'drizzle-orm';
 import type { MemoDetailProps } from '../navigation/types';
 
@@ -14,6 +15,7 @@ export default function MemoDetailScreen() {
   const route = useRoute<MemoDetailProps['route']>();
   const navigation = useNavigation<any>();
   const db = useDB();
+  const { colors } = useTheme();
   const { listId } = route.params;
 
   const [list, setList] = useState<typeof schema.memoList.$inferSelect | null>(null);

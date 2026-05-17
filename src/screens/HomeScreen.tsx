@@ -1,64 +1,62 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useDB } from '../db/provider';
-import { schema } from '../db/index';
-import { eq } from 'drizzle-orm';
+import { useTheme } from '../styles/theme';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const db = useDB();
+  const { colors } = useTheme();
 
-  const handleShoppingPress = async () => {
+  const handleShoppingPress = () => {
     navigation.navigate('MainTabs', { screen: 'ShoppingTab' });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <View style={styles.logoContainer}>
+        <View style={[styles.logoContainer, { backgroundColor: colors.surface }]}>
           <Text style={styles.logo}>📋</Text>
         </View>
-        <Text style={styles.title}>listAll</Text>
-        <Text style={styles.subtitle}>Your personal list manager</Text>
+        <Text style={[styles.title, { color: colors.text }]}>listAll</Text>
+        <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Your personal list manager</Text>
       </View>
 
       <View style={styles.cardsContainer}>
         <TouchableOpacity 
-          style={[styles.card, styles.shoppingCard]}
+          style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={handleShoppingPress}
         >
           <Text style={styles.cardIcon}>🛒</Text>
-          <Text style={styles.cardTitle}>Shopping</Text>
-          <Text style={styles.cardDesc}>Manage your shopping lists</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Shopping</Text>
+          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Manage your shopping lists</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={[styles.card, styles.memosCard]}
+          style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'MemosTab' })}
         >
           <Text style={styles.cardIcon}>📝</Text>
-          <Text style={styles.cardTitle}>Memos</Text>
-          <Text style={styles.cardDesc}>Quick notes and reminders</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Memos</Text>
+          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Quick notes and reminders</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={[styles.card, styles.todosCard]}
+          style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'TodosTab' })}
         >
           <Text style={styles.cardIcon}>✅</Text>
-          <Text style={styles.cardTitle}>Todos</Text>
-          <Text style={styles.cardDesc}>Track your tasks</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Todos</Text>
+          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Track your tasks</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={[styles.card, styles.prefsCard]}
+          style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'PreferencesTab' })}
         >
           <Text style={styles.cardIcon}>⚙️</Text>
-          <Text style={styles.cardTitle}>Preferences</Text>
-          <Text style={styles.cardDesc}>App settings</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Preferences</Text>
+          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>App settings</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -66,10 +64,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
-  },
   header: {
     alignItems: 'center',
     paddingVertical: 40,
@@ -78,7 +72,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 20,
-    backgroundColor: '#16213e',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -89,12 +82,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#888',
   },
   cardsContainer: {
     flex: 1,
@@ -107,18 +98,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
   },
-  shoppingCard: {
-    backgroundColor: '#16213e',
-  },
-  memosCard: {
-    backgroundColor: '#16213e',
-  },
-  todosCard: {
-    backgroundColor: '#16213e',
-  },
-  prefsCard: {
-    backgroundColor: '#16213e',
-  },
   cardIcon: {
     fontSize: 32,
     marginRight: 16,
@@ -126,11 +105,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#fff',
     flex: 1,
   },
   cardDesc: {
     fontSize: 12,
-    color: '#888',
+  },
+  container: {
+    flex: 1,
   },
 });
