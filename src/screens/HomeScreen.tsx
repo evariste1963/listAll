@@ -51,6 +51,15 @@ export default function HomeScreen() {
           <Text style={styles.cardTitle}>Todos</Text>
           <Text style={styles.cardDesc}>Track your tasks</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.card, styles.prefsCard]}
+          onPress={() => navigation.navigate('MainTabs', { screen: 'PreferencesTab' })}
+        >
+          <Text style={styles.cardIcon}>⚙️</Text>
+          <Text style={styles.cardTitle}>Preferences</Text>
+          <Text style={styles.cardDesc}>App settings</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -105,6 +114,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#16213e',
   },
   todosCard: {
+    backgroundColor: '#16213e',
+  },
+  prefsCard: {
     backgroundColor: '#16213e',
   },
   cardIcon: {
