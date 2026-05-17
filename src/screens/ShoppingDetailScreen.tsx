@@ -29,13 +29,13 @@ export default function ShoppingDetailScreen() {
   const route = useRoute<ShoppingDetailProps['route']>();
   const navigation = useNavigation<any>();
   const db = useDB();
-  const { listId } = route.params;
+  const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
 
   const [list, setList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopTabType[]>([]);
-  const [activeTabId, setActiveTabId] = useState<number | null>(null);
+  const [activeTabId, setActiveTabId] = useState<number | null>(initialActiveTabId || null);
   const [newItemText, setNewItemText] = useState('');
-  const [showAddShop, setShowAddShop] = useState(false);
+  const [showAddShop, setShowAddShop] = useState(initialShowAddShop || false);
   const [newShopName, setNewShopName] = useState('');
   const [editListTitle, setEditListTitle] = useState(false);
   const [listTitle, setListTitle] = useState('');

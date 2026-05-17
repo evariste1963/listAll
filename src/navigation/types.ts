@@ -4,7 +4,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 
 export type RootStackParamList = {
   MainTabs: undefined;
-  ShoppingDetail: { listId: number };
+  ShoppingDetail: { listId: number; activeTabId?: number; showAddShop?: boolean };
   MemoDetail: { listId: number };
   TodoDetail: { listId: number };
   CreateShoppingList: undefined;

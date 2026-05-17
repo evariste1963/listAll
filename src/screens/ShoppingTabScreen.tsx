@@ -297,6 +297,51 @@ export default function ShoppingTabScreen() {
     }
   };
 
+  const handleAddFirstShop = async () => {
+    const newList = await db.insert(schema.shoppingList)
+      .values({ 
+        title: 'Shopping List', 
+        isActive: true,
+        createdAt: new Date()
+      })
+      .run();
+
+    const createdList = await db.select()
+      .from(schema.shoppingList)
+      .orderBy(schema.shoppingList.id)
+      .limit(1)
+      .get();
+
+    if (createdList) {
+      setShopList(createdList);
+      navigation.navigate('ShoppingDetail', { listId: createdList.id, showAddShop: true });
+    }
+  };
+
+  const defaults = defaultShopsResult?.data || [];
+  const hasNoShops = !shopList && defaults.length === 0 && shops.length === 0;
+
+  if (hasNoShops) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <Text style={styles.homeButton}>🏠</Text>
+          </TouchableOpacity>
+          <Text style={styles.listTitle}>Summary</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.emptyShops}>
+          <Text style={styles.emptyShopsText}>No shops yet</Text>
+          <Text style={styles.emptyShopsSubtext}>Add a shop to start your shopping list</Text>
+          <TouchableOpacity style={styles.addShopButton} onPress={handleAddFirstShop}>
+            <Text style={styles.addShopButtonText}>+ Add Shop</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!shopList) {
     return (
       <SafeAreaView style={styles.container}>
