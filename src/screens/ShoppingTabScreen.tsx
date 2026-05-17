@@ -244,33 +244,6 @@ export default function ShoppingTabScreen() {
     }
   };
 
-  const handleEndList = () => {
-    Alert.alert(
-      'End Shopping List',
-      'Are you sure you want to end this shopping list? This will delete all shops.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'End List', 
-          style: 'destructive',
-          onPress: async () => {
-            if (shopList) {
-              const shopTabs = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).all();
-              for (const shop of shopTabs) {
-                await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.shopTabId, shop.id)).run();
-              }
-              await db.delete(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).run();
-              await db.update(schema.shoppingList)
-                .set({ isActive: false })
-                .where(eq(schema.shoppingList.id, shopList.id))
-                .run();
-            }
-          }
-        },
-      ]
-    );
-  };
-
   const handleSyncDefaults = async () => {
     if (!shopList) return;
     
@@ -371,11 +344,6 @@ export default function ShoppingTabScreen() {
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
         <Text style={styles.listTitle}>{shopList ? shopList.title : 'Summary'}</Text>
-        {shopList && shops.length === 0 && (
-          <TouchableOpacity onPress={handleEndList}>
-            <Text style={styles.endButton}>End</Text>
-          </TouchableOpacity>
-        )}
       </View>
 
       <FlatList
