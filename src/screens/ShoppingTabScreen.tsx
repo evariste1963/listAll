@@ -170,6 +170,8 @@ export default function ShoppingTabScreen() {
         }).run();
       }
       
+      await loadShops(createdList.id);
+      
       const tabs = await db.select().from(schema.shopTab)
         .where(eq(schema.shopTab.listId, createdList.id))
         .orderBy(schema.shopTab.order)
@@ -177,9 +179,7 @@ export default function ShoppingTabScreen() {
       
       const matchingShop = tabs.find(t => t.name === shopName);
       
-      setTimeout(() => {
-        navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
-      }, 100);
+      navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
     }
   };
 
