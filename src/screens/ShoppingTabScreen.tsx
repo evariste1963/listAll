@@ -354,6 +354,9 @@ export default function ShoppingTabScreen() {
     );
   }
 
+  const defaultShops = defaultShopsResult?.data || [];
+  const displayShops = shopList ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -365,12 +368,11 @@ export default function ShoppingTabScreen() {
       </View>
 
       <FlatList
-        data={shops}
+        data={displayShops}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => {
-          const defaults = defaultShopsResult?.data || [];
-          const inDefaults = defaults.some(d => d.name.toLowerCase() === item.name.toLowerCase());
+          const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
           return (
           <TouchableOpacity 
             style={styles.shopCard}
