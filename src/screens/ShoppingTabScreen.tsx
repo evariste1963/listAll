@@ -26,6 +26,10 @@ export default function ShoppingTabScreen() {
     db.select().from(schema.shoppingList).where(eq(schema.shoppingList.isActive, true))
   );
 
+  const defaultShopsResult = useLiveQuery(
+    db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order)
+  );
+
   useEffect(() => {
     if (result && result.data) {
       const data = result.data;
@@ -107,9 +111,32 @@ export default function ShoppingTabScreen() {
     }
   };
 
-  const handleOpenShop = () => {
+  const handleOpenShop = (shopId: number) => {
     if (shopList) {
-      navigation.navigate('ShoppingDetail', { listId: shopList.id });
+      navigation.navigate('ShoppingDetail', { listId: shopList.id, activeTabId: shopId });
+    }
+  };
+
+  const isInDefaults = async (shopName: string): Promise<boolean> => {
+    const defaults = await db.select().from(schema.defaultShop).all();
+    return defaults.some(d => d.name.toLowerCase() === shopName.toLowerCase());
+  };
+
+  const addToDefaults = async (shopName: string) => {
+    const defaultShops = await db.select().from(schema.defaultShop).all();
+    const exists = defaultShops.find(d => d.name.toLowerCase() === shopName.toLowerCase());
+    if (exists) return;
+    await db.insert(schema.defaultShop).values({
+      name: shopName,
+      order: defaultShops.length + 1,
+    }).run();
+  };
+
+  const removeFromDefaults = async (shopName: string) => {
+    const defaults = await db.select().from(schema.defaultShop).all();
+    const exists = defaults.find(d => d.name.toLowerCase() === shopName.toLowerCase());
+    if (exists) {
+      await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, exists.id)).run();
     }
   };
 
@@ -213,7 +240,7 @@ export default function ShoppingTabScreen() {
           <Text style={styles.emptyShopsSubtext}>Add your first shop to start</Text>
           <TouchableOpacity 
             style={styles.addShopButton}
-            onPress={handleOpenShop}
+            onPress={() => handleOpenShop(0)}
           >
             <Text style={styles.addShopButtonText}>+ Add First Shop</Text>
           </TouchableOpacity>
@@ -223,10 +250,13 @@ export default function ShoppingTabScreen() {
           data={shops}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const defaults = defaultShopsResult?.data || [];
+            const inDefaults = defaults.some(d => d.name.toLowerCase() === item.name.toLowerCase());
+            return (
             <TouchableOpacity 
               style={styles.shopCard}
-              onPress={handleOpenShop}
+              onPress={() => handleOpenShop(item.id)}
             >
               <View style={styles.shopInfo}>
                 <Text style={styles.shopName}>{item.name}</Text>
@@ -234,16 +264,30 @@ export default function ShoppingTabScreen() {
                   {item.remainingItems} of {item.totalItems} items remaining
                 </Text>
               </View>
-              <View style={[
-                styles.badge,
-                item.remainingItems === 0 && styles.badgeComplete
-              ]}>
-                <Text style={styles.badgeText}>
-                  {item.remainingItems === 0 ? '✓' : item.remainingItems}
-                </Text>
+              <View style={styles.shopActions}>
+                <TouchableOpacity 
+                  style={styles.defaultButton}
+                  onPress={() => {
+                    if (inDefaults) {
+                      removeFromDefaults(item.name);
+                    } else {
+                      addToDefaults(item.name);
+                    }
+                  }}
+                >
+                  <Text style={styles.defaultButtonText}>{inDefaults ? '−' : '+'}</Text>
+                </TouchableOpacity>
+                <View style={[
+                  styles.badge,
+                  item.remainingItems === 0 && styles.badgeComplete
+                ]}>
+                  <Text style={styles.badgeText}>
+                    {item.remainingItems === 0 ? '✓' : item.remainingItems}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
-          )}
+          )}}
         />
       )}
     </SafeAreaView>
@@ -384,5 +428,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  shopActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  defaultButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#0f3460',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  defaultButtonText: {
+    color: '#e94560',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

@@ -168,7 +168,7 @@ export default function ShoppingDetailScreen() {
     setShowAddShop(false);
   };
 
-  const handleDeleteShop = (shopId: number, shopName: string, itemCount: number) => {
+  const handleDeleteShop = async (shopId: number, shopName: string, itemCount: number) => {
     if (itemCount > 0) {
       Alert.alert(
         'Cannot Delete Shop',
@@ -177,6 +177,19 @@ export default function ShoppingDetailScreen() {
       );
       return;
     }
+    
+    const defaults = await db.select().from(schema.defaultShop).all();
+    const isDefault = defaults.some(d => d.name.toLowerCase() === shopName.toLowerCase());
+    
+    if (isDefault) {
+      Alert.alert(
+        'Cannot Delete Shop',
+        `"${shopName}" is a default shop. Remove it from defaults first in the summary page.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     Alert.alert(
       'Delete Shop',
       `Delete "${shopName}"?`,
@@ -256,6 +269,9 @@ export default function ShoppingDetailScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.homeButton}>← Summary</Text>
+        </TouchableOpacity>
         {editListTitle ? (
           <TextInput
             style={styles.titleInput}
@@ -270,8 +286,8 @@ export default function ShoppingDetailScreen() {
             <Text style={styles.headerTitle}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={handleEndList}>
-          <Text style={styles.endButton}>End</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
       </View>
 
@@ -475,6 +491,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  homeButton: {
+    fontSize: 20,
+    color: '#e94560',
   },
   titleInput: {
     fontSize: 22,
