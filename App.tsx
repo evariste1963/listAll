@@ -1,13 +1,13 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, useColorScheme } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DBProvider } from './src/db/provider';
-import { ThemeProvider } from './src/styles/theme';
+import { ThemeProvider, useTheme } from './src/styles/theme';
 import HomeScreen from './src/screens/HomeScreen';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
 import MemosTabScreen from './src/screens/MemosTabScreen';
@@ -22,13 +22,13 @@ import TodoDetailScreen from './src/screens/TodoDetailScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ icon, label, focused }: { icon: string; label: string; focused: boolean }) {
+function TabIcon({ icon, label, focused, primaryColor, mutedColor }: { icon: string; label: string; focused: boolean; primaryColor: string; mutedColor: string }) {
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 4, minWidth: 60 }}>
       <Text style={{ fontSize: 24 }}>{icon}</Text>
       <Text style={{ 
         fontSize: 10, 
-        color: focused ? '#e94560' : '#888',
+        color: focused ? primaryColor : mutedColor,
         marginTop: 2,
       }}>
         {label}
@@ -39,14 +39,15 @@ function TabIcon({ icon, label, focused }: { icon: string; label: string; focuse
 
 function MainTabs() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#16213e',
-          borderTopColor: '#0f3460',
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           height: 60 + insets.bottom,
           paddingBottom: 4 + insets.bottom,
           paddingTop: 4,
@@ -55,43 +56,119 @@ function MainTabs() {
         tabBarHideOnKeyboard: true,
       }}
     >
-        <Tab.Screen 
-          name="ShoppingTab" 
-          component={ShoppingTabScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="🛒" label="Shopping" focused={focused} />
-            ),
+      <Tab.Screen 
+        name="ShoppingTab" 
+        component={ShoppingTabScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🛒" label="Shopping" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="MemosTab" 
+        component={MemosTabScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="📝" label="Memos" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="TodosTab" 
+        component={TodosTabScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="✅" label="Todos" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+          ),
+        }}
+      />
+      <Tab.Screen 
+        name="PreferencesTab" 
+        component={PreferencesTabScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="⚙️" label="Prefs" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function AppNavigator() {
+  const { colors, theme } = useTheme();
+  
+  const navigationTheme = {
+    ...(theme === 'dark' ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(theme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.surface,
+      text: colors.text,
+      border: colors.border,
+    },
+  };
+
+  return (
+    <NavigationContainer theme={navigationTheme}>
+      <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: colors.surface,
+          },
+          headerTintColor: colors.text,
+          headerBackTitle: 'Back',
+          contentStyle: {
+            backgroundColor: colors.background,
+          },
+        }}
+      >
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="MainTabs" 
+          component={MainTabs}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="CreateMemoList" 
+          component={CreateMemoListScreen}
+          options={{ title: 'New Memo' }}
+        />
+        <Stack.Screen 
+          name="CreateTodoList" 
+          component={CreateTodoListScreen}
+          options={{ title: 'New Todo List' }}
+        />
+        <Stack.Screen 
+          name="ShoppingDetail" 
+          component={ShoppingDetailScreen}
+          options={{ 
+            headerTitle: '',
+            headerBackTitle: 'Back',
+            headerBackVisible: true,
+            gestureEnabled: true,
           }}
         />
-        <Tab.Screen 
-          name="MemosTab" 
-          component={MemosTabScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="📝" label="Memos" focused={focused} />
-            ),
-          }}
+        <Stack.Screen 
+          name="MemoDetail" 
+          component={MemoDetailScreen}
+          options={{ title: 'Memo', headerBackTitle: 'Back' }}
         />
-        <Tab.Screen 
-          name="TodosTab" 
-          component={TodosTabScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="✅" label="Todos" focused={focused} />
-            ),
-          }}
+        <Stack.Screen 
+          name="TodoDetail" 
+          component={TodoDetailScreen}
+          options={{ title: 'Todo List', headerBackTitle: 'Back' }}
         />
-        <Tab.Screen 
-          name="PreferencesTab" 
-          component={PreferencesTabScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="⚙️" label="Prefs" focused={focused} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -100,62 +177,7 @@ export default function App() {
     <SafeAreaProvider>
       <DBProvider>
         <ThemeProvider>
-          <NavigationContainer>
-          <StatusBar style="light" />
-          <Stack.Navigator
-            initialRouteName="Home"
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: '#16213e',
-              },
-              headerTintColor: '#fff',
-              contentStyle: {
-                backgroundColor: '#1a1a2e',
-              },
-            }}
-          >
-          <Stack.Screen 
-            name="Home" 
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="MainTabs" 
-            component={MainTabs}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="CreateMemoList" 
-            component={CreateMemoListScreen}
-            options={{ title: 'New Memo' }}
-          />
-          <Stack.Screen 
-            name="CreateTodoList" 
-            component={CreateTodoListScreen}
-            options={{ title: 'New Todo List' }}
-          />
-          <Stack.Screen 
-            name="ShoppingDetail" 
-            component={ShoppingDetailScreen}
-            options={{ 
-              headerTitle: '',
-              headerBackTitle: 'Summary',
-              headerBackVisible: true,
-              gestureEnabled: true,
-            }}
-          />
-          <Stack.Screen 
-            name="MemoDetail" 
-            component={MemoDetailScreen}
-            options={{ title: 'Memo', headerBackTitle: 'Summary' }}
-          />
-          <Stack.Screen 
-            name="TodoDetail" 
-            component={TodoDetailScreen}
-            options={{ title: 'Todo List', headerBackTitle: 'Summary' }}
-          />
-        </Stack.Navigator>
-        </NavigationContainer>
+          <AppNavigator />
         </ThemeProvider>
       </DBProvider>
     </SafeAreaProvider>
