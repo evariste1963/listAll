@@ -35,10 +35,10 @@ export const themes: Record<ThemeName, ThemeColors> = {
     danger: '#e94560',
   },
   green: {
-    background: '#0d1f0d',
+    background: '#4ade80',
     surface: '#152615',
     surfaceAlt: '#1e3a1e',
-    primary: '#4ade80',
+    primary: '#0d1f0d',
     success: '#22c55e',
     text: '#e8f5e8',
     textSecondary: '#a8d4a8',
