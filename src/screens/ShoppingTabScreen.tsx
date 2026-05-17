@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
@@ -21,6 +21,8 @@ export default function ShoppingTabScreen() {
   
   const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopSummary[]>([]);
+  const [showAddShop, setShowAddShop] = useState(false);
+  const [newShopName, setNewShopName] = useState('');
 
   const result = useLiveQuery(
     db.select().from(schema.shoppingList).where(eq(schema.shoppingList.isActive, true))
@@ -38,13 +40,30 @@ export default function ShoppingTabScreen() {
         loadShops(data[0].id);
       } else {
         setShopList(null);
-        setShops([]);
+        loadDefaultShops();
       }
     } else {
       setShopList(null);
-      setShops([]);
+      loadDefaultShops();
     }
   }, [result]);
+
+  const loadDefaultShops = () => {
+    const defaults = defaultShopsResult?.data || [];
+    const summaries: ShopSummary[] = defaults.map(shop => ({
+      id: shop.id,
+      name: shop.name,
+      totalItems: 0,
+      remainingItems: 0,
+    }));
+    setShops(summaries);
+  };
+
+  useEffect(() => {
+    if (!shopList && defaultShopsResult?.data) {
+      loadDefaultShops();
+    }
+  }, [defaultShopsResult, shopList]);
 
   const loadShops = async (listId: number) => {
     const shopTabsResult = await db.select().from(schema.shopTab)
@@ -111,10 +130,84 @@ export default function ShoppingTabScreen() {
     }
   };
 
-  const handleOpenShop = (shopId: number) => {
+  const handleOpenShop = async (shopId: number, shopName: string) => {
     if (shopList) {
       navigation.navigate('ShoppingDetail', { listId: shopList.id, activeTabId: shopId });
+      return;
     }
+    
+    const newList = await db.insert(schema.shoppingList)
+      .values({ 
+        title: 'Shopping List', 
+        isActive: true,
+        createdAt: new Date()
+      })
+      .run();
+
+    const createdList = await db.select()
+      .from(schema.shoppingList)
+      .orderBy(schema.shoppingList.id)
+      .limit(1)
+      .get();
+
+    if (createdList) {
+      setShopList(createdList);
+      
+      await db.insert(schema.shopTab).values({
+        listId: createdList.id,
+        name: shopName,
+        order: 1,
+      }).run();
+      
+      const tabs = await db.select().from(schema.shopTab)
+        .where(eq(schema.shopTab.listId, createdList.id))
+        .orderBy(schema.shopTab.order)
+        .all();
+      
+      const matchingShop = tabs.find(t => t.name === shopName);
+      navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
+    }
+  };
+
+  const handleAddShop = async (shopName: string) => {
+    if (!shopName.trim()) return;
+    
+    if (!shopList) {
+      const newList = await db.insert(schema.shoppingList)
+        .values({ title: 'Shopping List', isActive: true, createdAt: new Date() })
+        .run();
+      
+      const createdList = await db.select()
+        .from(schema.shoppingList)
+        .orderBy(schema.shoppingList.id)
+        .limit(1)
+        .get();
+      
+      if (createdList) {
+        setShopList(createdList);
+        await db.insert(schema.shopTab).values({
+          listId: createdList.id,
+          name: shopName.trim(),
+          order: 1,
+        }).run();
+        
+        const tabs = await db.select().from(schema.shopTab)
+          .where(eq(schema.shopTab.listId, createdList.id))
+          .all();
+        
+        const matchingShop = tabs.find(t => t.name === shopName.trim());
+        navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
+      }
+    } else {
+      await db.insert(schema.shopTab).values({
+        listId: shopList.id,
+        name: shopName.trim(),
+        order: shops.length + 1,
+      }).run();
+      loadShops(shopList.id);
+    }
+    setNewShopName('');
+    setShowAddShop(false);
   };
 
   const isInDefaults = async (shopName: string): Promise<boolean> => {
@@ -221,75 +314,95 @@ export default function ShoppingTabScreen() {
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={styles.listTitle}>{shopList.title}</Text>
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <TouchableOpacity onPress={handleSyncDefaults}>
-            <Text style={styles.syncButton}>Sync</Text>
-          </TouchableOpacity>
-          {shops.length === 0 && (
-            <TouchableOpacity onPress={handleEndList}>
-              <Text style={styles.endButton}>End</Text>
+        <Text style={styles.listTitle}>{shopList ? shopList.title : 'Summary'}</Text>
+        {shopList && (
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <TouchableOpacity onPress={handleSyncDefaults}>
+              <Text style={styles.syncButton}>Sync</Text>
             </TouchableOpacity>
-          )}
-        </View>
+            {shops.length === 0 && (
+              <TouchableOpacity onPress={handleEndList}>
+                <Text style={styles.endButton}>End</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
 
-      {shops.length === 0 ? (
-        <View style={styles.emptyShops}>
-          <Text style={styles.emptyShopsText}>No shops yet</Text>
-          <Text style={styles.emptyShopsSubtext}>Add your first shop to start</Text>
+      <FlatList
+        data={shops}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.list}
+        renderItem={({ item }) => {
+          const defaults = defaultShopsResult?.data || [];
+          const inDefaults = defaults.some(d => d.name.toLowerCase() === item.name.toLowerCase());
+          return (
           <TouchableOpacity 
-            style={styles.addShopButton}
-            onPress={() => handleOpenShop(0)}
+            style={styles.shopCard}
+            onPress={() => handleOpenShop(item.id, item.name)}
           >
-            <Text style={styles.addShopButtonText}>+ Add First Shop</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={shops}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => {
-            const defaults = defaultShopsResult?.data || [];
-            const inDefaults = defaults.some(d => d.name.toLowerCase() === item.name.toLowerCase());
-            return (
-            <TouchableOpacity 
-              style={styles.shopCard}
-              onPress={() => handleOpenShop(item.id)}
-            >
-              <View style={styles.shopInfo}>
-                <Text style={styles.shopName}>{item.name}</Text>
-                <Text style={styles.shopItems}>
-                  {item.remainingItems} of {item.totalItems} items remaining
+            <View style={styles.shopInfo}>
+              <Text style={styles.shopName}>{item.name}</Text>
+              <Text style={styles.shopItems}>
+                {item.remainingItems} of {item.totalItems} items remaining
+              </Text>
+            </View>
+            <View style={styles.shopActions}>
+              <TouchableOpacity 
+                style={styles.defaultButton}
+                onPress={() => {
+                  if (inDefaults) {
+                    removeFromDefaults(item.name);
+                  } else {
+                    addToDefaults(item.name);
+                  }
+                }}
+              >
+                <Text style={styles.defaultButtonText}>{inDefaults ? '−' : '+'}</Text>
+              </TouchableOpacity>
+              <View style={[
+                styles.badge,
+                item.remainingItems === 0 && styles.badgeComplete
+              ]}>
+                <Text style={styles.badgeText}>
+                  {item.remainingItems === 0 ? '✓' : item.remainingItems}
                 </Text>
               </View>
-              <View style={styles.shopActions}>
-                <TouchableOpacity 
-                  style={styles.defaultButton}
-                  onPress={() => {
-                    if (inDefaults) {
-                      removeFromDefaults(item.name);
-                    } else {
-                      addToDefaults(item.name);
-                    }
-                  }}
-                >
-                  <Text style={styles.defaultButtonText}>{inDefaults ? '−' : '+'}</Text>
-                </TouchableOpacity>
-                <View style={[
-                  styles.badge,
-                  item.remainingItems === 0 && styles.badgeComplete
-                ]}>
-                  <Text style={styles.badgeText}>
-                    {item.remainingItems === 0 ? '✓' : item.remainingItems}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
           )}}
         />
-      )}
+      
+      <Modal visible={showAddShop} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Shop</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Shop name (e.g., Walmart)"
+              placeholderTextColor="#666"
+              value={newShopName}
+              onChangeText={setNewShopName}
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => { setShowAddShop(false); setNewShopName(''); }}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled]}
+                onPress={() => handleAddShop(newShopName)}
+                disabled={!newShopName.trim()}
+              >
+                <Text style={styles.modalButtonTextPrimary}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -446,5 +559,61 @@ const styles = StyleSheet.create({
     color: '#e94560',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  addShopText: {
+    color: '#4ade80',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#16213e',
+    borderRadius: 16,
+    padding: 24,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 16,
+  },
+  modalInput: {
+    backgroundColor: '#0f3460',
+    padding: 12,
+    borderRadius: 8,
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginLeft: 8,
+  },
+  modalButtonPrimary: {
+    backgroundColor: '#e94560',
+    borderRadius: 8,
+  },
+  modalButtonDisabled: {
+    opacity: 0.5,
+  },
+  modalButtonText: {
+    color: '#aaa',
+    fontSize: 16,
+  },
+  modalButtonTextPrimary: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

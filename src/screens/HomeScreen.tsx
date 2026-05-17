@@ -11,43 +11,7 @@ export default function HomeScreen() {
   const db = useDB();
 
   const handleShoppingPress = async () => {
-    const existingList = await db.select()
-      .from(schema.shoppingList)
-      .where(eq(schema.shoppingList.isActive, true))
-      .get();
-
-    if (existingList) {
-      navigation.navigate('ShoppingDetail', { listId: existingList.id });
-      return;
-    }
-
-    const newList = await db.insert(schema.shoppingList)
-      .values({ 
-        title: 'Shopping List', 
-        isActive: true,
-        createdAt: new Date()
-      })
-      .run();
-
-    const createdList = await db.select()
-      .from(schema.shoppingList)
-      .orderBy(schema.shoppingList.id)
-      .limit(1)
-      .get();
-
-    if (createdList) {
-      const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-      
-      for (let i = 0; i < defaultShops.length; i++) {
-        await db.insert(schema.shopTab).values({
-          listId: createdList.id,
-          name: defaultShops[i].name,
-          order: i + 1,
-        }).run();
-      }
-
-      navigation.navigate('ShoppingDetail', { listId: createdList.id });
-    }
+    navigation.navigate('MainTabs', { screen: 'ShoppingTab' });
   };
 
   return (
