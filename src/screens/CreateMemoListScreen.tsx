@@ -38,15 +38,15 @@ export default function CreateMemoListScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Create Memo</Text>
-      <Text style={styles.subtitle}>Give your memo a name</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Create Memo</Text>
+      <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Give your memo a name</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
           placeholder="e.g., Notes, Ideas, Recipes"
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.textMuted}
           value={title}
           onChangeText={setTitle}
           autoFocus
@@ -54,18 +54,18 @@ export default function CreateMemoListScreen() {
       </View>
 
       <TouchableOpacity 
-        style={[styles.button, !title.trim() && styles.buttonDisabled]}
+        style={[styles.button, !title.trim() && styles.buttonDisabled, { backgroundColor: colors.primary }]}
         onPress={handleCreate}
         disabled={!title.trim()}
       >
-        <Text style={styles.buttonText}>Create Memo</Text>
+        <Text style={[styles.buttonText, { color: colors.text }]}>Create Memo</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.cancelButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.cancelText}>Cancel</Text>
+        <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancel</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

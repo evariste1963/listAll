@@ -273,7 +273,7 @@ export default function ShoppingDetailScreen() {
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         {editListTitle ? (
           <TextInput
-            style={styles.titleInput}
+            style={[styles.titleInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
             value={listTitle}
             onChangeText={setListTitle}
             onBlur={handleUpdateTitle}
@@ -282,7 +282,7 @@ export default function ShoppingDetailScreen() {
           />
         ) : (
           <TouchableOpacity onPress={() => setEditListTitle(true)}>
-            <Text style={styles.headerTitle}>{list.title}</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>{list.title}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -303,52 +303,60 @@ export default function ShoppingDetailScreen() {
           {shops.map(shop => (
             <TouchableOpacity
               key={shop.id}
-              style={[styles.tab, activeTabId === shop.id && styles.tabActive]}
+              style={[
+                styles.tab,
+                { backgroundColor: colors.surfaceAlt },
+                activeTabId === shop.id && { backgroundColor: colors.primary }
+              ]}
               onPress={() => setActiveTabId(shop.id)}
               onLongPress={() => handleDeleteShop(shop.id, shop.name, shop.items?.length || 0)}
             >
-              <Text style={[styles.tabText, activeTabId === shop.id && styles.tabTextActive]}>
+              <Text style={[
+                styles.tabText,
+                { color: colors.textSecondary },
+                activeTabId === shop.id && { color: colors.text, fontWeight: '600' }
+              ]}>
                 {shop.name}
               </Text>
-              <Text style={styles.tabCount}>
+              <Text style={[styles.tabCount, { color: colors.textTertiary }]}>
                 {shop.items?.filter(i => !i.isDone).length || 0}
               </Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity
-            style={styles.addTab}
+            style={[styles.addTab, { borderColor: colors.primary }]}
             onPress={() => setShowAddShop(true)}
           >
-            <Text style={styles.addTabText}>+ Add</Text>
+            <Text style={[styles.addTabText, { color: colors.primary }]}>+ Add</Text>
           </TouchableOpacity>
         </ScrollView>
       )}
 
       {shops.length === 0 && (
-        <View style={styles.noShops}>
-          <Text style={styles.noShopsText}>Add your first shop</Text>
+        <View style={[styles.noShops, { backgroundColor: colors.background }]}>
+          <Text style={[styles.noShopsText, { color: colors.textTertiary }]}>Add your first shop</Text>
           <TouchableOpacity
-            style={styles.addShopButton}
+            style={[styles.addShopButton, { backgroundColor: colors.primary }]}
             onPress={() => setShowAddShop(true)}
           >
-            <Text style={styles.addShopButtonText}>+ Add Shop</Text>
+            <Text style={[styles.addShopButtonText, { color: colors.text }]}>+ Add Shop</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {activeShop && (
-        <View style={styles.itemsContainer}>
+        <View style={[styles.itemsContainer, { backgroundColor: colors.background }]}>
           <View style={styles.inputRow}>
             <TextInput
-              style={styles.itemInput}
+              style={[styles.itemInput, { backgroundColor: colors.surface, color: colors.text }]}
               placeholder="Add item..."
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={newItemText}
               onChangeText={setNewItemText}
               onSubmitEditing={handleAddItem}
             />
             <TouchableOpacity
-              style={[styles.addButton, !newItemText.trim() && styles.addButtonDisabled]}
+              style={[styles.addButton, !newItemText.trim() && styles.addButtonDisabled, { backgroundColor: colors.primary }]}
               onPress={handleAddItem}
               disabled={!newItemText.trim()}
             >
@@ -358,7 +366,7 @@ export default function ShoppingDetailScreen() {
 
           {activeShop.items?.some(i => i.isDone) && (
             <TouchableOpacity style={styles.deleteCompleted} onPress={handleDeleteCompleted}>
-              <Text style={styles.deleteCompletedText}>🗑️ Delete Completed</Text>
+              <Text style={[styles.deleteCompletedText, { color: colors.danger }]}>🗑️ Delete Completed</Text>
             </TouchableOpacity>
           )}
 
@@ -366,12 +374,12 @@ export default function ShoppingDetailScreen() {
             data={activeShop.items || []}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={styles.itemRow}>
+              <View style={[styles.itemRow, { borderBottomColor: colors.surface }]}>
                 <TouchableOpacity
                   style={styles.checkbox}
                   onPress={() => handleToggleItem(item.id, item.isDone)}
                 >
-                  <Text style={item.isDone ? styles.checkboxChecked : styles.checkboxUnchecked}>
+                  <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.success }] : [styles.checkboxUnchecked, { color: colors.textSecondary }]}>
                     {item.isDone ? '✓' : '○'}
                   </Text>
                 </TouchableOpacity>
@@ -379,7 +387,7 @@ export default function ShoppingDetailScreen() {
                   style={styles.itemTitle}
                   onPress={() => handleEditItem(item.id, item.title)}
                 >
-                  <Text style={[styles.itemText, item.isDone && styles.itemDone]}>
+                  <Text style={[styles.itemText, { color: colors.text }, item.isDone && { color: colors.textMuted, textDecorationLine: 'line-through' }]}>
                     {item.title}
                   </Text>
                 </TouchableOpacity>
@@ -387,12 +395,12 @@ export default function ShoppingDetailScreen() {
                   style={styles.deleteItem}
                   onPress={() => handleDeleteItem(item.id)}
                 >
-                  <Text style={styles.deleteItemText}>✕</Text>
+                  <Text style={[styles.deleteItemText, { color: colors.danger }]}>✕</Text>
                 </TouchableOpacity>
               </View>
             )}
             ListEmptyComponent={
-              <Text style={styles.emptyItems}>No items yet</Text>
+              <Text style={[styles.emptyItems, { color: colors.textMuted }]}>No items yet</Text>
             }
           />
         </View>
@@ -400,12 +408,12 @@ export default function ShoppingDetailScreen() {
 
       <Modal visible={showAddShop} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add New Shop</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Add New Shop</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
               placeholder="Shop name (e.g., Walmart)"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
@@ -415,14 +423,14 @@ export default function ShoppingDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled]}
+                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.primary }]}
                 onPress={handleAddShop}
                 disabled={!newShopName.trim()}
               >
-                <Text style={styles.modalButtonTextPrimary}>Add</Text>
+                <Text style={[styles.modalButtonTextPrimary, { color: colors.text }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -431,12 +439,12 @@ export default function ShoppingDetailScreen() {
 
       <Modal visible={editItemId !== null} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Item</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Item</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
               placeholder="Item name"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
@@ -446,14 +454,14 @@ export default function ShoppingDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled]}
+                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.primary }]}
                 onPress={handleSaveEdit}
                 disabled={!editItemText.trim()}
               >
-                <Text style={styles.modalButtonTextPrimary}>Save</Text>
+                <Text style={[styles.modalButtonTextPrimary, { color: colors.text }]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>

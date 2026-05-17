@@ -332,19 +332,19 @@ export default function ShoppingTabScreen() {
 
   if (hasNoShops) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Text style={styles.homeButton}>🏠</Text>
           </TouchableOpacity>
-          <Text style={styles.listTitle}>Summary</Text>
+          <Text style={[styles.listTitle, { color: colors.text }]}>Summary</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={styles.emptyShops}>
-          <Text style={styles.emptyShopsText}>No shops yet</Text>
-          <Text style={styles.emptyShopsSubtext}>Add a shop to start your shopping list</Text>
-          <TouchableOpacity style={styles.addShopButton} onPress={handleAddFirstShop}>
-            <Text style={styles.addShopButtonText}>+ Add Shop</Text>
+        <View style={[styles.emptyShops, { backgroundColor: colors.background }]}>
+          <Text style={[styles.emptyShopsText, { color: colors.text }]}>No shops yet</Text>
+          <Text style={[styles.emptyShopsSubtext, { color: colors.textTertiary }]}>Add a shop to start your shopping list</Text>
+          <TouchableOpacity style={[styles.addShopButton, { backgroundColor: colors.surfaceAlt }]} onPress={handleAddFirstShop}>
+            <Text style={[styles.addShopButtonText, { color: colors.primary }]}>+ Add Shop</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -353,19 +353,19 @@ export default function ShoppingTabScreen() {
 
   if (!shopList) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Text style={styles.homeButton}>🏠</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Shopping</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Shopping</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={styles.emptyState}>
+        <View style={[styles.emptyState, { backgroundColor: colors.background }]}>
           <Text style={styles.emptyIcon}>🛒</Text>
-          <Text style={styles.emptyTitle}>No Active Shopping List</Text>
-          <Text style={styles.emptySubtitle}>Create a new shopping list to get started</Text>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No Active Shopping List</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>Create a new shopping list to get started</Text>
+          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.primary }]} onPress={handleCreateList}>
             <Text style={styles.createButtonText}>+ Create Shopping List</Text>
           </TouchableOpacity>
         </View>
@@ -377,12 +377,12 @@ export default function ShoppingTabScreen() {
   const displayShops = shopList ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Summary</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Summary</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -394,18 +394,18 @@ export default function ShoppingTabScreen() {
           const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
           return (
           <TouchableOpacity 
-            style={styles.shopCard}
+            style={[styles.shopCard, { backgroundColor: colors.surface }]}
             onPress={() => handleOpenShop(item.id, item.name)}
           >
             <View style={styles.shopInfo}>
-              <Text style={styles.shopName}>{item.name}</Text>
-              <Text style={styles.shopItems}>
+              <Text style={[styles.shopName, { color: colors.text }]}>{item.name}</Text>
+              <Text style={[styles.shopItems, { color: colors.textTertiary }]}>
                 {item.remainingItems} of {item.totalItems} items remaining
               </Text>
             </View>
             <View style={styles.shopActions}>
               <TouchableOpacity 
-                style={styles.defaultButton}
+                style={[styles.defaultButton, { backgroundColor: colors.surfaceAlt }]}
                 onPress={() => {
                   if (inDefaults) {
                     removeFromDefaults(item.name);
@@ -414,11 +414,11 @@ export default function ShoppingTabScreen() {
                   }
                 }}
               >
-                <Text style={styles.defaultButtonText}>{inDefaults ? '−' : '+'}</Text>
+                <Text style={[styles.defaultButtonText, { color: colors.primary }]}>{inDefaults ? '−' : '+'}</Text>
               </TouchableOpacity>
               <View style={[
                 styles.badge,
-                item.remainingItems === 0 && styles.badgeComplete
+                { backgroundColor: item.remainingItems === 0 ? colors.success : colors.primary }
               ]}>
                 <Text style={styles.badgeText}>
                   {item.remainingItems === 0 ? '✓' : item.remainingItems}
@@ -431,12 +431,12 @@ export default function ShoppingTabScreen() {
       
       <Modal visible={showAddShop} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Shop</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Add Shop</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
               placeholder="Shop name (e.g., Walmart)"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
@@ -446,14 +446,14 @@ export default function ShoppingTabScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled]}
+                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.primary }]}
                 onPress={() => handleAddShop(newShopName)}
                 disabled={!newShopName.trim()}
               >
-                <Text style={styles.modalButtonTextPrimary}>Add</Text>
+                <Text style={[styles.modalButtonTextPrimary, { color: colors.text }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>

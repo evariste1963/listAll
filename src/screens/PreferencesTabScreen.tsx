@@ -125,41 +125,41 @@ export default function PreferencesTabScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Data</Text>
-          <TouchableOpacity style={styles.option} onPress={handleResetTemplates}>
-            <Text style={styles.optionText}>Reset Templates</Text>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>Data</Text>
+          <TouchableOpacity style={[styles.option, { backgroundColor: colors.surface }]} onPress={handleResetTemplates}>
+            <Text style={[styles.optionText, { color: colors.text }]}>Reset Templates</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Default Shops</Text>
+            <Text style={[styles.sectionTitle, { color: colors.primary }]}>Default Shops</Text>
             <TouchableOpacity onPress={() => setShowAddShop(true)}>
-              <Text style={styles.addButton}>+ Add</Text>
+              <Text style={[styles.addButton, { color: colors.primary }]}>+ Add</Text>
             </TouchableOpacity>
           </View>
           {defaultShops.length === 0 ? (
-            <Text style={styles.emptyText}>No default shops set</Text>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>No default shops set</Text>
           ) : (
             defaultShops.map(shop => (
               <TouchableOpacity
                 key={shop.id}
-                style={styles.shopItem}
+                style={[styles.shopItem, { backgroundColor: colors.surface }]}
                 onLongPress={() => handleDeleteDefaultShop(shop.id, shop.name)}
               >
-                <Text style={styles.shopName}>{shop.name}</Text>
+                <Text style={[styles.shopName, { color: colors.text }]}>{shop.name}</Text>
                 <TouchableOpacity onPress={() => handleDeleteDefaultShop(shop.id, shop.name)}>
-                  <Text style={styles.deleteButton}>✕</Text>
+                  <Text style={[styles.deleteButton, { color: colors.danger }]}>✕</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             ))
           )}
-          <Text style={styles.hintText}>Long press or tap X to remove</Text>
+          <Text style={[styles.hintText, { color: colors.textMuted }]}>Long press or tap X to remove</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Info</Text>
-          <Text style={styles.infoText}>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>Info</Text>
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
             • Shopping lists support multiple shop tabs{'\n'}
             • Memos can have optional checkboxes{'\n'}
             • Todos support due dates and priorities{'\n'}
@@ -170,12 +170,12 @@ export default function PreferencesTabScreen() {
 
       <Modal visible={showAddShop} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Default Shop</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Add Default Shop</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
               placeholder="Shop name (e.g., Tesco)"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
@@ -185,14 +185,14 @@ export default function PreferencesTabScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled]}
+                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.primary }]}
                 onPress={handleAddDefaultShop}
                 disabled={!newShopName.trim()}
               >
-                <Text style={styles.modalButtonTextPrimary}>Add</Text>
+                <Text style={[styles.modalButtonTextPrimary, { color: colors.text }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>

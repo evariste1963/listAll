@@ -37,15 +37,15 @@ export default function CreateTodoListScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Create Todo List</Text>
-      <Text style={styles.subtitle}>Give your todo list a name</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Create Todo List</Text>
+      <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Give your todo list a name</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
           placeholder="e.g., Projects, Chores, Goals"
-          placeholderTextColor="#666"
+          placeholderTextColor={colors.textMuted}
           value={title}
           onChangeText={setTitle}
           autoFocus
@@ -53,18 +53,18 @@ export default function CreateTodoListScreen() {
       </View>
 
       <TouchableOpacity 
-        style={[styles.button, !title.trim() && styles.buttonDisabled]}
+        style={[styles.button, !title.trim() && styles.buttonDisabled, { backgroundColor: colors.primary }]}
         onPress={handleCreate}
         disabled={!title.trim()}
       >
-        <Text style={styles.buttonText}>Create Todo List</Text>
+        <Text style={[styles.buttonText, { color: colors.text }]}>Create Todo List</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.cancelButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.cancelText}>Cancel</Text>
+        <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancel</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

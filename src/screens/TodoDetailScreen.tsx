@@ -152,20 +152,29 @@ export default function TodoDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.loading}>Loading...</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loading, { color: colors.text }]}>Loading...</Text>
       </SafeAreaView>
     );
   }
 
   const remainingCount = items.filter(i => !i.isDone).length;
 
+  const getPriorityColorFn = (priority: string | null) => {
+    switch (priority) {
+      case 'high': return colors.priorityHigh;
+      case 'medium': return colors.priorityMedium;
+      case 'low': return colors.priorityLow;
+      default: return colors.textMuted;
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         {editTitle ? (
           <TextInput
-            style={styles.titleInput}
+            style={[styles.titleInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
             value={title}
             onChangeText={setTitle}
             onBlur={handleUpdateTitle}
@@ -174,33 +183,33 @@ export default function TodoDetailScreen() {
           />
         ) : (
           <TouchableOpacity onPress={() => setEditTitle(true)}>
-            <Text style={styles.headerTitle}>{list.title}</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <Text style={styles.countText}>{remainingCount} remaining</Text>
+        <Text style={[styles.countText, { color: colors.textSecondary }]}>{remainingCount} remaining</Text>
       </View>
 
       <TouchableOpacity
-        style={styles.addItemButton}
+        style={[styles.addItemButton, { backgroundColor: colors.surfaceAlt }]}
         onPress={() => { 
           setNewDueDate(null); 
           setPickerDate(new Date()); 
           setShowAddModal(true); 
         }}
       >
-        <Text style={styles.addItemButtonText}>+ Add Todo</Text>
+        <Text style={[styles.addItemButtonText, { color: colors.primary }]}>+ Add Todo</Text>
       </TouchableOpacity>
 
       <FlatList
         data={items}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.itemRow}>
+          <View style={[styles.itemRow, { borderBottomColor: colors.surface }]}>
             <TouchableOpacity
               style={styles.checkbox}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
-              <Text style={item.isDone ? styles.checkboxChecked : styles.checkboxUnchecked}>
+              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.success }] : [styles.checkboxUnchecked, { color: colors.textSecondary }]}>
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
@@ -209,15 +218,15 @@ export default function TodoDetailScreen() {
               style={styles.itemTitle}
               onPress={() => handleEditItem(item.id, item.title)}
             >
-              <Text style={[styles.itemText, item.isDone && styles.itemDone]}>
+              <Text style={[styles.itemText, { color: colors.text }, item.isDone && { color: colors.textMuted, textDecorationLine: 'line-through' }]}>
                 {item.title}
               </Text>
               <View style={styles.itemMeta}>
                 {item.dueDateFormatted && (
-                  <Text style={styles.dueDate}>{item.dueDateFormatted}</Text>
+                  <Text style={[styles.dueDate, { color: colors.textTertiary }]}>{item.dueDateFormatted}</Text>
                 )}
                 {item.priority && (
-                  <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(item.priority) }]}>
+                  <View style={[styles.priorityBadge, { backgroundColor: getPriorityColorFn(item.priority) }]}>
                     <Text style={styles.priorityText}>{item.priority}</Text>
                   </View>
                 )}
@@ -228,42 +237,44 @@ export default function TodoDetailScreen() {
               style={styles.deleteItem}
               onPress={() => handleDeleteItem(item.id)}
             >
-              <Text style={styles.deleteItemText}>✕</Text>
+              <Text style={[styles.deleteItemText, { color: colors.danger }]}>✕</Text>
             </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyItems}>No todos yet</Text>
+          <Text style={[styles.emptyItems, { color: colors.textMuted }]}>No todos yet</Text>
         }
       />
 
       <Modal visible={showAddModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Todo</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Add Todo</Text>
 
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
               placeholder="What needs to be done?"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={newItemText}
               onChangeText={setNewItemText}
             />
 
-            <Text style={styles.modalLabel}>Priority</Text>
+            <Text style={[styles.modalLabel, { color: colors.textSecondary }]}>Priority</Text>
             <View style={styles.priorityRow}>
               {(['low', 'medium', 'high'] as Priority[]).map(p => (
                 <TouchableOpacity
                   key={p!}
                   style={[
                     styles.priorityOption,
-                    newPriority === p && { backgroundColor: getPriorityColor(p) }
+                    { backgroundColor: colors.surfaceAlt },
+                    newPriority === p && { backgroundColor: getPriorityColorFn(p) }
                   ]}
                   onPress={() => setNewPriority(p)}
                 >
                   <Text style={[
                     styles.priorityOptionText,
-                    newPriority === p && styles.priorityOptionTextSelected
+                    { color: colors.textSecondary },
+                    newPriority === p && { color: colors.text, fontWeight: 'bold' }
                   ]}>
                     {p}
                   </Text>
@@ -271,19 +282,19 @@ export default function TodoDetailScreen() {
               ))}
             </View>
 
-            <Text style={styles.modalLabel}>Due Date (optional)</Text>
+            <Text style={[styles.modalLabel, { color: colors.textSecondary }]}>Due Date (optional)</Text>
             <View style={styles.dateRow}>
               <TouchableOpacity
-                style={styles.dateButton}
+                style={[styles.dateButton, { backgroundColor: colors.surfaceAlt }]}
                 onPress={openDatePicker}
               >
-                <Text style={styles.dateButtonText}>
+                <Text style={[styles.dateButtonText, { color: colors.text }]}>
                   {newDueDate ? newDueDate.toLocaleDateString() : 'Select date'}
                 </Text>
               </TouchableOpacity>
               {newDueDate && (
                 <TouchableOpacity onPress={() => setNewDueDate(null)}>
-                  <Text style={styles.clearDateText}>Clear</Text>
+                  <Text style={[styles.clearDateText, { color: colors.danger }]}>Clear</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -312,18 +323,19 @@ export default function TodoDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddModal(false); setNewItemText(''); }}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.modalButton,
                   styles.modalButtonPrimary,
-                  !newItemText.trim() && styles.modalButtonDisabled
+                  !newItemText.trim() && styles.modalButtonDisabled,
+                  { backgroundColor: colors.primary }
                 ]}
                 onPress={handleAddItem}
                 disabled={!newItemText.trim()}
               >
-                <Text style={styles.modalButtonTextPrimary}>Add</Text>
+                <Text style={[styles.modalButtonTextPrimary, { color: colors.text }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -332,12 +344,12 @@ export default function TodoDetailScreen() {
 
       <Modal visible={editItemId !== null} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Todo</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Todo</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
               placeholder="Todo text"
-              placeholderTextColor="#666"
+              placeholderTextColor={colors.textMuted}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
@@ -347,14 +359,14 @@ export default function TodoDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled]}
+                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.primary }]}
                 onPress={handleSaveEdit}
                 disabled={!editItemText.trim()}
               >
-                <Text style={styles.modalButtonTextPrimary}>Save</Text>
+                <Text style={[styles.modalButtonTextPrimary, { color: colors.text }]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
