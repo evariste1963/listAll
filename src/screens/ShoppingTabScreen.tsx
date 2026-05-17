@@ -48,8 +48,8 @@ export default function ShoppingTabScreen() {
     }
   }, [result]);
 
-  const loadDefaultShops = () => {
-    const defaults = defaultShopsResult?.data || [];
+  const loadDefaultShops = async () => {
+    const defaults = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
     const summaries: ShopSummary[] = defaults.map(shop => ({
       id: shop.id,
       name: shop.name,
@@ -243,6 +243,7 @@ export default function ShoppingTabScreen() {
       name: shopName,
       order: defaultShops.length + 1,
     }).run();
+    loadDefaultShops();
   };
 
   const removeFromDefaults = async (shopName: string) => {
@@ -250,6 +251,7 @@ export default function ShoppingTabScreen() {
     const exists = defaults.find(d => d.name.toLowerCase() === shopName.toLowerCase());
     if (exists) {
       await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, exists.id)).run();
+      loadDefaultShops();
     }
   };
 
