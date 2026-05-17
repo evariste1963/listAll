@@ -82,7 +82,7 @@ export default function ShoppingDetailScreen() {
     }
     setShops(withItems);
     if (withItems.length > 0) {
-      if (initialActiveTabId) {
+      if (initialActiveTabId && !activeTabId) {
         const selectedShop = withItems.find(s => s.id === initialActiveTabId);
         setActiveTabId(selectedShop ? initialActiveTabId : withItems[0].id);
       } else if (!activeTabId) {
