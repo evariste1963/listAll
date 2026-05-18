@@ -76,23 +76,23 @@ export default function MemosTabScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Memos</Text>
+        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Memos</Text>
         <TouchableOpacity onPress={handleCreate}>
-          <Text style={[styles.addButton, { color: colors.primary }]}>+</Text>
+          <Text style={[styles.addButton, { color: colors.accentColor }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {memos.length === 0 ? (
-        <View style={[styles.emptyState, { backgroundColor: colors.background }]}>
+        <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
           <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>No Memos Yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>Create a memo to remember things</Text>
-          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.primary }]} onPress={handleCreate}>
+          <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.primaryTextTertiary }]}>Create a memo to remember things</Text>
+          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
             <Text style={styles.createButtonText}>+ Create Memo</Text>
           </TouchableOpacity>
         </View>
@@ -103,18 +103,18 @@ export default function MemosTabScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity 
-              style={[styles.memoCard, { backgroundColor: colors.surface }]}
+              style={[styles.memoCard, { backgroundColor: colors.cardBackground }]}
               onPress={() => handleOpen(item.id)}
               onLongPress={() => handleDelete(item.id, item.title)}
             >
               <View style={styles.memoInfo}>
-                <Text style={[styles.memoTitle, { color: colors.text }]}>{item.title}</Text>
-                <Text style={[styles.memoItems, { color: colors.textTertiary }]}>
+                <Text style={[styles.memoTitle, { color: colors.primaryText }]}>{item.title}</Text>
+                <Text style={[styles.memoItems, { color: colors.primaryTextTertiary }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
               <View style={styles.memoMeta}>
-                <Text style={[styles.memoDate, { color: colors.textMuted }]}>
+                <Text style={[styles.memoDate, { color: colors.primaryTextMuted }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>

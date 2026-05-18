@@ -13,50 +13,50 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
       <View style={styles.header}>
-        <View style={[styles.logoContainer, { backgroundColor: colors.surface }]}>
+        <View style={[styles.logoContainer, { backgroundColor: colors.cardBackground }]}>
           <Image source={require('../../assets/listAll_logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
-        {/* <Text style={[styles.title, { color: colors.text }]}>listAll</Text> */}
-        <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Your personal list manager</Text>
+        {/* <Text style={[styles.title, { color: colors.primaryText }]}>listAll</Text> */}
+        <Text style={[styles.subtitle, { color: colors.primaryTextTertiary }]}>Your personal list manager</Text>
       </View>
 
       <View style={styles.cardsContainer}>
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: colors.surface }]}
+          style={[styles.card, { backgroundColor: colors.cardBackground }]}
           onPress={handleShoppingPress}
         >
           <Text style={styles.cardIcon}>🛒</Text>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Shopping</Text>
-          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Manage your shopping lists</Text>
+          <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Shopping</Text>
+          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>Manage your shopping lists</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: colors.surface }]}
+          style={[styles.card, { backgroundColor: colors.cardBackground }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'MemosTab' })}
         >
           <Text style={styles.cardIcon}>📝</Text>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Memos</Text>
-          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Quick notes and reminders</Text>
+          <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Memos</Text>
+          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>Quick notes and reminders</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: colors.surface }]}
+          style={[styles.card, { backgroundColor: colors.cardBackground }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'TodosTab' })}
         >
           <Text style={styles.cardIcon}>✅</Text>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Todos</Text>
-          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Track your tasks</Text>
+          <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Todos</Text>
+          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>Track your tasks</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: colors.surface }]}
+          style={[styles.card, { backgroundColor: colors.cardBackground }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'PreferencesTab' })}
         >
           <Text style={styles.cardIcon}>⚙️</Text>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Preferences</Text>
-          <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>App settings</Text>
+          <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Preferences</Text>
+          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>App settings</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

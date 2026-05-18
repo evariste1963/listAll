@@ -38,15 +38,15 @@ export default function CreateMemoListScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Create Memo</Text>
-      <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Give your memo a name</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <Text style={[styles.title, { color: colors.primaryText }]}>Create Memo</Text>
+      <Text style={[styles.subtitle, { color: colors.primaryTextTertiary }]}>Give your memo a name</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
+          style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.primaryText, borderColor: colors.dividerColor }]}
           placeholder="e.g., Notes, Ideas, Recipes"
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.primaryTextMuted}
           value={title}
           onChangeText={setTitle}
           autoFocus
@@ -54,18 +54,18 @@ export default function CreateMemoListScreen() {
       </View>
 
       <TouchableOpacity 
-        style={[styles.button, !title.trim() && styles.buttonDisabled, { backgroundColor: colors.primary }]}
+        style={[styles.button, !title.trim() && styles.buttonDisabled, { backgroundColor: colors.accentColor }]}
         onPress={handleCreate}
         disabled={!title.trim()}
       >
-        <Text style={[styles.buttonText, { color: colors.text }]}>Create Memo</Text>
+        <Text style={[styles.buttonText, { color: colors.primaryText }]}>Create Memo</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.cancelButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={[styles.cancelText, { color: colors.textTertiary }]}>Cancel</Text>
+        <Text style={[styles.cancelText, { color: colors.primaryTextTertiary }]}>Cancel</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

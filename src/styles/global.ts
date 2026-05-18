@@ -1,70 +1,70 @@
 export type ThemeName = 'dark' | 'green' | 'light';
 
 export interface ThemeColors {
-  background: string;
-  surface: string;
-  surfaceAlt: string;
-  primary: string;
-  success: string;
-  text: string;
-  textSecondary: string;
-  textTertiary: string;
-  textMuted: string;
-  border: string;
+  pageBackground: string;
+  cardBackground: string;
+  inputBackground: string;
+  accentColor: string;
+  completedColor: string;
+  primaryText: string;
+  secondaryText: string;
+  tertiaryText: string;
+  mutedText: string;
+  dividerColor: string;
   priorityHigh: string;
   priorityMedium: string;
   priorityLow: string;
-  danger: string;
+  deleteColor: string;
 }
 
 export const themes: Record<ThemeName, ThemeColors> = {
   dark: {
-    background: '#1a1a2e',
-    surface: '#16213e',
-    surfaceAlt: '#0f3460',
-    primary: '#e94560',
-    success: '#4ade80',
-    text: '#fff',
-    textSecondary: '#aaa',
-    textTertiary: '#888',
-    textMuted: '#666',
-    border: '#0f3460',
+    pageBackground: '#1a1a2e',
+    cardBackground: '#16213e',
+    inputBackground: '#0f3460',
+    accentColor: '#e94560',
+    completedColor: '#4ade80',
+    primaryText: '#fff',
+    secondaryText: '#aaa',
+    tertiaryText: '#888',
+    mutedText: '#666',
+    dividerColor: '#0f3460',
     priorityHigh: '#e94560',
     priorityMedium: '#f59e0b',
     priorityLow: '#10b981',
-    danger: '#e94560',
+    deleteColor: '#e94560',
   },
   green: {
-    background: '#0d1f0d',
-    surface: '#152615',
-    surfaceAlt: '#1e3a1e',
-    primary: '#4ade80',
-    success: '#22c55e',
-    text: '#e8f5e8',
-    textSecondary: '#a8d4a8',
-    textTertiary: '#6b9c6b',
-    textMuted: '#4a6b4a',
-    border: '#1e3a1e',
+    pageBackground: '#0d1f0d',
+    cardBackground: '#152615',
+    inputBackground: '#1e3a1e',
+    accentColor: '#4ade80',
+    completedColor: '#22c55e',
+    primaryText: '#e8f5e8',
+    secondaryText: '#a8d4a8',
+    tertiaryText: '#6b9c6b',
+    mutedText: '#4a6b4a',
+    dividerColor: '#1e3a1e',
     priorityHigh: '#ef4444',
     priorityMedium: '#f59e0b',
     priorityLow: '#22c55e',
-    danger: '#ef4444',
+    deleteColor: '#ef4444',
   },
   light: {
-    background: '#f5f5f5',
-    surface: '#ffffff',
-    surfaceAlt: '#e5e5e5',
-    primary: '#dc2626',
-    success: '#16a34a',
-    text: '#1f2937',
-    textSecondary: '#6b7280',
-    textTertiary: '#9ca3af',
-    textMuted: '#d1d5db',
-    border: '#e5e5e5',
+    pageBackground: '#f5f5f5',
+    cardBackground: '#ffffff',
+    inputBackground: '#e5e5e5',
+    accentColor: '#dc2626',
+    completedColor: '#16a34a',
+    primaryText: '#1f2937',
+    secondaryText: '#6b7280',
+    tertiaryText: '#9ca3af',
+    mutedText: '#d1d5db',
+    dividerColor: '#e5e5e5',
     priorityHigh: '#dc2626',
     priorityMedium: '#d97706',
     priorityLow: '#16a34a',
-    danger: '#dc2626',
+    deleteColor: '#dc2626',
   },
 };
 
@@ -110,35 +110,35 @@ export const fontWeight = {
 export const createThemedStyles = (theme: ThemeColors) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.background,
+    backgroundColor: theme.pageBackground,
   },
   header: {
     flexDirection: 'row' as const,
     justifyContent: 'space-between' as const,
     alignItems: 'center' as const,
     padding: spacing.lg,
-    backgroundColor: theme.surface,
+    backgroundColor: theme.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
+    borderBottomColor: theme.dividerColor,
   },
   headerTitle: {
     fontSize: fontSize.xxl,
     fontWeight: fontWeight.bold,
-    color: theme.text,
+    color: theme.primaryText,
   },
   homeButton: {
     fontSize: 24,
   },
   addButton: {
     fontSize: 28,
-    color: theme.primary,
+    color: theme.accentColor,
     fontWeight: fontWeight.bold,
   },
   list: {
     padding: spacing.lg,
   },
   card: {
-    backgroundColor: theme.surface,
+    backgroundColor: theme.cardBackground,
     padding: spacing.lg,
     borderRadius: borderRadius.lg,
     marginBottom: spacing.md,
@@ -146,21 +146,21 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   cardTitle: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.semibold,
-    color: theme.text,
+    color: theme.primaryText,
     marginBottom: spacing.xs,
   },
   cardSubtitle: {
     fontSize: fontSize.md,
-    color: theme.textTertiary,
+    color: theme.tertiaryText,
   },
   input: {
-    backgroundColor: theme.surfaceAlt,
+    backgroundColor: theme.inputBackground,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    color: theme.text,
+    color: theme.primaryText,
     fontSize: fontSize.base,
     borderWidth: 1,
-    borderColor: theme.border,
+    borderColor: theme.dividerColor,
   },
   inputRow: {
     flexDirection: 'row' as const,
@@ -169,20 +169,20 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   itemInput: {
     flex: 1,
-    backgroundColor: theme.surface,
+    backgroundColor: theme.cardBackground,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    color: theme.text,
+    color: theme.primaryText,
     marginRight: spacing.sm,
   },
   button: {
-    backgroundColor: theme.primary,
+    backgroundColor: theme.accentColor,
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
   },
   buttonText: {
-    color: theme.text,
+    color: theme.primaryText,
     fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
   },
@@ -190,13 +190,13 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     opacity: 0.5,
   },
   primaryButton: {
-    backgroundColor: theme.primary,
+    backgroundColor: theme.accentColor,
     borderRadius: borderRadius.lg,
     padding: spacing.lg,
     alignItems: 'center' as const,
   },
   primaryButtonText: {
-    color: theme.text,
+    color: theme.primaryText,
     fontSize: fontSize.lg,
     fontWeight: fontWeight.semibold,
   },
@@ -205,7 +205,7 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     alignItems: 'center' as const,
   },
   secondaryButtonText: {
-    color: theme.textTertiary,
+    color: theme.tertiaryText,
     fontSize: fontSize.base,
   },
   emptyState: {
@@ -221,19 +221,19 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   emptyTitle: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    color: theme.text,
+    color: theme.primaryText,
     marginBottom: spacing.sm,
   },
   emptySubtitle: {
     fontSize: fontSize.md,
-    color: theme.textTertiary,
+    color: theme.tertiaryText,
     marginBottom: spacing.xxl,
     textAlign: 'center' as const,
   },
   sectionTitle: {
     fontSize: fontSize.sm,
     fontWeight: fontWeight.semibold,
-    color: theme.primary,
+    color: theme.accentColor,
     marginBottom: spacing.md,
     textTransform: 'uppercase' as const,
   },
@@ -249,7 +249,7 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: theme.surface,
+    borderBottomColor: theme.cardBackground,
   },
   checkbox: {
     marginRight: spacing.md,
@@ -260,33 +260,33 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   checkboxUnchecked: {
     fontSize: 24,
-    color: theme.textSecondary,
+    color: theme.secondaryText,
   },
   checkboxChecked: {
     fontSize: 24,
-    color: theme.success,
+    color: theme.completedColor,
   },
   itemTitle: {
     flex: 1,
   },
   itemText: {
     fontSize: fontSize.base,
-    color: theme.text,
+    color: theme.primaryText,
   },
   itemDone: {
     textDecorationLine: 'line-through' as const,
-    color: theme.textMuted,
+    color: theme.mutedText,
   },
   deleteItem: {
     padding: spacing.sm,
   },
   deleteItemText: {
-    color: theme.danger,
+    color: theme.deleteColor,
     fontSize: 18,
   },
   emptyItems: {
     textAlign: 'center' as const,
-    color: theme.textMuted,
+    color: theme.mutedText,
     marginTop: spacing.xxl,
   },
   modalOverlay: {
@@ -296,13 +296,13 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     alignItems: 'center' as const,
   },
   modalContent: {
-    backgroundColor: theme.surface,
+    backgroundColor: theme.cardBackground,
     borderRadius: borderRadius.xl,
     padding: spacing.xxl,
     width: '80%',
   },
   modalContentWide: {
-    backgroundColor: theme.surface,
+    backgroundColor: theme.cardBackground,
     borderRadius: borderRadius.xl,
     padding: spacing.xxl,
     width: '85%',
@@ -310,19 +310,19 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   modalTitle: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    color: theme.text,
+    color: theme.primaryText,
     marginBottom: spacing.lg,
   },
   modalInput: {
-    backgroundColor: theme.surfaceAlt,
+    backgroundColor: theme.inputBackground,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    color: theme.text,
+    color: theme.primaryText,
     fontSize: fontSize.base,
     marginBottom: spacing.lg,
   },
   modalLabel: {
-    color: theme.textSecondary,
+    color: theme.secondaryText,
     fontSize: fontSize.md,
     marginBottom: spacing.sm,
   },
@@ -336,37 +336,37 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     marginLeft: spacing.sm,
   },
   modalButtonPrimary: {
-    backgroundColor: theme.primary,
+    backgroundColor: theme.accentColor,
     borderRadius: borderRadius.md,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: theme.textSecondary,
+    color: theme.secondaryText,
     fontSize: fontSize.base,
   },
   modalButtonTextPrimary: {
-    color: theme.text,
+    color: theme.primaryText,
     fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
   },
   titleInput: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    color: theme.text,
-    backgroundColor: theme.surfaceAlt,
+    color: theme.primaryText,
+    backgroundColor: theme.inputBackground,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: borderRadius.sm,
     minWidth: 200,
   },
   countText: {
-    color: theme.textSecondary,
+    color: theme.secondaryText,
     fontSize: fontSize.md,
   },
   placeholderText: {
-    color: theme.textMuted,
+    color: theme.mutedText,
   },
 });
 

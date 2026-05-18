@@ -76,23 +76,23 @@ export default function TodosTabScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Todos</Text>
+        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Todos</Text>
         <TouchableOpacity onPress={handleCreate}>
-          <Text style={[styles.addButton, { color: colors.primary }]}>+</Text>
+          <Text style={[styles.addButton, { color: colors.accentColor }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {todos.length === 0 ? (
-        <View style={[styles.emptyState, { backgroundColor: colors.background }]}>
+        <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
           <Text style={styles.emptyIcon}>✅</Text>
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>No Todo Lists Yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>Create a todo list to track tasks</Text>
-          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.primary }]} onPress={handleCreate}>
+          <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.primaryTextTertiary }]}>Create a todo list to track tasks</Text>
+          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
             <Text style={styles.createButtonText}>+ Create Todo List</Text>
           </TouchableOpacity>
         </View>
@@ -103,18 +103,18 @@ export default function TodosTabScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <TouchableOpacity 
-              style={[styles.todoCard, { backgroundColor: colors.surface }]}
+              style={[styles.todoCard, { backgroundColor: colors.cardBackground }]}
               onPress={() => handleOpen(item.id)}
               onLongPress={() => handleDelete(item.id, item.title)}
             >
               <View style={styles.todoInfo}>
-                <Text style={[styles.todoTitle, { color: colors.text }]}>{item.title}</Text>
-                <Text style={[styles.todoItems, { color: colors.textTertiary }]}>
+                <Text style={[styles.todoTitle, { color: colors.primaryText }]}>{item.title}</Text>
+                <Text style={[styles.todoItems, { color: colors.primaryTextTertiary }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
               <View style={styles.todoMeta}>
-                <Text style={[styles.todoDate, { color: colors.textMuted }]}>
+                <Text style={[styles.todoDate, { color: colors.primaryTextMuted }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
