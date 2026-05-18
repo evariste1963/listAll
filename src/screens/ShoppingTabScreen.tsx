@@ -257,6 +257,7 @@ export default function ShoppingTabScreen() {
       name: shopName,
       order: defaultShops.length + 1,
     }).run();
+    Alert.alert('Done', `"${shopName}" added to default shops`);
     if (shopList) {
       loadShops(shopList.id);
     } else {
@@ -269,6 +270,7 @@ export default function ShoppingTabScreen() {
     const exists = defaults.find(d => d.name.toLowerCase() === shopName.toLowerCase());
     if (exists) {
       await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, exists.id)).run();
+      Alert.alert('Done', `"${shopName}" removed from default shops`);
       if (shopList) {
         loadShops(shopList.id);
       } else {
