@@ -126,6 +126,9 @@ export default function ShoppingDetailScreen() {
     }).run();
 
     setNewItemText('');
+    if (shopsResult.data) {
+      loadShopItems(shopsResult.data);
+    }
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
@@ -134,10 +137,16 @@ export default function ShoppingDetailScreen() {
       .set({ isDone: newDone })
       .where(eq(schema.shoppingItem.id, itemId))
       .run();
+    if (shopsResult.data) {
+      loadShopItems(shopsResult.data);
+    }
   };
 
   const handleDeleteItem = async (itemId: number) => {
     await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, itemId)).run();
+    if (shopsResult.data) {
+      loadShopItems(shopsResult.data);
+    }
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
@@ -154,6 +163,9 @@ export default function ShoppingDetailScreen() {
     }
     setEditItemId(null);
     setEditItemText('');
+    if (shopsResult.data) {
+      loadShopItems(shopsResult.data);
+    }
   };
 
   const handleAddShop = async () => {
@@ -168,6 +180,9 @@ export default function ShoppingDetailScreen() {
 
     setNewShopName('');
     setShowAddShop(false);
+    if (shopsResult.data) {
+      loadShopItems(shopsResult.data);
+    }
   };
 
   const handleDeleteShop = async (shopId: number, shopName: string, itemCount: number) => {
@@ -216,6 +231,9 @@ export default function ShoppingDetailScreen() {
     const completedIds = activeShop.items.filter(i => i.isDone).map(i => i.id);
     for (const id of completedIds) {
       await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, id)).run();
+    }
+    if (shopsResult.data) {
+      loadShopItems(shopsResult.data);
     }
   };
 
