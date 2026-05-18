@@ -51,7 +51,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityMedium: '#FFB84D',
     priorityLow: '#7ED57E',
     deleteColor: '#FF6B6B',
-    gradientColors: ['#1A3D1A', '#245A24', '#2E6B2E'],
+    gradientColors: ['#1A3D1A', '#3A7A3A', '#A8D8A8'],
   },
   light: {
     pageBackground: '#f5f5f5',
