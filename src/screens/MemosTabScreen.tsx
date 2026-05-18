@@ -77,7 +77,7 @@ export default function MemosTabScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
@@ -91,7 +91,7 @@ export default function MemosTabScreen() {
         <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
           <Text style={styles.emptyIcon}>📝</Text>
           <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.primaryTextTertiary }]}>Create a memo to remember things</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a memo to remember things</Text>
           <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
             <Text style={styles.createButtonText}>+ Create Memo</Text>
           </TouchableOpacity>
@@ -109,12 +109,12 @@ export default function MemosTabScreen() {
             >
               <View style={styles.memoInfo}>
                 <Text style={[styles.memoTitle, { color: colors.primaryText }]}>{item.title}</Text>
-                <Text style={[styles.memoItems, { color: colors.primaryTextTertiary }]}>
+                <Text style={[styles.memoItems, { color: colors.tertiaryText }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
               <View style={styles.memoMeta}>
-                <Text style={[styles.memoDate, { color: colors.primaryTextMuted }]}>
+                <Text style={[styles.memoDate, { color: colors.mutedText }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>

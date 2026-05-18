@@ -120,7 +120,7 @@ export default function MemoDetailScreen() {
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editTitle ? (
           <TextInput
-            style={[styles.titleInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+            style={[styles.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
             value={title}
             onChangeText={setTitle}
             onBlur={handleUpdateTitle}
@@ -132,14 +132,14 @@ export default function MemoDetailScreen() {
             <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <Text style={[styles.countText, { color: colors.primaryTextSecondary }]}>{remainingCount} remaining</Text>
+        <Text style={[styles.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
       </View>
 
       <View style={styles.inputRow}>
         <TextInput
           style={[styles.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
           placeholder="Add note..."
-          placeholderTextColor={colors.primaryTextMuted}
+          placeholderTextColor={colors.mutedText}
           value={newItemText}
           onChangeText={setNewItemText}
           onSubmitEditing={handleAddItem}
@@ -162,7 +162,7 @@ export default function MemoDetailScreen() {
               style={styles.checkbox}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
-              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.primaryTextSecondary }]}>
+              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.secondaryText }]}>
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
@@ -170,7 +170,7 @@ export default function MemoDetailScreen() {
               style={styles.itemTitle}
               onPress={() => handleEditItem(item.id, item.title)}
             >
-              <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.primaryTextMuted, textDecorationLine: 'line-through' }]}>
+              <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                 {item.title}
               </Text>
             </TouchableOpacity>
@@ -183,7 +183,7 @@ export default function MemoDetailScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={[styles.emptyItems, { color: colors.primaryTextMuted }]}>No notes yet</Text>
+          <Text style={[styles.emptyItems, { color: colors.mutedText }]}>No notes yet</Text>
         }
       />
 
@@ -192,9 +192,9 @@ export default function MemoDetailScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Edit Note</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Note text"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
@@ -204,7 +204,7 @@ export default function MemoDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}

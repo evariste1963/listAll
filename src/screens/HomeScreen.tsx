@@ -19,7 +19,7 @@ export default function HomeScreen() {
           <Image source={require('../../assets/listAll_logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
         {/* <Text style={[styles.title, { color: colors.primaryText }]}>listAll</Text> */}
-        <Text style={[styles.subtitle, { color: colors.primaryTextTertiary }]}>Your personal list manager</Text>
+        <Text style={[styles.subtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
       </View>
 
       <View style={styles.cardsContainer}>
@@ -29,7 +29,7 @@ export default function HomeScreen() {
         >
           <Text style={styles.cardIcon}>🛒</Text>
           <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Shopping</Text>
-          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>Manage your shopping lists</Text>
+          <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>Manage your shopping lists</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -38,7 +38,7 @@ export default function HomeScreen() {
         >
           <Text style={styles.cardIcon}>📝</Text>
           <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Memos</Text>
-          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>Quick notes and reminders</Text>
+          <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>Quick notes and reminders</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -47,7 +47,7 @@ export default function HomeScreen() {
         >
           <Text style={styles.cardIcon}>✅</Text>
           <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Todos</Text>
-          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>Track your tasks</Text>
+          <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>Track your tasks</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -56,7 +56,7 @@ export default function HomeScreen() {
         >
           <Text style={styles.cardIcon}>⚙️</Text>
           <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Preferences</Text>
-          <Text style={[styles.cardDesc, { color: colors.primaryTextTertiary }]}>App settings</Text>
+          <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>App settings</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

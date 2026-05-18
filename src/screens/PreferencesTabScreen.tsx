@@ -85,7 +85,7 @@ export default function PreferencesTabScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <Text style={[styles.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
       </View>
 
@@ -93,8 +93,8 @@ export default function PreferencesTabScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>About</Text>
           <Text style={[styles.appName, { color: colors.primaryText }]}>listAll</Text>
-          <Text style={[styles.version, { color: colors.primaryTextTertiary }]}>Version 1.0.0</Text>
-          <Text style={[styles.description, { color: colors.primaryTextSecondary }]}>
+          <Text style={[styles.version, { color: colors.tertiaryText }]}>Version 1.0.0</Text>
+          <Text style={[styles.description, { color: colors.secondaryText }]}>
             A scalable list app for Shopping Lists, Memos, and Todos.
           </Text>
         </View>
@@ -114,7 +114,7 @@ export default function PreferencesTabScreen() {
               >
                 <Text style={[
                   styles.themeOptionText,
-                  { color: colors.primaryTextSecondary },
+                  { color: colors.secondaryText },
                   theme === t && { color: colors.primaryText, fontWeight: '600' }
                 ]}>
                   {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -139,7 +139,7 @@ export default function PreferencesTabScreen() {
             </TouchableOpacity>
           </View>
           {defaultShops.length === 0 ? (
-            <Text style={[styles.emptyText, { color: colors.primaryTextMuted }]}>No default shops set</Text>
+            <Text style={[styles.emptyText, { color: colors.mutedText }]}>No default shops set</Text>
           ) : (
             defaultShops.map(shop => (
               <TouchableOpacity
@@ -154,12 +154,12 @@ export default function PreferencesTabScreen() {
               </TouchableOpacity>
             ))
           )}
-          <Text style={[styles.hintText, { color: colors.primaryTextMuted }]}>Long press or tap X to remove</Text>
+          <Text style={[styles.hintText, { color: colors.mutedText }]}>Long press or tap X to remove</Text>
         </View>
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Info</Text>
-          <Text style={[styles.infoText, { color: colors.primaryTextSecondary }]}>
+          <Text style={[styles.infoText, { color: colors.secondaryText }]}>
             • Shopping lists support multiple shop tabs{'\n'}
             • Memos can have optional checkboxes{'\n'}
             • Todos support due dates and priorities{'\n'}
@@ -173,9 +173,9 @@ export default function PreferencesTabScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add Default Shop</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Shop name (e.g., Tesco)"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
@@ -185,7 +185,7 @@ export default function PreferencesTabScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}

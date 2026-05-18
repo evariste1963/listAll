@@ -40,13 +40,13 @@ export default function CreateMemoListScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
       <Text style={[styles.title, { color: colors.primaryText }]}>Create Memo</Text>
-      <Text style={[styles.subtitle, { color: colors.primaryTextTertiary }]}>Give your memo a name</Text>
+      <Text style={[styles.subtitle, { color: colors.tertiaryText }]}>Give your memo a name</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
           style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.primaryText, borderColor: colors.dividerColor }]}
           placeholder="e.g., Notes, Ideas, Recipes"
-          placeholderTextColor={colors.primaryTextMuted}
+          placeholderTextColor={colors.mutedText}
           value={title}
           onChangeText={setTitle}
           autoFocus
@@ -65,7 +65,7 @@ export default function CreateMemoListScreen() {
         style={styles.cancelButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={[styles.cancelText, { color: colors.primaryTextTertiary }]}>Cancel</Text>
+        <Text style={[styles.cancelText, { color: colors.tertiaryText }]}>Cancel</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

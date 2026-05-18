@@ -354,8 +354,8 @@ export default function ShoppingTabScreen() {
         </View>
         <View style={[styles.emptyShops, { backgroundColor: colors.pageBackground }]}>
           <Text style={[styles.emptyShopsText, { color: colors.primaryText }]}>No shops yet</Text>
-          <Text style={[styles.emptyShopsSubtext, { color: colors.primaryTextTertiary }]}>Add a shop to start your shopping list</Text>
-          <TouchableOpacity style={[styles.addShopButton, { backgroundColor: colors.cardBackgroundAlt }]} onPress={handleAddFirstShop}>
+          <Text style={[styles.emptyShopsSubtext, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
+          <TouchableOpacity style={[styles.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
             <Text style={[styles.addShopButtonText, { color: colors.accentColor }]}>+ Add Shop</Text>
           </TouchableOpacity>
         </View>
@@ -376,7 +376,7 @@ export default function ShoppingTabScreen() {
         <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
           <Text style={styles.emptyIcon}>🛒</Text>
           <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.primaryTextTertiary }]}>Create a new shopping list to get started</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
           <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreateList}>
             <Text style={styles.createButtonText}>+ Create Shopping List</Text>
           </TouchableOpacity>
@@ -411,13 +411,13 @@ export default function ShoppingTabScreen() {
           >
             <View style={styles.shopInfo}>
               <Text style={[styles.shopName, { color: colors.primaryText }]}>{item.name}</Text>
-              <Text style={[styles.shopItems, { color: colors.primaryTextTertiary }]}>
+              <Text style={[styles.shopItems, { color: colors.tertiaryText }]}>
                 {item.remainingItems} of {item.totalItems} items remaining
               </Text>
             </View>
             <View style={styles.shopActions}>
               <TouchableOpacity 
-                style={[styles.defaultButton, { backgroundColor: colors.cardBackgroundAlt }]}
+                style={[styles.defaultButton, { backgroundColor: colors.inputBackground }]}
                 onPress={() => {
                   if (inDefaults) {
                     removeFromDefaults(item.name);
@@ -446,9 +446,9 @@ export default function ShoppingTabScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add Shop</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Shop name (e.g., Walmart)"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
@@ -458,7 +458,7 @@ export default function ShoppingTabScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}

@@ -91,7 +91,7 @@ export default function TodosTabScreen() {
         <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
           <Text style={styles.emptyIcon}>✅</Text>
           <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.primaryTextTertiary }]}>Create a todo list to track tasks</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a todo list to track tasks</Text>
           <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
             <Text style={styles.createButtonText}>+ Create Todo List</Text>
           </TouchableOpacity>
@@ -109,12 +109,12 @@ export default function TodosTabScreen() {
             >
               <View style={styles.todoInfo}>
                 <Text style={[styles.todoTitle, { color: colors.primaryText }]}>{item.title}</Text>
-                <Text style={[styles.todoItems, { color: colors.primaryTextTertiary }]}>
+                <Text style={[styles.todoItems, { color: colors.tertiaryText }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
               <View style={styles.todoMeta}>
-                <Text style={[styles.todoDate, { color: colors.primaryTextMuted }]}>
+                <Text style={[styles.todoDate, { color: colors.mutedText }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>

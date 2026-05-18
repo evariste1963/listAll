@@ -156,7 +156,7 @@ export default function TodoDetailScreen() {
       case 'high': return colors.priorityHigh;
       case 'medium': return colors.priorityMedium;
       case 'low': return colors.priorityLow;
-      default: return colors.primaryTextMuted;
+      default: return colors.mutedText;
     }
   };
 
@@ -165,7 +165,7 @@ export default function TodoDetailScreen() {
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editTitle ? (
           <TextInput
-            style={[styles.titleInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+            style={[styles.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
             value={title}
             onChangeText={setTitle}
             onBlur={handleUpdateTitle}
@@ -177,11 +177,11 @@ export default function TodoDetailScreen() {
             <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <Text style={[styles.countText, { color: colors.primaryTextSecondary }]}>{remainingCount} remaining</Text>
+        <Text style={[styles.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
       </View>
 
       <TouchableOpacity
-        style={[styles.addItemButton, { backgroundColor: colors.cardBackgroundAlt }]}
+        style={[styles.addItemButton, { backgroundColor: colors.inputBackground }]}
         onPress={() => { 
           setNewDueDate(null); 
           setPickerDate(new Date()); 
@@ -200,7 +200,7 @@ export default function TodoDetailScreen() {
               style={styles.checkbox}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
-              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.primaryTextSecondary }]}>
+              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.secondaryText }]}>
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
@@ -209,12 +209,12 @@ export default function TodoDetailScreen() {
               style={styles.itemTitle}
               onPress={() => handleEditItem(item.id, item.title)}
             >
-              <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.primaryTextMuted, textDecorationLine: 'line-through' }]}>
+              <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                 {item.title}
               </Text>
               <View style={styles.itemMeta}>
                 {item.dueDateFormatted && (
-                  <Text style={[styles.dueDate, { color: colors.primaryTextTertiary }]}>{item.dueDateFormatted}</Text>
+                  <Text style={[styles.dueDate, { color: colors.tertiaryText }]}>{item.dueDateFormatted}</Text>
                 )}
                 {item.priority && (
                   <View style={[styles.priorityBadge, { backgroundColor: getPriorityColorFn(item.priority) }]}>
@@ -233,7 +233,7 @@ export default function TodoDetailScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={[styles.emptyItems, { color: colors.primaryTextMuted }]}>No todos yet</Text>
+          <Text style={[styles.emptyItems, { color: colors.mutedText }]}>No todos yet</Text>
         }
       />
 
@@ -243,28 +243,28 @@ export default function TodoDetailScreen() {
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add Todo</Text>
 
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="What needs to be done?"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={newItemText}
               onChangeText={setNewItemText}
             />
 
-            <Text style={[styles.modalLabel, { color: colors.primaryTextSecondary }]}>Priority</Text>
+            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
             <View style={styles.priorityRow}>
               {(['low', 'medium', 'high'] as Priority[]).map(p => (
                 <TouchableOpacity
                   key={p!}
                   style={[
                     styles.priorityOption,
-                    { backgroundColor: colors.cardBackgroundAlt },
+                    { backgroundColor: colors.inputBackground },
                     newPriority === p && { backgroundColor: getPriorityColorFn(p) }
                   ]}
                   onPress={() => setNewPriority(p)}
                 >
                   <Text style={[
                     styles.priorityOptionText,
-                    { color: colors.primaryTextSecondary },
+                    { color: colors.secondaryText },
                     newPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
                   ]}>
                     {p}
@@ -273,10 +273,10 @@ export default function TodoDetailScreen() {
               ))}
             </View>
 
-            <Text style={[styles.modalLabel, { color: colors.primaryTextSecondary }]}>Due Date (optional)</Text>
+            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
             <View style={styles.dateRow}>
               <TouchableOpacity
-                style={[styles.dateButton, { backgroundColor: colors.cardBackgroundAlt }]}
+                style={[styles.dateButton, { backgroundColor: colors.inputBackground }]}
                 onPress={openDatePicker}
               >
                 <Text style={[styles.dateButtonText, { color: colors.primaryText }]}>
@@ -314,7 +314,7 @@ export default function TodoDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddModal(false); setNewItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -338,9 +338,9 @@ export default function TodoDetailScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Edit Todo</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Todo text"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
@@ -350,7 +350,7 @@ export default function TodoDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}

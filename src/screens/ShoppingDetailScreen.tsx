@@ -273,7 +273,7 @@ export default function ShoppingDetailScreen() {
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editListTitle ? (
           <TextInput
-            style={[styles.titleInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+            style={[styles.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
             value={listTitle}
             onChangeText={setListTitle}
             onBlur={handleUpdateTitle}
@@ -287,8 +287,8 @@ export default function ShoppingDetailScreen() {
         )}
       </View>
 
-      <View style={[styles.summary, { backgroundColor: colors.cardBackgroundAlt }]}>
-        <Text style={[styles.summaryText, { color: colors.primaryTextSecondary }]}>
+      <View style={[styles.summary, { backgroundColor: colors.inputBackground }]}>
+        <Text style={[styles.summaryText, { color: colors.secondaryText }]}>
           {remainingItems} of {totalItems} items remaining
         </Text>
       </View>
@@ -305,7 +305,7 @@ export default function ShoppingDetailScreen() {
               key={shop.id}
               style={[
                 styles.tab,
-                { backgroundColor: colors.cardBackgroundAlt },
+                { backgroundColor: colors.inputBackground },
                 activeTabId === shop.id && { backgroundColor: colors.accentColor }
               ]}
               onPress={() => setActiveTabId(shop.id)}
@@ -313,12 +313,12 @@ export default function ShoppingDetailScreen() {
             >
               <Text style={[
                 styles.tabText,
-                { color: colors.primaryTextSecondary },
+                { color: colors.secondaryText },
                 activeTabId === shop.id && { color: colors.primaryText, fontWeight: '600' }
               ]}>
                 {shop.name}
               </Text>
-              <Text style={[styles.tabCount, { color: colors.primaryTextTertiary }]}>
+              <Text style={[styles.tabCount, { color: colors.tertiaryText }]}>
                 {shop.items?.filter(i => !i.isDone).length || 0}
               </Text>
             </TouchableOpacity>
@@ -334,7 +334,7 @@ export default function ShoppingDetailScreen() {
 
       {shops.length === 0 && (
         <View style={[styles.noShops, { backgroundColor: colors.pageBackground }]}>
-          <Text style={[styles.noShopsText, { color: colors.primaryTextTertiary }]}>Add your first shop</Text>
+          <Text style={[styles.noShopsText, { color: colors.tertiaryText }]}>Add your first shop</Text>
           <TouchableOpacity
             style={[styles.addShopButton, { backgroundColor: colors.accentColor }]}
             onPress={() => setShowAddShop(true)}
@@ -350,7 +350,7 @@ export default function ShoppingDetailScreen() {
             <TextInput
               style={[styles.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
               placeholder="Add item..."
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={newItemText}
               onChangeText={setNewItemText}
               onSubmitEditing={handleAddItem}
@@ -379,7 +379,7 @@ export default function ShoppingDetailScreen() {
                   style={styles.checkbox}
                   onPress={() => handleToggleItem(item.id, item.isDone)}
                 >
-                  <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.primaryTextSecondary }]}>
+                  <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.secondaryText }]}>
                     {item.isDone ? '✓' : '○'}
                   </Text>
                 </TouchableOpacity>
@@ -387,7 +387,7 @@ export default function ShoppingDetailScreen() {
                   style={styles.itemTitle}
                   onPress={() => handleEditItem(item.id, item.title)}
                 >
-                  <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.primaryTextMuted, textDecorationLine: 'line-through' }]}>
+                  <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                     {item.title}
                   </Text>
                 </TouchableOpacity>
@@ -400,7 +400,7 @@ export default function ShoppingDetailScreen() {
               </View>
             )}
             ListEmptyComponent={
-              <Text style={[styles.emptyItems, { color: colors.primaryTextMuted }]}>No items yet</Text>
+              <Text style={[styles.emptyItems, { color: colors.mutedText }]}>No items yet</Text>
             }
           />
         </View>
@@ -411,9 +411,9 @@ export default function ShoppingDetailScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add New Shop</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Shop name (e.g., Walmart)"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
@@ -423,7 +423,7 @@ export default function ShoppingDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
@@ -442,9 +442,9 @@ export default function ShoppingDetailScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
             <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Edit Item</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.cardBackgroundAlt, color: colors.primaryText }]}
+              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Item name"
-              placeholderTextColor={colors.primaryTextMuted}
+              placeholderTextColor={colors.mutedText}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
@@ -454,7 +454,7 @@ export default function ShoppingDetailScreen() {
                 style={styles.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.primaryTextSecondary }]}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}

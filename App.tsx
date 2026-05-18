@@ -46,8 +46,8 @@ function MainTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
+          backgroundColor: colors.cardBackground,
+          borderTopColor: colors.dividerColor,
           height: 60 + insets.bottom,
           paddingBottom: 4 + insets.bottom,
           paddingTop: 4,
@@ -61,7 +61,7 @@ function MainTabs() {
         component={ShoppingTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🛒" label="Shopping" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+            <TabIcon icon="🛒" label="Shopping" focused={focused} primaryColor={colors.accentColor} mutedColor={colors.tertiaryText} />
           ),
         }}
       />
@@ -70,7 +70,7 @@ function MainTabs() {
         component={MemosTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="📝" label="Memos" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+            <TabIcon icon="📝" label="Memos" focused={focused} primaryColor={colors.accentColor} mutedColor={colors.tertiaryText} />
           ),
         }}
       />
@@ -79,7 +79,7 @@ function MainTabs() {
         component={TodosTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="✅" label="Todos" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+            <TabIcon icon="✅" label="Todos" focused={focused} primaryColor={colors.accentColor} mutedColor={colors.tertiaryText} />
           ),
         }}
       />
@@ -88,7 +88,7 @@ function MainTabs() {
         component={PreferencesTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="⚙️" label="Prefs" focused={focused} primaryColor={colors.primary} mutedColor={colors.textTertiary} />
+            <TabIcon icon="⚙️" label="Prefs" focused={focused} primaryColor={colors.accentColor} mutedColor={colors.tertiaryText} />
           ),
         }}
       />
@@ -103,11 +103,11 @@ function AppNavigator() {
     ...(theme === 'dark' ? DarkTheme : DefaultTheme),
     colors: {
       ...(theme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
-      primary: colors.primary,
-      background: colors.background,
-      card: colors.surface,
-      text: colors.text,
-      border: colors.border,
+      primary: colors.accentColor,
+      background: colors.pageBackground,
+      card: colors.cardBackground,
+      text: colors.primaryText,
+      border: colors.dividerColor,
     },
   };
 
@@ -118,12 +118,12 @@ function AppNavigator() {
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
-            backgroundColor: colors.surface,
+            backgroundColor: colors.cardBackground,
           },
-          headerTintColor: colors.text,
+          headerTintColor: colors.primaryText,
           headerBackTitle: 'Back',
           contentStyle: {
-            backgroundColor: colors.background,
+            backgroundColor: colors.pageBackground,
           },
         }}
       >
