@@ -25,7 +25,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     inputBackground: '#2C2C2E',
     accentColor: '#2E5A88',
     completedColor: '#30D158',
-    primaryText: '#FFFFFF',
+    primaryText: '#AAAAAA',
     secondaryText: '#98989D',
     tertiaryText: '#636366',
     mutedText: '#48484A',

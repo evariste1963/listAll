@@ -275,7 +275,7 @@ export default function ShoppingDetailScreen() {
               ]}>
                 {shop.name}
               </Text>
-              <Text style={[styles.tabCount, { color: colors.tertiaryText }]}>
+              <Text style={[styles.tabCount, { color: colors.secondaryText }]}>
                 {shop.items?.filter(i => !i.isDone).length || 0}
               </Text>
             </TouchableOpacity>
