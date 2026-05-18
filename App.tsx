@@ -19,6 +19,7 @@ import CreateTodoListScreen from './src/screens/CreateTodoListScreen';
 import ShoppingDetailScreen from './src/screens/ShoppingDetailScreen';
 import MemoDetailScreen from './src/screens/MemoDetailScreen';
 import TodoDetailScreen from './src/screens/TodoDetailScreen';
+import GuideScreen from './src/screens/GuideScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -193,6 +194,11 @@ function AppNavigator() {
           name="TodoDetail" 
           component={TodoDetailScreen}
           options={{ title: 'Todo List', headerBackTitle: 'Back' }}
+        />
+        <Stack.Screen 
+          name="Guide" 
+          component={GuideScreen}
+          options={{ title: 'Guide', headerBackTitle: 'Back' }}
         />
       </Stack.Navigator>
       </GradientBackground>

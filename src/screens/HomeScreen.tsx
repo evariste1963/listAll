@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../styles/theme';
@@ -61,10 +61,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={[styles.card, { backgroundColor: colors.cardBackground }]}
-          onPress={() => {
-            const url = 'https://github.com/evariste1963/listAll/blob/main/guide.md';
-            Linking.openURL(url);
-          }}
+          onPress={() => navigation.navigate('Guide')}
         >
           <Text style={styles.cardIcon}>📖</Text>
           <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Guide</Text>
