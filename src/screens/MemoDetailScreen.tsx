@@ -44,13 +44,13 @@ export default function MemoDetailScreen() {
         setTitle(data[0].title);
       }
     }
-  }, [listResult]);
+  }, [listResult?.data]);
 
   useEffect(() => {
     if (itemsResult && itemsResult.data) {
       setItems([...itemsResult.data]);
     }
-  }, [itemsResult]);
+  }, [itemsResult?.data]);
 
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;

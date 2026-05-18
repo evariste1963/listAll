@@ -70,7 +70,7 @@ export default function TodoDetailScreen() {
         setTitle(data[0].title);
       }
     }
-  }, [listResult]);
+  }, [listResult?.data]);
 
   useEffect(() => {
     if (itemsResult && itemsResult.data) {
@@ -82,7 +82,7 @@ export default function TodoDetailScreen() {
       }));
       setItems(formatted);
     }
-  }, [itemsResult]);
+  }, [itemsResult?.data]);
 
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;

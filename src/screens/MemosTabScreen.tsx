@@ -29,7 +29,7 @@ export default function MemosTabScreen() {
     if (result && result.data) {
       loadMemoCounts(result.data);
     }
-  }, [result]);
+  }, [result?.data]);
 
   const loadMemoCounts = async (lists: typeof schema.memoList.$inferSelect[]) => {
     const withCounts: MemoWithCount[] = [];

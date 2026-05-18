@@ -29,7 +29,7 @@ export default function TodosTabScreen() {
     if (result && result.data) {
       loadTodoCounts(result.data);
     }
-  }, [result]);
+  }, [result?.data]);
 
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
