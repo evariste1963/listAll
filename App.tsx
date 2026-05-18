@@ -3,8 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, useColorScheme } from 'react-native';
+import { Text, View, StyleSheet, Dimensions } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
@@ -21,6 +22,31 @@ import TodoDetailScreen from './src/screens/TodoDetailScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const { width, height } = Dimensions.get('window');
+
+function GradientBackground({ children, gradientColors }: { children: React.ReactNode; gradientColors?: string[] }) {
+  if (!gradientColors || gradientColors.length === 0) {
+    return <>{children}</>;
+  }
+  return (
+    <LinearGradient
+      colors={gradientColors as [string, string, ...string[]]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.gradientBg}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  gradientBg: {
+    flex: 1,
+    width,
+    minHeight: height,
+  },
+});
 
 function TabIcon({ icon, label, focused, primaryColor, mutedColor }: { icon: string; label: string; focused: boolean; primaryColor: string; mutedColor: string }) {
   return (
@@ -98,11 +124,13 @@ function MainTabs() {
 
 function AppNavigator() {
   const { colors, theme } = useTheme();
-  
+
+  const greenTheme = theme === 'green';
+  const darkTheme = theme === 'dark';
   const navigationTheme = {
-    ...(theme === 'dark' ? DarkTheme : DefaultTheme),
+    ...(darkTheme || greenTheme ? DarkTheme : DefaultTheme),
     colors: {
-      ...(theme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
+      ...(darkTheme || greenTheme ? DarkTheme.colors : DefaultTheme.colors),
       primary: colors.accentColor,
       background: colors.pageBackground,
       card: colors.cardBackground,
@@ -113,8 +141,9 @@ function AppNavigator() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
-      <Stack.Navigator
+      <GradientBackground gradientColors={colors.gradientColors}>
+        <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
+        <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
@@ -168,6 +197,7 @@ function AppNavigator() {
           options={{ title: 'Todo List', headerBackTitle: 'Back' }}
         />
       </Stack.Navigator>
+      </GradientBackground>
     </NavigationContainer>
   );
 }

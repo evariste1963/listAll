@@ -15,6 +15,7 @@ export interface ThemeColors {
   priorityMedium: string;
   priorityLow: string;
   deleteColor: string;
+  gradientColors?: string[];
 }
 
 export const themes: Record<ThemeName, ThemeColors> = {
@@ -33,22 +34,24 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityMedium: '#FF9F0A',
     priorityLow: '#32D74B',
     deleteColor: '#FF453A',
+    gradientColors: ['#000000', '#1C1C1E', '#2C2C2E'],
   },
   green: {
-    pageBackground: '#0d1f0d',
-    cardBackground: '#152615',
-    inputBackground: '#1e3a1e',
-    accentColor: '#4ade80',
-    completedColor: '#22c55e',
-    primaryText: '#e8f5e8',
-    secondaryText: '#a8d4a8',
-    tertiaryText: '#6b9c6b',
-    mutedText: '#4a6b4a',
-    dividerColor: '#1e3a1e',
-    priorityHigh: '#ef4444',
-    priorityMedium: '#f59e0b',
-    priorityLow: '#22c55e',
-    deleteColor: '#ef4444',
+    pageBackground: '#0B1F12',
+    cardBackground: '#142618',
+    inputBackground: '#1C3520',
+    accentColor: '#4ADE80',
+    completedColor: '#22C55E',
+    primaryText: '#DCFCE7',
+    secondaryText: '#86EFAC',
+    tertiaryText: '#4ADE80',
+    mutedText: '#166534',
+    dividerColor: '#1C3520',
+    priorityHigh: '#F87171',
+    priorityMedium: '#FBBF24',
+    priorityLow: '#4ADE80',
+    deleteColor: '#F87171',
+    gradientColors: ['#0B1F12', '#142618', '#1C3520'],
   },
   light: {
     pageBackground: '#f5f5f5',
