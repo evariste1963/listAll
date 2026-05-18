@@ -38,7 +38,7 @@ export default function CreateMemoListScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <Text style={[styles.title, { color: colors.primaryText }]}>Create Memo</Text>
       <Text style={[styles.subtitle, { color: colors.tertiaryText }]}>Give your memo a name</Text>
 

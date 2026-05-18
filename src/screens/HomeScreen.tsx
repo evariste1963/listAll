@@ -13,7 +13,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={[styles.logoContainer, { backgroundColor: colors.cardBackground }]}>
           <Image source={require('../../assets/listAll_logo.png')} style={styles.logo} resizeMode="contain" />

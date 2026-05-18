@@ -37,7 +37,7 @@ export default function CreateTodoListScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <Text style={[styles.title, { color: colors.primaryText }]}>Create Todo List</Text>
       <Text style={[styles.subtitle, { color: colors.tertiaryText }]}>Give your todo list a name</Text>
 

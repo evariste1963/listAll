@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, StyleSheet, Dimensions } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -22,7 +22,6 @@ import TodoDetailScreen from './src/screens/TodoDetailScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-const { width, height } = Dimensions.get('window');
 
 function GradientBackground({ children, gradientColors }: { children: React.ReactNode; gradientColors?: string[] }) {
   if (!gradientColors || gradientColors.length === 0) {
@@ -42,9 +41,8 @@ function GradientBackground({ children, gradientColors }: { children: React.Reac
 
 const styles = StyleSheet.create({
   gradientBg: {
-    flex: 1,
-    width,
-    minHeight: height,
+    ...StyleSheet.absoluteFillObject,
+    zIndex: -1,
   },
 });
 

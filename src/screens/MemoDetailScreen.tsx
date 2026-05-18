@@ -107,7 +107,7 @@ export default function MemoDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <SafeAreaView style={styles.container}>
         <Text style={[styles.loading, { color: colors.primaryText }]}>Loading...</Text>
       </SafeAreaView>
     );
@@ -116,7 +116,7 @@ export default function MemoDetailScreen() {
   const remainingCount = items.filter(i => !i.isDone).length;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editTitle ? (
           <TextInput

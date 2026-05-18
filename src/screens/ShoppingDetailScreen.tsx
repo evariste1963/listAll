@@ -280,14 +280,14 @@ export default function ShoppingDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <SafeAreaView style={styles.container}>
         <Text style={[styles.loading, { color: colors.primaryText }]}>Loading...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]} edges={['left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editListTitle ? (
           <TextInput
@@ -351,7 +351,7 @@ export default function ShoppingDetailScreen() {
       )}
 
       {shops.length === 0 && (
-        <View style={[styles.noShops, { backgroundColor: colors.pageBackground }]}>
+        <View style={styles.noShops}>
           <Text style={[styles.noShopsText, { color: colors.tertiaryText }]}>Add your first shop</Text>
           <TouchableOpacity
             style={[styles.addShopButton, { backgroundColor: colors.accentColor }]}
@@ -363,7 +363,7 @@ export default function ShoppingDetailScreen() {
       )}
 
       {activeShop && (
-        <View style={[styles.itemsContainer, { backgroundColor: colors.pageBackground }]}>
+        <View style={styles.itemsContainer}>
           <View style={styles.inputRow}>
             <TextInput
               style={[styles.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}

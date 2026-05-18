@@ -344,7 +344,7 @@ export default function ShoppingTabScreen() {
 
   if (hasNoShops) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <SafeAreaView style={styles.container}>
         <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Text style={styles.homeButton}>🏠</Text>
@@ -352,7 +352,7 @@ export default function ShoppingTabScreen() {
           <Text style={[styles.listTitle, { color: colors.primaryText }]}>Summary</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={[styles.emptyShops, { backgroundColor: colors.pageBackground }]}>
+        <View style={styles.emptyShops}>
           <Text style={[styles.emptyShopsText, { color: colors.primaryText }]}>No shops yet</Text>
           <Text style={[styles.emptyShopsSubtext, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
           <TouchableOpacity style={[styles.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
@@ -365,7 +365,7 @@ export default function ShoppingTabScreen() {
 
   if (!shopList) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <SafeAreaView style={styles.container}>
         <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Text style={styles.homeButton}>🏠</Text>
@@ -373,7 +373,7 @@ export default function ShoppingTabScreen() {
           <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
+        <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>🛒</Text>
           <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
           <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
@@ -389,7 +389,7 @@ export default function ShoppingTabScreen() {
   const displayShops = shopList ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>

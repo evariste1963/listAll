@@ -143,7 +143,7 @@ export default function TodoDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+      <SafeAreaView style={styles.container}>
         <Text style={[styles.loading, { color: colors.primaryText }]}>Loading...</Text>
       </SafeAreaView>
     );
@@ -161,7 +161,7 @@ export default function TodoDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editTitle ? (
           <TextInput

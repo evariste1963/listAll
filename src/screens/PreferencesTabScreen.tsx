@@ -84,12 +84,12 @@ export default function PreferencesTabScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <Text style={[styles.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
       </View>
 
-      <View style={[styles.content, { backgroundColor: colors.pageBackground }]}>
+      <View style={styles.content}>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>About</Text>
           <Text style={[styles.appName, { color: colors.primaryText }]}>listAll</Text>

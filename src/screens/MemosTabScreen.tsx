@@ -76,7 +76,7 @@ export default function MemosTabScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.pageBackground }]}>
+    <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.homeButton}>🏠</Text>
@@ -88,7 +88,7 @@ export default function MemosTabScreen() {
       </View>
 
       {memos.length === 0 ? (
-        <View style={[styles.emptyState, { backgroundColor: colors.pageBackground }]}>
+        <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📝</Text>
           <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
           <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a memo to remember things</Text>
