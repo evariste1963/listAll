@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
   Alert, ScrollView, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -28,7 +28,6 @@ interface ShopTabType {
 
 export default function ShoppingDetailScreen() {
   const route = useRoute<ShoppingDetailProps['route']>();
-  const navigation = useNavigation<any>();
   const db = useDB();
   const { colors } = useTheme();
   const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
@@ -39,8 +38,6 @@ export default function ShoppingDetailScreen() {
   const [newItemText, setNewItemText] = useState('');
   const [showAddShop, setShowAddShop] = useState(initialShowAddShop || false);
   const [newShopName, setNewShopName] = useState('');
-  const [editListTitle, setEditListTitle] = useState(false);
-  const [listTitle, setListTitle] = useState('');
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
 
@@ -55,12 +52,8 @@ export default function ShoppingDetailScreen() {
   );
 
   useEffect(() => {
-    if (listResult && listResult.data) {
-      const data = listResult.data;
-      if (data.length > 0) {
-        setList(data[0]);
-        setListTitle(data[0].title);
-      }
+    if (listResult && listResult.data && listResult.data.length > 0) {
+      setList(listResult.data[0]);
     }
   }, [listResult?.data]);
 
@@ -194,10 +187,10 @@ export default function ShoppingDetailScreen() {
       );
       return;
     }
-    
+
     const defaults = await db.select().from(schema.defaultShop).all();
     const isDefault = defaults.some(d => d.name.toLowerCase() === shopName.toLowerCase());
-    
+
     if (isDefault) {
       Alert.alert(
         'Cannot Delete Shop',
@@ -206,7 +199,7 @@ export default function ShoppingDetailScreen() {
       );
       return;
     }
-    
+
     Alert.alert(
       'Delete Shop',
       `Delete "${shopName}"?`,
@@ -237,47 +230,6 @@ export default function ShoppingDetailScreen() {
     }
   };
 
-  const handleUpdateTitle = async () => {
-    if (listTitle.trim() && list) {
-      await db.update(schema.shoppingList)
-        .set({ title: listTitle.trim() })
-        .where(eq(schema.shoppingList.id, listId))
-        .run();
-      setEditListTitle(false);
-    }
-  };
-
-  const handleEndList = () => {
-    const totalItems = shops.reduce((sum, shop) => sum + (shop.items?.length || 0), 0);
-    if (totalItems > 0) {
-      Alert.alert(
-        'Cannot End List',
-        `This shopping list has ${totalItems} item${totalItems > 1 ? 's' : ''} in ${shops.length} shop${shops.length > 1 ? 's' : ''}. Delete all items first.`,
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    Alert.alert(
-      'End Shopping List',
-      'Are you sure you want to end this shopping list? This will delete all shops.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'End List',
-          style: 'destructive',
-          onPress: async () => {
-            for (const shop of shops) {
-              await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shop.id)).run();
-            }
-            await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, listId)).run();
-            navigation.goBack();
-          }
-        },
-      ]
-    );
-  };
-
   if (!list) {
     return (
       <SafeAreaView style={styles.container}>
@@ -288,21 +240,8 @@ export default function ShoppingDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-        {editListTitle ? (
-          <TextInput
-            style={[styles.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-            value={listTitle}
-            onChangeText={setListTitle}
-            onBlur={handleUpdateTitle}
-            onSubmitEditing={handleUpdateTitle}
-            autoFocus
-          />
-        ) : (
-          <TouchableOpacity onPress={() => setEditListTitle(true)}>
-            <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
-          </TouchableOpacity>
-        )}
+      <View style={[styles.header, { backgroundColor: colors.pageBackground, borderBottomColor: colors.dividerColor }]}>
+        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list?.title}</Text>
       </View>
 
       <View style={[styles.summary, { backgroundColor: colors.inputBackground }]}>
@@ -510,9 +449,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  homeButton: {
-    fontSize: 20,
-  },
   titleInput: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -521,9 +457,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     minWidth: 200,
   },
-  endButton: {
-    fontSize: 16,
-  },
+  endButton: {},
   summary: {
     padding: 8,
   },
@@ -546,12 +480,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 8,
   },
-  tabActive: {},
   tabText: {
     fontSize: 14,
-  },
-  tabTextActive: {
-    fontWeight: '600',
   },
   tabCount: {
     marginLeft: 8,
@@ -642,9 +572,6 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-  },
-  itemDone: {
-    textDecorationLine: 'line-through',
   },
   deleteItem: {
     padding: 8,

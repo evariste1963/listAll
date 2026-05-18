@@ -71,7 +71,8 @@ function MainTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.cardBackground,
+          backgroundColor: colors.pageBackground,
+          borderTopWidth: 1,
           borderTopColor: colors.dividerColor,
           height: 60 + insets.bottom,
           paddingBottom: 4 + insets.bottom,
