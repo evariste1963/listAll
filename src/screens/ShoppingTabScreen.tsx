@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -48,40 +48,9 @@ export default function ShoppingTabScreen() {
       setShopList(null);
       loadDefaultShops();
     }
-  }, [result]);
+}, [result?.data]);
 
-  const loadDefaultShops = async () => {
-    const defaults = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-    const summaries: ShopSummary[] = defaults.map(shop => ({
-      id: shop.id,
-      name: shop.name,
-      totalItems: 0,
-      remainingItems: 0,
-    }));
-    setShops(summaries);
-  };
-
-  useEffect(() => {
-    if (!shopList || shops.length === 0) {
-      loadDefaultShops();
-    } else if (shopList) {
-      syncDefaultsToList();
-    }
-  }, [defaultShopsResult?.data, shopList, shops]);
-
-  useEffect(() => {
-    if (shopList) {
-      loadShops(shopList.id);
-    }
-  }, [shopList]);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      loadDefaultShops();
-    }, [])
-  );
-
-  const loadShops = async (listId: number) => {
+  const loadShops = useCallback(async (listId: number) => {
     const shopTabsResult = await db.select().from(schema.shopTab)
       .where(eq(schema.shopTab.listId, listId))
       .orderBy(schema.shopTab.order)
@@ -108,6 +77,41 @@ export default function ShoppingTabScreen() {
         remainingItems: remaining,
       });
     }
+    setShops(summaries);
+  }, []);
+
+  useEffect(() => {
+    if (!shopList || shops.length === 0) {
+      loadDefaultShops();
+    } else if (shopList) {
+      syncDefaultsToList();
+    }
+  }, [defaultShopsResult?.data, shopList]);
+
+  useEffect(() => {
+    if (shopList) {
+      loadShops(shopList.id);
+    }
+  }, [shopList]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (shopList) {
+        loadShops(shopList.id);
+      } else {
+        loadDefaultShops();
+      }
+    }, [shopList])
+  );
+
+  const loadDefaultShops = async () => {
+    const defaults = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
+    const summaries: ShopSummary[] = defaults.map(shop => ({
+      id: shop.id,
+      name: shop.name,
+      totalItems: 0,
+      remainingItems: 0,
+    }));
     setShops(summaries);
   };
 
@@ -253,7 +257,11 @@ export default function ShoppingTabScreen() {
       name: shopName,
       order: defaultShops.length + 1,
     }).run();
-    loadDefaultShops();
+    if (shopList) {
+      loadShops(shopList.id);
+    } else {
+      loadDefaultShops();
+    }
   };
 
   const removeFromDefaults = async (shopName: string) => {
@@ -261,7 +269,11 @@ export default function ShoppingTabScreen() {
     const exists = defaults.find(d => d.name.toLowerCase() === shopName.toLowerCase());
     if (exists) {
       await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, exists.id)).run();
-      loadDefaultShops();
+      if (shopList) {
+        loadShops(shopList.id);
+      } else {
+        loadDefaultShops();
+      }
     }
   };
 

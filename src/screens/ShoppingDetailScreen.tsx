@@ -62,13 +62,13 @@ export default function ShoppingDetailScreen() {
         setListTitle(data[0].title);
       }
     }
-  }, [listResult]);
+  }, [listResult?.data]);
 
   useEffect(() => {
     if (shopsResult && shopsResult.data) {
       loadShopItems(shopsResult.data);
     }
-  }, [shopsResult]);
+  }, [shopsResult?.data]);
 
   const loadShopItems = async (shopTabs: typeof schema.shopTab.$inferSelect[]) => {
     const withItems: ShopTabType[] = [];
