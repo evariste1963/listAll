@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../styles/theme';
@@ -16,14 +16,14 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <View style={[styles.logoContainer, { backgroundColor: colors.surface }]}>
-          <Text style={styles.logo}>📋</Text>
+          <Image source={require('../../assets/listAll_logo.png')} style={styles.logo} resizeMode="contain" />
         </View>
-        <Text style={[styles.title, { color: colors.text }]}>listAll</Text>
+        {/* <Text style={[styles.title, { color: colors.text }]}>listAll</Text> */}
         <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Your personal list manager</Text>
       </View>
 
       <View style={styles.cardsContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={handleShoppingPress}
         >
@@ -32,7 +32,7 @@ export default function HomeScreen() {
           <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Manage your shopping lists</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'MemosTab' })}
         >
@@ -41,7 +41,7 @@ export default function HomeScreen() {
           <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Quick notes and reminders</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'TodosTab' })}
         >
@@ -50,7 +50,7 @@ export default function HomeScreen() {
           <Text style={[styles.cardDesc, { color: colors.textTertiary }]}>Track your tasks</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.card, { backgroundColor: colors.surface }]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'PreferencesTab' })}
         >
@@ -69,15 +69,17 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   logoContainer: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
   },
   logo: {
-    fontSize: 48,
+    width: 150,
+    height: 150,
   },
   title: {
     fontSize: 36,
