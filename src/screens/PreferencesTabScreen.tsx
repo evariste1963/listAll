@@ -127,9 +127,11 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Default Shops</Text>
-            <TouchableOpacity onPress={() => setShowAddShop(true)}>
-              <Text style={[styles.addButton, { color: colors.accentColor }]}>+ Add</Text>
-            </TouchableOpacity>
+            {!showAddShop && (
+              <TouchableOpacity onPress={() => setShowAddShop(true)}>
+                <Text style={[styles.addButton, { color: colors.accentColor }]}>+ Add</Text>
+              </TouchableOpacity>
+            )}
           </View>
           {defaultShops.length === 0 ? (
             <Text style={[styles.emptyText, { color: colors.mutedText }]}>No default shops set</Text>
