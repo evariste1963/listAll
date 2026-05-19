@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, FlatList, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme, ThemeName } from '../styles/theme';
 import { eq } from 'drizzle-orm';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 
 interface PreferencesTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
@@ -17,24 +18,13 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
   const navigation = useNavigation<any>();
   const { theme, setTheme, colors } = useTheme();
 
-  const [defaultShops, setDefaultShops] = useState<typeof schema.defaultShop.$inferSelect[]>([]);
   const [showAddShop, setShowAddShop] = useState(false);
   const [newShopName, setNewShopName] = useState('');
 
-  useEffect(() => {
-    loadDefaultShops();
-  }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      loadDefaultShops();
-    }, [])
+  const defaultShopsResult = useLiveQuery(
+    db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order)
   );
-
-  const loadDefaultShops = async () => {
-    const shops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-    setDefaultShops(shops);
-  };
+  const defaultShops = defaultShopsResult?.data ?? [];
 
   const handleAddDefaultShop = async () => {
     if (!newShopName.trim()) return;
@@ -45,7 +35,6 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
     }).run();
     setNewShopName('');
     setShowAddShop(false);
-    loadDefaultShops();
   };
 
   const handleDeleteDefaultShop = (shopId: number, shopName: string) => {
@@ -59,7 +48,6 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
           style: 'destructive',
           onPress: async () => {
             await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, shopId)).run();
-            loadDefaultShops();
           }
         },
       ]
