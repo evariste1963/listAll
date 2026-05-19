@@ -1,7 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, Text, ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from './src/styles/theme';
+import HomeTabScreen from './src/screens/HomeTabScreen';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
 import MemosTabScreen from './src/screens/MemosTabScreen';
 import TodosTabScreen from './src/screens/TodosTabScreen';
@@ -10,13 +12,15 @@ import PreferencesTabScreen from './src/screens/PreferencesTabScreen';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const TAB_MAP: Record<string, number> = {
-  ShoppingTab: 0,
-  MemosTab: 1,
-  TodosTab: 2,
-  PreferencesTab: 3,
+  HomeTab: 0,
+  ShoppingTab: 1,
+  MemosTab: 2,
+  TodosTab: 3,
+  PreferencesTab: 4,
 };
 
 const TABS = [
+  { name: 'Home', icon: '🏠', Screen: HomeTabScreen },
   { name: 'Shopping', icon: '🛒', Screen: ShoppingTabScreen },
   { name: 'Memos', icon: '📝', Screen: MemosTabScreen },
   { name: 'Todos', icon: '✅', Screen: TodosTabScreen },
@@ -38,6 +42,11 @@ export default function SwipeableTabs({ route }: { route?: { params?: { screen?:
   const scrollRef = useRef<ScrollView>(null);
   const isScrolled = useRef(false);
 
+  const handleTabPress = useCallback((index: number, animated = true) => {
+    setActiveIndex(index);
+    scrollRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated });
+  }, []);
+
   useEffect(() => {
     if (!isScrolled.current && scrollRef.current) {
       isScrolled.current = true;
@@ -54,11 +63,6 @@ export default function SwipeableTabs({ route }: { route?: { params?: { screen?:
     }
   };
 
-  const handleTabPress = (index: number) => {
-    setActiveIndex(index);
-    scrollRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated: true });
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <ScrollView
@@ -72,7 +76,7 @@ export default function SwipeableTabs({ route }: { route?: { params?: { screen?:
       >
         {TABS.map(({ name, Screen }) => (
           <View key={name} style={styles.page}>
-            <Screen />
+            <Screen onTabChange={handleTabPress} />
           </View>
         ))}
       </ScrollView>
@@ -88,7 +92,7 @@ export default function SwipeableTabs({ route }: { route?: { params?: { screen?:
           <TouchableOpacity
             key={tab.name}
             style={styles.tabButton}
-            onPress={() => handleTabPress(index)}
+            onPress={() => handleTabPress(index, false)}
           >
             <Text style={styles.tabIcon}>{tab.icon}</Text>
             <Text style={[

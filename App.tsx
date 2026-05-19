@@ -6,7 +6,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
-import HomeScreen from './src/screens/HomeScreen';
 import SwipeableTabs from './SwipeableTabs';
 import CreateMemoListScreen from './src/screens/CreateMemoListScreen';
 import CreateTodoListScreen from './src/screens/CreateTodoListScreen';
@@ -38,7 +37,7 @@ function AppNavigator() {
     <NavigationContainer theme={navigationTheme}>
       <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
       <Stack.Navigator
-        initialRouteName="Home"
+        initialRouteName="MainTabs"
         screenOptions={{
           headerStyle: {
             backgroundColor: colors.cardBackground,
@@ -50,11 +49,6 @@ function AppNavigator() {
           },
         }}
       >
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
         <Stack.Screen
           name="MainTabs"
           component={SwipeableTabs}

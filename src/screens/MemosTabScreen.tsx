@@ -16,7 +16,12 @@ interface MemoWithCount {
   remainingItems: number;
 }
 
-export default function MemosTabScreen() {
+interface MemosTabScreenProps {
+  onTabChange?: (index: number, animated?: boolean) => void;
+  isHomeTab?: boolean;
+}
+
+export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}) {
   const db = useDB();
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
@@ -78,7 +83,7 @@ export default function MemosTabScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Memos</Text>

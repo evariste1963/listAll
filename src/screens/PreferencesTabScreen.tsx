@@ -7,7 +7,12 @@ import { schema } from '../db/index';
 import { useTheme, ThemeName } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 
-export default function PreferencesTabScreen() {
+interface PreferencesTabScreenProps {
+  onTabChange?: (index: number, animated?: boolean) => void;
+  isHomeTab?: boolean;
+}
+
+export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScreenProps = {}) {
   const db = useDB();
   const navigation = useNavigation<any>();
   const { theme, setTheme, colors } = useTheme();

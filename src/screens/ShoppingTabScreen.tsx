@@ -16,7 +16,12 @@ interface ShopSummary {
   remainingItems: number;
 }
 
-export default function ShoppingTabScreen() {
+interface ShoppingTabScreenProps {
+  onTabChange?: (index: number, animated?: boolean) => void;
+  isHomeTab?: boolean;
+}
+
+export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProps = {}) {
   const db = useDB();
   const navigation = useNavigation<any>();
   const { colors } = useTheme();
@@ -348,7 +353,7 @@ export default function ShoppingTabScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
             <Text style={styles.homeButton}>🏠</Text>
           </TouchableOpacity>
           <Text style={[styles.listTitle, { color: colors.primaryText }]}>Summary</Text>
@@ -369,7 +374,7 @@ export default function ShoppingTabScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
             <Text style={styles.homeButton}>🏠</Text>
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
@@ -393,7 +398,7 @@ export default function ShoppingTabScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
           <Text style={styles.homeButton}>🏠</Text>
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Summary</Text>
