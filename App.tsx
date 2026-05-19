@@ -3,9 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 
 import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
@@ -24,35 +23,12 @@ import GuideScreen from './src/screens/GuideScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function GradientBackground({ children, gradientColors }: { children: React.ReactNode; gradientColors?: string[] }) {
-  if (!gradientColors || gradientColors.length === 0) {
-    return <>{children}</>;
-  }
-  return (
-    <LinearGradient
-      colors={gradientColors as [string, string, ...string[]]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.gradientBg}
-    >
-      {children}
-    </LinearGradient>
-  );
-}
-
-const styles = StyleSheet.create({
-  gradientBg: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: -1,
-  },
-});
-
 function TabIcon({ icon, label, focused, primaryColor, mutedColor }: { icon: string; label: string; focused: boolean; primaryColor: string; mutedColor: string }) {
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 4, minWidth: 60 }}>
       <Text style={{ fontSize: 24 }}>{icon}</Text>
-      <Text style={{ 
-        fontSize: 10, 
+      <Text style={{
+        fontSize: 10,
         color: focused ? primaryColor : mutedColor,
         marginTop: 2,
       }}>
@@ -65,7 +41,7 @@ function TabIcon({ icon, label, focused, primaryColor, mutedColor }: { icon: str
 function MainTabs() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -82,8 +58,8 @@ function MainTabs() {
         tabBarHideOnKeyboard: true,
       }}
     >
-      <Tab.Screen 
-        name="ShoppingTab" 
+      <Tab.Screen
+        name="ShoppingTab"
         component={ShoppingTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -91,8 +67,8 @@ function MainTabs() {
           ),
         }}
       />
-      <Tab.Screen 
-        name="MemosTab" 
+      <Tab.Screen
+        name="MemosTab"
         component={MemosTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -100,8 +76,8 @@ function MainTabs() {
           ),
         }}
       />
-      <Tab.Screen 
-        name="TodosTab" 
+      <Tab.Screen
+        name="TodosTab"
         component={TodosTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -109,8 +85,8 @@ function MainTabs() {
           ),
         }}
       />
-      <Tab.Screen 
-        name="PreferencesTab" 
+      <Tab.Screen
+        name="PreferencesTab"
         component={PreferencesTabScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -141,9 +117,8 @@ function AppNavigator() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <GradientBackground gradientColors={colors.gradientColors}>
-        <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
-        <Stack.Navigator
+      <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
+      <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
@@ -156,53 +131,52 @@ function AppNavigator() {
           },
         }}
       >
-        <Stack.Screen 
-          name="Home" 
+        <Stack.Screen
+          name="Home"
           component={HomeScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="MainTabs" 
+        <Stack.Screen
+          name="MainTabs"
           component={MainTabs}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="CreateMemoList" 
+        <Stack.Screen
+          name="CreateMemoList"
           component={CreateMemoListScreen}
           options={{ title: 'New Memo' }}
         />
-        <Stack.Screen 
-          name="CreateTodoList" 
+        <Stack.Screen
+          name="CreateTodoList"
           component={CreateTodoListScreen}
           options={{ title: 'New Todo List' }}
         />
-        <Stack.Screen 
-          name="ShoppingDetail" 
+        <Stack.Screen
+          name="ShoppingDetail"
           component={ShoppingDetailScreen}
-          options={{ 
+          options={{
             headerTitle: '',
             headerBackTitle: 'Back',
             headerBackVisible: true,
             gestureEnabled: true,
           }}
         />
-        <Stack.Screen 
-          name="MemoDetail" 
+        <Stack.Screen
+          name="MemoDetail"
           component={MemoDetailScreen}
           options={{ title: 'Memo', headerBackTitle: 'Back' }}
         />
-        <Stack.Screen 
-          name="TodoDetail" 
+        <Stack.Screen
+          name="TodoDetail"
           component={TodoDetailScreen}
           options={{ title: 'Todo List', headerBackTitle: 'Back' }}
         />
-        <Stack.Screen 
-          name="Guide" 
+        <Stack.Screen
+          name="Guide"
           component={GuideScreen}
           options={{ title: 'Guide', headerBackTitle: 'Back' }}
         />
       </Stack.Navigator>
-      </GradientBackground>
     </NavigationContainer>
   );
 }
