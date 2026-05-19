@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme } from '../styles/theme';
+import { desc } from 'drizzle-orm';
 
 export default function CreateTodoListScreen() {
   const db = useDB();
@@ -25,7 +26,7 @@ export default function CreateTodoListScreen() {
 
     const newList = await db.select()
       .from(schema.todoList)
-      .orderBy(schema.todoList.id)
+      .orderBy(desc(schema.todoList.id))
       .limit(1)
       .get();
 

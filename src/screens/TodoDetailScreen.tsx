@@ -42,6 +42,8 @@ export default function TodoDetailScreen() {
   const [newPriority, setNewPriority] = useState<Priority>(null);
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
+  const [editPriority, setEditPriority] = useState<Priority>(null);
+  const [editDueDate, setEditDueDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerDate, setPickerDate] = useState<Date | null>(null);
 
@@ -115,20 +117,28 @@ export default function TodoDetailScreen() {
     await db.delete(schema.todoItem).where(eq(schema.todoItem.id, itemId)).run();
   };
 
-  const handleEditItem = (itemId: number, currentTitle: string) => {
-    setEditItemId(itemId);
-    setEditItemText(currentTitle);
+  const handleEditItem = (item: TodoItemType) => {
+    setEditItemId(item.id);
+    setEditItemText(item.title);
+    setEditPriority(item.priority as Priority);
+    setEditDueDate(item.dueDate ? new Date(item.dueDate) : null);
   };
 
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
       await db.update(schema.todoItem)
-        .set({ title: editItemText.trim() })
+        .set({ 
+          title: editItemText.trim(),
+          priority: editPriority,
+          dueDate: editDueDate ? editDueDate.getTime() : null
+        })
         .where(eq(schema.todoItem.id, editItemId))
         .run();
     }
     setEditItemId(null);
     setEditItemText('');
+    setEditPriority(null);
+    setEditDueDate(null);
   };
 
   const handleUpdateTitle = async () => {
@@ -207,7 +217,7 @@ export default function TodoDetailScreen() {
 
             <TouchableOpacity
               style={styles.itemTitle}
-              onPress={() => handleEditItem(item.id, item.title)}
+              onPress={() => handleEditItem(item)}
             >
               <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                 {item.title}
@@ -345,10 +355,70 @@ export default function TodoDetailScreen() {
               onChangeText={setEditItemText}
               autoFocus
             />
+
+            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
+            <View style={styles.priorityRow}>
+              {(['low', 'medium', 'high'] as Priority[]).map(p => (
+                <TouchableOpacity
+                  key={p!}
+                  style={[
+                    styles.priorityOption,
+                    { backgroundColor: colors.inputBackground },
+                    editPriority === p && { backgroundColor: getPriorityColorFn(p) }
+                  ]}
+                  onPress={() => setEditPriority(p)}
+                >
+                  <Text style={[
+                    styles.priorityOptionText,
+                    { color: colors.secondaryText },
+                    editPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
+                  ]}>
+                    {p}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
+            <View style={styles.dateRow}>
+              <TouchableOpacity
+                style={[styles.dateButton, { backgroundColor: colors.inputBackground }]}
+                onPress={() => { setPickerDate(editDueDate || new Date()); setShowDatePicker(true); }}
+              >
+                <Text style={[styles.dateButtonText, { color: colors.primaryText }]}>
+                  {editDueDate ? editDueDate.toLocaleDateString() : 'Select date'}
+                </Text>
+              </TouchableOpacity>
+              {editDueDate && (
+                <TouchableOpacity onPress={() => setEditDueDate(null)}>
+                  <Text style={[styles.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={pickerDate || new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={new Date()}
+                maximumDate={new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)}
+                onChange={(event, selectedDate) => {
+                  if (event.type === 'set' && selectedDate) {
+                    setEditDueDate(selectedDate);
+                    setPickerDate(selectedDate);
+                    setShowDatePicker(false);
+                  } else if (event.type === 'dismissed') {
+                    setShowDatePicker(false);
+                  }
+                }}
+              />
+            )}
+
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => { setEditItemId(null); setEditItemText(''); }}
+                onPress={() => { setEditItemId(null); setEditItemText(''); setEditPriority(null); setEditDueDate(null); }}
               >
                 <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>

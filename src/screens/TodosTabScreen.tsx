@@ -39,11 +39,10 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
     for (const list of lists) {
-      const itemsResult = await db.select().from(schema.todoItem)
+      const items = await db.select().from(schema.todoItem)
         .where(eq(schema.todoItem.listId, list.id))
-        .get();
+        .all();
       
-      const items = itemsResult ? [itemsResult] : [];
       const remaining = items.filter(i => !i.isDone).length;
       withCounts.push({
         ...list,
