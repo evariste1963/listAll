@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -35,6 +35,14 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
       loadTodoCounts(result.data);
     }
   }, [result?.data]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (result && result.data) {
+        loadTodoCounts(result.data);
+      }
+    }, [result])
+  );
 
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
