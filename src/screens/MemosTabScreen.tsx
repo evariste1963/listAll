@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -36,14 +36,20 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     }
   }, [result?.data]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (result && result.data) {
+        loadMemoCounts(result.data);
+      }
+    }, [result])
+  );
+
   const loadMemoCounts = async (lists: typeof schema.memoList.$inferSelect[]) => {
     const withCounts: MemoWithCount[] = [];
     for (const list of lists) {
-      const itemsResult = await db.select().from(schema.memoItem)
+      const items = await db.select().from(schema.memoItem)
         .where(eq(schema.memoItem.listId, list.id))
-        .get();
-      
-      const items = itemsResult ? [itemsResult] : [];
+        .all();
       const remaining = items.filter(i => !i.isDone).length;
       withCounts.push({
         ...list,

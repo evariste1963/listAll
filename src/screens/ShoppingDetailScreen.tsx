@@ -165,14 +165,19 @@ export default function ShoppingDetailScreen() {
     if (!newShopName.trim()) return;
 
     const maxOrder = shops.length;
-    await db.insert(schema.shopTab).values({
+    const result = await db.insert(schema.shopTab).values({
       listId,
       name: newShopName.trim(),
       order: maxOrder + 1,
-    }).run();
+    }).returning();
+
+    const newShopId = result[0]?.id;
 
     setNewShopName('');
     setShowAddShop(false);
+    if (newShopId) {
+      setActiveTabId(newShopId);
+    }
     if (shopsResult.data) {
       loadShopItems(shopsResult.data);
     }
