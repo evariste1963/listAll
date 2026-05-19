@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme, ThemeName } from '../styles/theme';
@@ -15,7 +14,6 @@ interface PreferencesTabScreenProps {
 
 export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScreenProps = {}) {
   const db = useDB();
-  const navigation = useNavigation<any>();
   const { theme, setTheme, colors } = useTheme();
 
   const [showAddShop, setShowAddShop] = useState(false);
