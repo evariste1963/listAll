@@ -82,6 +82,14 @@ export default function TodoDetailScreen() {
           ? new Date(item.dueDate).toLocaleDateString()
           : undefined
       }));
+
+      formatted.sort((a, b) => {
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return a.dueDate - b.dueDate;
+      });
+
       setItems(formatted);
     }
   }, [itemsResult?.data]);

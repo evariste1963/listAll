@@ -14,6 +14,9 @@ interface TodoWithCount {
   createdAt: Date;
   totalItems: number;
   remainingItems: number;
+  remainingHigh: number;
+  remainingMedium: number;
+  remainingLow: number;
 }
 
 interface TodosTabScreenProps {
@@ -51,11 +54,18 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
         .where(eq(schema.todoItem.listId, list.id))
         .all();
       
-      const remaining = items.filter(i => !i.isDone).length;
+      const remainingItems = items.filter(i => !i.isDone);
+      const remaining = remainingItems.length;
+      const remainingHigh = remainingItems.filter(i => i.priority === 'high').length;
+      const remainingMedium = remainingItems.filter(i => i.priority === 'medium').length;
+      const remainingLow = remainingItems.filter(i => i.priority === 'low').length;
       withCounts.push({
         ...list,
         totalItems: items.length,
         remainingItems: remaining,
+        remainingHigh,
+        remainingMedium,
+        remainingLow,
       });
     }
     setTodos(withCounts);
@@ -124,6 +134,23 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
                 <Text style={[styles.todoItems, { color: colors.tertiaryText }]}>
                   {item.remainingItems} remaining
                 </Text>
+                <View style={styles.priorityRow}>
+                  {item.remainingHigh > 0 && (
+                    <View style={[styles.priorityBadge, { backgroundColor: colors.priorityHigh }]}>
+                      <Text style={styles.priorityText}>{item.remainingHigh}</Text>
+                    </View>
+                  )}
+                  {item.remainingMedium > 0 && (
+                    <View style={[styles.priorityBadge, { backgroundColor: colors.priorityMedium }]}>
+                      <Text style={styles.priorityText}>{item.remainingMedium}</Text>
+                    </View>
+                  )}
+                  {item.remainingLow > 0 && (
+                    <View style={[styles.priorityBadge, { backgroundColor: colors.priorityLow }]}>
+                      <Text style={styles.priorityText}>{item.remainingLow}</Text>
+                    </View>
+                  )}
+                </View>
               </View>
               <View style={styles.todoMeta}>
                 <Text style={[styles.todoDate, { color: colors.mutedText }]}>
@@ -210,6 +237,21 @@ const styles = StyleSheet.create({
   },
   todoItems: {
     fontSize: 14,
+  },
+  priorityRow: {
+    flexDirection: 'row',
+    marginTop: 6,
+    gap: 6,
+  },
+  priorityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  priorityText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   todoMeta: {
     alignItems: 'flex-end',
