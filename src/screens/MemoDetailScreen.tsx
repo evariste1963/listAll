@@ -8,7 +8,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { MemoDetailProps } from '../navigation/types';
 
 export default function MemoDetailScreen() {

@@ -7,7 +7,6 @@ import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
-import { TouchableOpacity as RNTouchable } from 'react-native';
 
 interface ShopSummary {
   id: number;
@@ -247,11 +246,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     }
     setNewShopName('');
     setShowAddShop(false);
-  };
-
-  const isInDefaults = async (shopName: string): Promise<boolean> => {
-    const defaults = await db.select().from(schema.defaultShop).all();
-    return defaults.some(d => d.name.toLowerCase() === shopName.toLowerCase());
   };
 
   const addToDefaults = async (shopName: string) => {
