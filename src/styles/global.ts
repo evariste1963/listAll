@@ -40,7 +40,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     pageBackground: '#1A3D1A',
     cardBackground: '#245A24',
     inputBackground: '#2E6B2E',
-    accentColor: '#5CCC5C',
+    accentColor: '#4AAB4A',
     completedColor: '#7ED57E',
     primaryText: '#E8F8E8',
     secondaryText: '#A8D0A8',

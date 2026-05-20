@@ -58,7 +58,7 @@ export function ThemedBackground({ colors, children }: ThemedBackgroundProps) {
         resizeMode="repeat"
         imageStyle={styles.fill}
       >
-        <View style={[styles.fill, { backgroundColor: colors.pageBackground, opacity: 0.85 }]}>
+        <View style={[styles.fill, { backgroundColor: colors.pageBackground, opacity: 0.92 }]}>
           {children}
         </View>
       </ImageBackground>
