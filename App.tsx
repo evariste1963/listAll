@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,24 +18,23 @@ const Stack = createNativeStackNavigator();
 
 function AppNavigator() {
   const { colors, theme } = useTheme();
+  const isDark = theme !== 'light';
 
-  const greenTheme = theme === 'green';
-  const darkTheme = theme === 'dark';
-  const navigationTheme = {
-    ...(darkTheme || greenTheme ? DarkTheme : DefaultTheme),
+  const navigationTheme = useMemo(() => ({
+    ...(isDark ? DarkTheme : DefaultTheme),
     colors: {
-      ...(darkTheme || greenTheme ? DarkTheme.colors : DefaultTheme.colors),
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
       primary: colors.accentColor,
       background: colors.pageBackground,
       card: colors.cardBackground,
       text: colors.primaryText,
       border: colors.dividerColor,
     },
-  };
+  }), [colors, isDark]);
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <StatusBar style={theme === 'light' ? 'dark' : 'light'} />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack.Navigator
         initialRouteName="MainTabs"
         screenOptions={{
@@ -69,25 +68,23 @@ function AppNavigator() {
           component={ShoppingDetailScreen}
           options={{
             headerTitle: '',
-            headerBackTitle: 'Back',
-            headerBackVisible: true,
             gestureEnabled: true,
           }}
         />
         <Stack.Screen
           name="MemoDetail"
           component={MemoDetailScreen}
-          options={{ title: 'Memo', headerBackTitle: 'Back' }}
+          options={{ title: 'Memo' }}
         />
         <Stack.Screen
           name="TodoDetail"
           component={TodoDetailScreen}
-          options={{ title: 'Todo List', headerBackTitle: 'Back' }}
+          options={{ title: 'Todo List' }}
         />
         <Stack.Screen
           name="Guide"
           component={GuideScreen}
-          options={{ title: 'Guide', headerBackTitle: 'Back' }}
+          options={{ title: 'Guide' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
