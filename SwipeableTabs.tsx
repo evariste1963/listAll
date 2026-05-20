@@ -23,7 +23,7 @@ const TABS = [
   { name: 'Home', icon: '🏠', Screen: HomeTabScreen },
   { name: 'Shopping', icon: '🛒', Screen: ShoppingTabScreen },
   { name: 'Memos', icon: '📝', Screen: MemosTabScreen },
-  { name: 'Todos', icon: '✅', Screen: TodosTabScreen },
+  { name: 'Todos', icon: '✓', Screen: TodosTabScreen },
   { name: 'Prefs', icon: '⚙️', Screen: PreferencesTabScreen },
 ];
 
@@ -94,7 +94,9 @@ export default function SwipeableTabs({ route }: { route?: { params?: { screen?:
             style={styles.tabButton}
             onPress={() => handleTabPress(index, false)}
           >
-            <Text style={styles.tabIcon}>{tab.icon}</Text>
+            <View style={[styles.tabIconWrapper, tab.name === 'Todos' && { backgroundColor: colors.priorityLow }]}>
+              <Text style={[styles.tabIcon, tab.name === 'Todos' && { color: '#fff', fontSize: 16 }]}>{tab.icon}</Text>
+            </View>
             <Text style={[
               styles.tabLabel,
               { color: activeIndex === index ? colors.accentColor : colors.tertiaryText }
@@ -122,6 +124,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 8,
+  },
+  tabIconWrapper: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabIcon: {
     fontSize: 24,

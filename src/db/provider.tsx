@@ -85,7 +85,7 @@ async function seedListTypes() {
     await db.insert(schema.listType).values([
       { id: 1, name: 'shopping', icon: '🛒', fieldsConfig: '{}', isDefault: true },
       { id: 2, name: 'memo', icon: '📝', fieldsConfig: '{"isCheckable":true}', isDefault: true },
-      { id: 3, name: 'todo', icon: '✅', fieldsConfig: '{"dueDate":true,"priority":true}', isDefault: true },
+      { id: 3, name: 'todo', icon: '✓', fieldsConfig: '{"dueDate":true,"priority":true}', isDefault: true },
     ]).run();
   }
 }

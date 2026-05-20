@@ -17,7 +17,7 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
   const tabs = [
     { index: 1, icon: '🛒', title: 'Shopping', desc: 'Manage your shopping lists' },
     { index: 2, icon: '📝', title: 'Memos', desc: 'Quick notes and reminders' },
-    { index: 3, icon: '✅', title: 'Todos', desc: 'Track your tasks' },
+    { index: 3, icon: '✓', title: 'Todos', desc: 'Track your tasks', isTodos: true },
     { index: 4, icon: '⚙️', title: 'Preferences', desc: 'App settings' },
   ];
 
@@ -37,7 +37,9 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
             style={[styles.card, { backgroundColor: colors.cardBackground }]}
             onPress={() => onTabChange?.(tab.index, false)}
           >
-            <Text style={styles.cardIcon}>{tab.icon}</Text>
+            <View style={[styles.cardIconWrapper, tab.isTodos && { backgroundColor: colors.priorityLow }]}>
+              <Text style={[styles.cardIcon, tab.isTodos && { color: '#fff' }]}>{tab.icon}</Text>
+            </View>
             <View style={styles.cardText}>
               <Text style={[styles.cardTitle, { color: colors.primaryText }]}>{tab.title}</Text>
               <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>{tab.desc}</Text>
@@ -95,9 +97,17 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 14,
   },
-  cardIcon: {
-    fontSize: 28,
+  cardIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 14,
+  },
+  cardIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   cardText: {
     flex: 1,

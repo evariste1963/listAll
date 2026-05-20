@@ -111,7 +111,9 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
 
       {todos.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>✅</Text>
+          <View style={[styles.emptyIconContainer, { backgroundColor: colors.priorityLow }]}>
+            <Text style={styles.emptyIcon}>✓</Text>
+          </View>
           <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
           <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a todo list to track tasks</Text>
           <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
@@ -193,9 +195,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 32,
   },
-  emptyIcon: {
-    fontSize: 64,
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 16,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   emptyTitle: {
     fontSize: 20,

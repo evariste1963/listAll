@@ -19,7 +19,7 @@ const defaultTypes = [
   {
     id: 3,
     name: 'todo',
-    icon: '✅',
+    icon: '✓',
     fieldsConfig: JSON.stringify({ dueDate: true, priority: true }),
     isDefault: true,
   },
