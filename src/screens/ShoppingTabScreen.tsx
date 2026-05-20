@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
+import type { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface ShopSummary {
   id: number;
@@ -17,18 +21,15 @@ interface ShopSummary {
 
 interface ShoppingTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
-  isHomeTab?: boolean;
 }
 
 export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProps = {}) {
   const db = useDB();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   
   const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopSummary[]>([]);
-  const [showAddShop, setShowAddShop] = useState(false);
-  const [newShopName, setNewShopName] = useState('');
 
   const result = useLiveQuery(
     db.select().from(schema.shoppingList).where(eq(schema.shoppingList.isActive, true))
@@ -52,7 +53,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       setShopList(null);
       loadDefaultShops();
     }
-}, [result?.data]);
+  }, [result?.data]);
 
   const loadShops = useCallback(async (listId: number) => {
     const shopTabsResult = await db.select().from(schema.shopTab)
@@ -92,12 +93,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     }
   }, [defaultShopsResult?.data, shopList]);
 
-  useEffect(() => {
-    if (shopList) {
-      loadShops(shopList.id);
-    }
-  }, [shopList]);
-
   useFocusEffect(
     useCallback(() => {
       if (shopList) {
@@ -125,19 +120,13 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       return;
     }
 
-    const newList = await db.insert(schema.shoppingList)
+    const createdList = await db.insert(schema.shoppingList)
       .values({ 
         title: 'Shopping List', 
         isActive: true,
-        createdAt: new Date()
       })
-      .run();
-
-    const createdList = await db.select()
-      .from(schema.shoppingList)
-      .orderBy(schema.shoppingList.id)
-      .limit(1)
-      .get();
+      .returning()
+      .then(r => r[0]);
 
     if (createdList) {
       const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
@@ -160,19 +149,13 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       return;
     }
     
-    const newList = await db.insert(schema.shoppingList)
+    const createdList = await db.insert(schema.shoppingList)
       .values({ 
         title: 'Shopping List', 
         isActive: true,
-        createdAt: new Date()
       })
-      .run();
-
-    const createdList = await db.select()
-      .from(schema.shoppingList)
-      .orderBy(schema.shoppingList.id)
-      .limit(1)
-      .get();
+      .returning()
+      .then(r => r[0]);
 
     if (createdList) {
       setShopList(createdList);
@@ -199,53 +182,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       
       navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
     }
-  };
-
-  const handleAddShop = async (shopName: string) => {
-    if (!shopName.trim()) return;
-    
-    if (!shopList) {
-      const newList = await db.insert(schema.shoppingList)
-        .values({ title: 'Shopping List', isActive: true, createdAt: new Date() })
-        .run();
-      
-      const createdList = await db.select()
-        .from(schema.shoppingList)
-        .orderBy(schema.shoppingList.id)
-        .limit(1)
-        .get();
-      
-      if (createdList) {
-        setShopList(createdList);
-        
-        const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-        let order = 1;
-        
-        for (const shop of defaultShops) {
-          await db.insert(schema.shopTab).values({
-            listId: createdList.id,
-            name: shop.name,
-            order: order++,
-          }).run();
-        }
-        
-        const tabs = await db.select().from(schema.shopTab)
-          .where(eq(schema.shopTab.listId, createdList.id))
-          .all();
-        
-        const matchingShop = tabs.find(t => t.name === shopName.trim());
-        navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
-      }
-    } else {
-      await db.insert(schema.shopTab).values({
-        listId: shopList.id,
-        name: shopName.trim(),
-        order: shops.length + 1,
-      }).run();
-      loadShops(shopList.id);
-    }
-    setNewShopName('');
-    setShowAddShop(false);
   };
 
   const addToDefaults = async (shopName: string) => {
@@ -302,37 +238,14 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     }
   };
 
-  const handleSyncDefaults = async () => {
-    await syncDefaultsToList();
-    
-    const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-    const existingShops = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList!.id)).all();
-    const existingShopNames = existingShops.map(s => s.name.toLowerCase());
-    const allExist = defaultShops.every(d => existingShopNames.includes(d.name.toLowerCase()));
-    
-    if (existingShops.length === 0) {
-      Alert.alert('Done', 'All default shops already exist');
-    } else if (allExist) {
-      Alert.alert('Done', 'All default shops already exist');
-    } else {
-      Alert.alert('Done', 'Added default shops to list');
-    }
-  };
-
   const handleAddFirstShop = async () => {
-    const newList = await db.insert(schema.shoppingList)
+    const createdList = await db.insert(schema.shoppingList)
       .values({ 
         title: 'Shopping List', 
         isActive: true,
-        createdAt: new Date()
       })
-      .run();
-
-    const createdList = await db.select()
-      .from(schema.shoppingList)
-      .orderBy(schema.shoppingList.id)
-      .limit(1)
-      .get();
+      .returning()
+      .then(r => r[0]);
 
     if (createdList) {
       setShopList(createdList);
@@ -441,37 +354,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           </TouchableOpacity>
           )}}
         />
-      
-      <Modal visible={showAddShop} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add Shop</Text>
-            <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-              placeholder="Shop name (e.g., Walmart)"
-              placeholderTextColor={colors.mutedText}
-              value={newShopName}
-              onChangeText={setNewShopName}
-              autoFocus
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => { setShowAddShop(false); setNewShopName(''); }}
-              >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
-                onPress={() => handleAddShop(newShopName)}
-                disabled={!newShopName.trim()}
-              >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -497,12 +379,6 @@ const styles = StyleSheet.create({
   listTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-  },
-  endButton: {
-    fontSize: 16,
-  },
-  syncButton: {
-    fontSize: 16,
   },
   emptyState: {
     flex: 1,
@@ -584,7 +460,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  badgeComplete: {},
   badgeText: {
     fontWeight: 'bold',
     fontSize: 14,
@@ -604,52 +479,5 @@ const styles = StyleSheet.create({
   defaultButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  addShopText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  modalInput: {
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  modalButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 8,
-  },
-  modalButtonPrimary: {
-    borderRadius: 8,
-  },
-  modalButtonDisabled: {
-    opacity: 0.5,
-  },
-  modalButtonText: {
-    fontSize: 16,
-  },
-  modalButtonTextPrimary: {
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
