@@ -57,8 +57,11 @@ interface HomeTabScreenProps {
 
 export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
   const navigation = useNavigation<NavigationProp>();
-  const { colors } = useTheme();
+  const { colors, theme } = useTheme();
   const s = createThemedStyles(colors);
+  const logoSource = theme === 'green'
+    ? require('../../assets/listAll_logo_green.png')
+    : require('../../assets/listAll_logo.png');
 
   return (
     <ThemedBackground colors={colors}>
@@ -66,7 +69,7 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
         <ScrollView style={s.guideScrollView} contentContainerStyle={s.homeContent}>
           <View style={s.homeHeader}>
             <View style={[s.logoContainer, { backgroundColor: colors.cardBackground }]}>
-              <Image source={require('../../assets/listAll_logo.png')} style={s.logo} resizeMode="contain" />
+              <Image source={logoSource} style={s.logo} resizeMode="contain" />
             </View>
             <Text style={[s.homeSubtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
           </View>
