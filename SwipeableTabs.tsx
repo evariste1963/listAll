@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from './src/styles/theme';
+import { useTheme, ThemedBackground } from './src/styles/theme';
 import { createThemedStyles } from './src/styles/global';
 import HomeTabScreen from './src/screens/HomeTabScreen';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
@@ -42,47 +42,49 @@ export default function SwipeableTabs() {
 
   return (
     <SafeAreaView style={s.container} edges={['left', 'right']}>
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleMomentumScrollEnd}
-        scrollEventThrottle={16}
-        bounces={false}
-      >
-        {TABS.map(({ name, Screen }) => (
-          <View key={name} style={{ width: SCREEN_WIDTH }}>
-            <Screen onTabChange={handleTabPress} />
-          </View>
-        ))}
-      </ScrollView>
-      <View style={[
-        s.tabBarContainer, 
-        { 
-          backgroundColor: colors.pageBackground, 
-          borderTopColor: colors.dividerColor,
-          paddingBottom: insets.bottom,
-        }
-      ]}>
-        {TABS.map((tab, index) => (
-          <TouchableOpacity
-            key={tab.name}
-            style={s.tabBarButton}
-            onPress={() => handleTabPress(index, false)}
-          >
-            <View style={[s.tabBarIconWrapper, tab.isTodos && { backgroundColor: colors.priorityLow }]}>
-              <Text style={[s.tabBarIcon, tab.isTodos && { color: '#fff', fontSize: 16 }]}>{tab.icon}</Text>
+      <ThemedBackground colors={colors}>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handleMomentumScrollEnd}
+          scrollEventThrottle={16}
+          bounces={false}
+        >
+          {TABS.map(({ name, Screen }) => (
+            <View key={name} style={{ width: SCREEN_WIDTH }}>
+              <Screen onTabChange={handleTabPress} />
             </View>
-            <Text style={[
-              s.tabBarLabel,
-              { color: activeIndex === index ? colors.accentColor : colors.tertiaryText }
-            ]}>
-              {tab.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+          ))}
+        </ScrollView>
+        <View style={[
+          s.tabBarContainer, 
+          { 
+            backgroundColor: colors.pageBackground, 
+            borderTopColor: colors.dividerColor,
+            paddingBottom: insets.bottom,
+          }
+        ]}>
+          {TABS.map((tab, index) => (
+            <TouchableOpacity
+              key={tab.name}
+              style={s.tabBarButton}
+              onPress={() => handleTabPress(index, false)}
+            >
+              <View style={[s.tabBarIconWrapper, tab.isTodos && { backgroundColor: colors.priorityLow }]}>
+                <Text style={[s.tabBarIcon, tab.isTodos && { color: '#fff', fontSize: 16 }]}>{tab.icon}</Text>
+              </View>
+              <Text style={[
+                s.tabBarLabel,
+                { color: activeIndex === index ? colors.accentColor : colors.tertiaryText }
+              ]}>
+                {tab.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ThemedBackground>
     </SafeAreaView>
   );
 }

@@ -15,6 +15,7 @@ export interface ThemeColors {
   priorityMedium: string;
   priorityLow: string;
   deleteColor: string;
+  backgroundImage?: string;
 }
 
 export const themes: Record<ThemeName, ThemeColors> = {
@@ -49,6 +50,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityMedium: '#FFB84D',
     priorityLow: '#7ED57E',
     deleteColor: '#FF6B6B',
+    backgroundImage: 'leafs',
   },
   light: {
     pageBackground: '#f5f5f5',

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTheme } from '../styles/theme';
+import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -61,33 +61,35 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
   const s = createThemedStyles(colors);
 
   return (
-    <SafeAreaView style={s.container}>
-      <ScrollView style={s.guideScrollView} contentContainerStyle={s.homeContent}>
-        <View style={s.homeHeader}>
-          <View style={[s.logoContainer, { backgroundColor: colors.cardBackground }]}>
-            <Image source={require('../../assets/listAll_logo.png')} style={s.logo} resizeMode="contain" />
+    <ThemedBackground colors={colors}>
+      <SafeAreaView style={s.container}>
+        <ScrollView style={s.guideScrollView} contentContainerStyle={s.homeContent}>
+          <View style={s.homeHeader}>
+            <View style={[s.logoContainer, { backgroundColor: colors.cardBackground }]}>
+              <Image source={require('../../assets/listAll_logo.png')} style={s.logo} resizeMode="contain" />
+            </View>
+            <Text style={[s.homeSubtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
           </View>
-          <Text style={[s.homeSubtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
-        </View>
 
-        <View style={s.cardsContainer}>
-          {TABS.map((tab) => (
-            <NavigationCard
-              key={tab.title}
-              tab={tab}
-              colors={colors}
-              s={s}
-              iconBgColor={tab.iconBg ? colors[tab.iconBg as keyof typeof colors] : undefined}
-              iconColor={tab.iconBg ? '#fff' : undefined}
-              onPress={() =>
-                tab.index === -1
-                  ? navigation.navigate('Guide')
-                  : onTabChange?.(tab.index, false)
-              }
-            />
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <View style={s.cardsContainer}>
+            {TABS.map((tab) => (
+              <NavigationCard
+                key={tab.title}
+                tab={tab}
+                colors={colors}
+                s={s}
+                iconBgColor={tab.iconBg ? colors[tab.iconBg as keyof typeof colors] : undefined}
+                iconColor={tab.iconBg ? '#fff' : undefined}
+                onPress={() =>
+                  tab.index === -1
+                    ? navigation.navigate('Guide')
+                    : onTabChange?.(tab.index, false)
+                }
+              />
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }

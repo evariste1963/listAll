@@ -8,7 +8,7 @@ import { useRoute } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { useTheme } from '../styles/theme';
+import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { TodoDetailProps } from '../navigation/types';
@@ -159,9 +159,11 @@ export default function TodoDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={s.container}>
-        <Text style={[s.loadingText, { color: colors.primaryText }]}>Loading...</Text>
-      </SafeAreaView>
+      <ThemedBackground colors={colors}>
+        <SafeAreaView style={s.container}>
+          <Text style={[s.loadingText, { color: colors.primaryText }]}>Loading...</Text>
+        </SafeAreaView>
+      </ThemedBackground>
     );
   }
 
@@ -177,268 +179,270 @@ export default function TodoDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={s.container}>
-      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-        {editTitle ? (
-          <TextInput
-            style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-            value={title}
-            onChangeText={setTitle}
-            onBlur={handleUpdateTitle}
-            onSubmitEditing={handleUpdateTitle}
-            autoFocus
-          />
-        ) : (
-          <TouchableOpacity onPress={() => setEditTitle(true)}>
-            <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
-          </TouchableOpacity>
-        )}
-        <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
-      </View>
-
-      <TouchableOpacity
-        style={[s.addItemButton, { backgroundColor: colors.inputBackground }]}
-        onPress={() => {
-          setNewDueDate(null);
-          setPickerDate(new Date());
-          setShowAddModal(true);
-        }}
-      >
-        <Text style={[s.addItemButtonText, { color: colors.accentColor }]}>+ Add Todo</Text>
-      </TouchableOpacity>
-
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={[s.itemRowStart, { borderBottomColor: colors.cardBackground }]}>
-            <TouchableOpacity
-              style={[s.checkbox, { marginTop: 4 }]}
-              onPress={() => handleToggleItem(item.id, item.isDone)}
-            >
-              <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
-                {item.isDone ? '✓' : '○'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={s.itemTitle}
-              onPress={() => handleEditItem(item)}
-            >
-              <Text style={[s.itemText, { color: colors.primaryText, marginBottom: 4 }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
-                {item.title}
-              </Text>
-              <View style={s.itemMeta}>
-                {item.dueDateFormatted && (
-                  <Text style={[s.dueDate, { color: colors.tertiaryText }]}>{item.dueDateFormatted}</Text>
-                )}
-                {item.priority && (
-                  <View style={[s.priorityBadge, { backgroundColor: getPriorityColorFn(item.priority) }]}>
-                    <Text style={s.priorityText}>{item.priority}</Text>
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[s.deleteItem, { marginTop: 4 }]}
-              onPress={() => handleDeleteItem(item.id)}
-            >
-              <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        ListEmptyComponent={
-          <Text style={[s.emptyItems, { color: colors.mutedText }]}>No todos yet</Text>
-        }
-      />
-
-      <Modal visible={showAddModal} transparent animationType="fade">
-        <View style={s.modalOverlay}>
-          <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Todo</Text>
-
+    <ThemedBackground colors={colors}>
+      <SafeAreaView style={s.container}>
+        <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+          {editTitle ? (
             <TextInput
-              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-              placeholder="What needs to be done?"
-              placeholderTextColor={colors.mutedText}
-              value={newItemText}
-              onChangeText={setNewItemText}
-            />
-
-            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
-            <View style={s.priorityRow}>
-              {(['low', 'medium', 'high'] as Priority[]).map(p => (
-                <TouchableOpacity
-                  key={p!}
-                  style={[
-                    s.priorityOption,
-                    { backgroundColor: colors.inputBackground },
-                    newPriority === p && { backgroundColor: getPriorityColorFn(p) }
-                  ]}
-                  onPress={() => setNewPriority(p)}
-                >
-                  <Text style={[
-                    s.priorityOptionText,
-                    { color: colors.secondaryText },
-                    newPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
-                  ]}>
-                    {p}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
-            <View style={s.dateRow}>
-              <TouchableOpacity
-                style={[s.dateButton, { backgroundColor: colors.inputBackground }]}
-                onPress={openDatePicker}
-              >
-                <Text style={[s.dateButtonText, { color: colors.primaryText }]}>
-                  {newDueDate ? newDueDate.toLocaleDateString() : 'Select date'}
-                </Text>
-              </TouchableOpacity>
-              {newDueDate && (
-                <TouchableOpacity onPress={() => setNewDueDate(null)}>
-                  <Text style={[s.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={pickerDate || new Date()}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                minimumDate={new Date()}
-                maximumDate={new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)}
-                onChange={(event, selectedDate) => {
-                  if (event.type === 'set' && selectedDate) {
-                    setNewDueDate(selectedDate);
-                    setPickerDate(selectedDate);
-                    setShowDatePicker(false);
-                  } else if (event.type === 'dismissed') {
-                    setShowDatePicker(false);
-                  }
-                }}
-              />
-            )}
-
-            <View style={s.modalButtons}>
-              <TouchableOpacity
-                style={s.modalButton}
-                onPress={() => { setShowAddModal(false); setNewItemText(''); }}
-              >
-                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  s.modalButton,
-                  s.modalButtonPrimary,
-                  !newItemText.trim() && s.modalButtonDisabled,
-                  { backgroundColor: colors.accentColor }
-                ]}
-                onPress={handleAddItem}
-                disabled={!newItemText.trim()}
-              >
-                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={editItemId !== null} transparent animationType="fade">
-        <View style={s.modalOverlay}>
-          <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Todo</Text>
-            <TextInput
-              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-              placeholder="Todo text"
-              placeholderTextColor={colors.mutedText}
-              value={editItemText}
-              onChangeText={setEditItemText}
+              style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              value={title}
+              onChangeText={setTitle}
+              onBlur={handleUpdateTitle}
+              onSubmitEditing={handleUpdateTitle}
               autoFocus
             />
+          ) : (
+            <TouchableOpacity onPress={() => setEditTitle(true)}>
+              <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
+            </TouchableOpacity>
+          )}
+          <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
+        </View>
 
-            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
-            <View style={s.priorityRow}>
-              {(['low', 'medium', 'high'] as Priority[]).map(p => (
-                <TouchableOpacity
-                  key={p!}
-                  style={[
-                    s.priorityOption,
-                    { backgroundColor: colors.inputBackground },
-                    editPriority === p && { backgroundColor: getPriorityColorFn(p) }
-                  ]}
-                  onPress={() => setEditPriority(p)}
-                >
-                  <Text style={[
-                    s.priorityOptionText,
-                    { color: colors.secondaryText },
-                    editPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
-                  ]}>
-                    {p}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+        <TouchableOpacity
+          style={[s.addItemButton, { backgroundColor: colors.inputBackground }]}
+          onPress={() => {
+            setNewDueDate(null);
+            setPickerDate(new Date());
+            setShowAddModal(true);
+          }}
+        >
+          <Text style={[s.addItemButtonText, { color: colors.accentColor }]}>+ Add Todo</Text>
+        </TouchableOpacity>
 
-            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
-            <View style={s.dateRow}>
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={[s.itemRowStart, { borderBottomColor: colors.cardBackground }]}>
               <TouchableOpacity
-                style={[s.dateButton, { backgroundColor: colors.inputBackground }]}
-                onPress={() => { setPickerDate(editDueDate || new Date()); setShowDatePicker(true); }}
+                style={[s.checkbox, { marginTop: 4 }]}
+                onPress={() => handleToggleItem(item.id, item.isDone)}
               >
-                <Text style={[s.dateButtonText, { color: colors.primaryText }]}>
-                  {editDueDate ? editDueDate.toLocaleDateString() : 'Select date'}
+                <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
+                  {item.isDone ? '✓' : '○'}
                 </Text>
               </TouchableOpacity>
-              {editDueDate && (
-                <TouchableOpacity onPress={() => setEditDueDate(null)}>
-                  <Text style={[s.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
-                </TouchableOpacity>
-              )}
+
+              <TouchableOpacity
+                style={s.itemTitle}
+                onPress={() => handleEditItem(item)}
+              >
+                <Text style={[s.itemText, { color: colors.primaryText, marginBottom: 4 }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
+                  {item.title}
+                </Text>
+                <View style={s.itemMeta}>
+                  {item.dueDateFormatted && (
+                    <Text style={[s.dueDate, { color: colors.tertiaryText }]}>{item.dueDateFormatted}</Text>
+                  )}
+                  {item.priority && (
+                    <View style={[s.priorityBadge, { backgroundColor: getPriorityColorFn(item.priority) }]}>
+                      <Text style={s.priorityText}>{item.priority}</Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[s.deleteItem, { marginTop: 4 }]}
+                onPress={() => handleDeleteItem(item.id)}
+              >
+                <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
+              </TouchableOpacity>
             </View>
+          )}
+          ListEmptyComponent={
+            <Text style={[s.emptyItems, { color: colors.mutedText }]}>No todos yet</Text>
+          }
+        />
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={pickerDate || new Date()}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                minimumDate={new Date()}
-                maximumDate={new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)}
-                onChange={(event, selectedDate) => {
-                  if (event.type === 'set' && selectedDate) {
-                    setEditDueDate(selectedDate);
-                    setPickerDate(selectedDate);
-                    setShowDatePicker(false);
-                  } else if (event.type === 'dismissed') {
-                    setShowDatePicker(false);
-                  }
-                }}
+        <Modal visible={showAddModal} transparent animationType="fade">
+          <View style={s.modalOverlay}>
+            <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
+              <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Todo</Text>
+
+              <TextInput
+                style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+                placeholder="What needs to be done?"
+                placeholderTextColor={colors.mutedText}
+                value={newItemText}
+                onChangeText={setNewItemText}
               />
-            )}
 
-            <View style={s.modalButtons}>
-              <TouchableOpacity
-                style={s.modalButton}
-                onPress={() => { setEditItemId(null); setEditItemText(''); setEditPriority(null); setEditDueDate(null); }}
-              >
-                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[s.modalButton, s.modalButtonPrimary, !editItemText.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
-                onPress={handleSaveEdit}
-                disabled={!editItemText.trim()}
-              >
-                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
-              </TouchableOpacity>
+              <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
+              <View style={s.priorityRow}>
+                {(['low', 'medium', 'high'] as Priority[]).map(p => (
+                  <TouchableOpacity
+                    key={p!}
+                    style={[
+                      s.priorityOption,
+                      { backgroundColor: colors.inputBackground },
+                      newPriority === p && { backgroundColor: getPriorityColorFn(p) }
+                    ]}
+                    onPress={() => setNewPriority(p)}
+                  >
+                    <Text style={[
+                      s.priorityOptionText,
+                      { color: colors.secondaryText },
+                      newPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
+                    ]}>
+                      {p}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
+              <View style={s.dateRow}>
+                <TouchableOpacity
+                  style={[s.dateButton, { backgroundColor: colors.inputBackground }]}
+                  onPress={openDatePicker}
+                >
+                  <Text style={[s.dateButtonText, { color: colors.primaryText }]}>
+                    {newDueDate ? newDueDate.toLocaleDateString() : 'Select date'}
+                  </Text>
+                </TouchableOpacity>
+                {newDueDate && (
+                  <TouchableOpacity onPress={() => setNewDueDate(null)}>
+                    <Text style={[s.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={pickerDate || new Date()}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  minimumDate={new Date()}
+                  maximumDate={new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)}
+                  onChange={(event, selectedDate) => {
+                    if (event.type === 'set' && selectedDate) {
+                      setNewDueDate(selectedDate);
+                      setPickerDate(selectedDate);
+                      setShowDatePicker(false);
+                    } else if (event.type === 'dismissed') {
+                      setShowDatePicker(false);
+                    }
+                  }}
+                />
+              )}
+
+              <View style={s.modalButtons}>
+                <TouchableOpacity
+                  style={s.modalButton}
+                  onPress={() => { setShowAddModal(false); setNewItemText(''); }}
+                >
+                  <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    s.modalButton,
+                    s.modalButtonPrimary,
+                    !newItemText.trim() && s.modalButtonDisabled,
+                    { backgroundColor: colors.accentColor }
+                  ]}
+                  onPress={handleAddItem}
+                  disabled={!newItemText.trim()}
+                >
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </Modal>
+
+        <Modal visible={editItemId !== null} transparent animationType="fade">
+          <View style={s.modalOverlay}>
+            <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
+              <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Todo</Text>
+              <TextInput
+                style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+                placeholder="Todo text"
+                placeholderTextColor={colors.mutedText}
+                value={editItemText}
+                onChangeText={setEditItemText}
+                autoFocus
+              />
+
+              <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
+              <View style={s.priorityRow}>
+                {(['low', 'medium', 'high'] as Priority[]).map(p => (
+                  <TouchableOpacity
+                    key={p!}
+                    style={[
+                      s.priorityOption,
+                      { backgroundColor: colors.inputBackground },
+                      editPriority === p && { backgroundColor: getPriorityColorFn(p) }
+                    ]}
+                    onPress={() => setEditPriority(p)}
+                  >
+                    <Text style={[
+                      s.priorityOptionText,
+                      { color: colors.secondaryText },
+                      editPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
+                    ]}>
+                      {p}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
+              <View style={s.dateRow}>
+                <TouchableOpacity
+                  style={[s.dateButton, { backgroundColor: colors.inputBackground }]}
+                  onPress={() => { setPickerDate(editDueDate || new Date()); setShowDatePicker(true); }}
+                >
+                  <Text style={[s.dateButtonText, { color: colors.primaryText }]}>
+                    {editDueDate ? editDueDate.toLocaleDateString() : 'Select date'}
+                  </Text>
+                </TouchableOpacity>
+                {editDueDate && (
+                  <TouchableOpacity onPress={() => setEditDueDate(null)}>
+                    <Text style={[s.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={pickerDate || new Date()}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  minimumDate={new Date()}
+                  maximumDate={new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)}
+                  onChange={(event, selectedDate) => {
+                    if (event.type === 'set' && selectedDate) {
+                      setEditDueDate(selectedDate);
+                      setPickerDate(selectedDate);
+                      setShowDatePicker(false);
+                    } else if (event.type === 'dismissed') {
+                      setShowDatePicker(false);
+                    }
+                  }}
+                />
+              )}
+
+              <View style={s.modalButtons}>
+                <TouchableOpacity
+                  style={s.modalButton}
+                  onPress={() => { setEditItemId(null); setEditItemText(''); setEditPriority(null); setEditDueDate(null); }}
+                >
+                  <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.modalButton, s.modalButtonPrimary, !editItemText.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                  onPress={handleSaveEdit}
+                  disabled={!editItemText.trim()}
+                >
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }

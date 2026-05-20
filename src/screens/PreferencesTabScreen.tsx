@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Alert, TextInput, Modal } from 'react-nat
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
-import { useTheme, ThemeName } from '../styles/theme';
+import { useTheme, ThemedBackground, ThemeName } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -63,115 +63,117 @@ export default function PreferencesTabScreen() {
   };
 
   return (
-    <SafeAreaView style={s.container}>
-      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-        <Text style={[s.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
-      </View>
-
-      <View style={{ flex: 1, padding: 16 }}>
-        <View style={s.sectionTitle && { marginBottom: 24 }}>
-          <Text style={[s.sectionTitle, { color: colors.accentColor }]}>About</Text>
-          <Text style={[s.appName, { color: colors.primaryText }]}>listAll</Text>
-          <Text style={[s.version, { color: colors.tertiaryText }]}>Version 1.0.0</Text>
-          <Text style={[s.description, { color: colors.secondaryText }]}>
-            A scalable list app for Shopping Lists, Memos, and Todos.
-          </Text>
+    <ThemedBackground colors={colors}>
+      <SafeAreaView style={s.container}>
+        <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+          <Text style={[s.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
         </View>
 
-        <View style={{ marginBottom: 24 }}>
-          <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Theme</Text>
-          <View style={s.themeRow}>
-            {THEMES.map((t) => (
-              <TouchableOpacity
-                key={t}
-                style={[
-                  s.themeOption,
-                  { backgroundColor: colors.cardBackground },
-                  theme === t && { backgroundColor: colors.accentColor }
-                ]}
-                onPress={() => setTheme(t)}
-              >
-                <Text style={[
-                  s.themeOptionText,
-                  { color: colors.secondaryText },
-                  theme === t && { color: colors.primaryText, fontWeight: '600' }
-                ]}>
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        <View style={{ flex: 1, padding: 16 }}>
+          <View style={s.sectionTitle && { marginBottom: 24 }}>
+            <Text style={[s.sectionTitle, { color: colors.accentColor }]}>About</Text>
+            <Text style={[s.appName, { color: colors.primaryText }]}>listAll</Text>
+            <Text style={[s.version, { color: colors.tertiaryText }]}>Version 1.0.0</Text>
+            <Text style={[s.description, { color: colors.secondaryText }]}>
+              A scalable list app for Shopping Lists, Memos, and Todos.
+            </Text>
           </View>
-        </View>
 
-        <View style={{ marginBottom: 24 }}>
-          <View style={s.sectionHeader}>
-            <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Default Shops</Text>
-            {!showAddShop && (
-              <TouchableOpacity onPress={() => setShowAddShop(true)}>
-                <Text style={[{ fontSize: 16, fontWeight: '600', color: colors.accentColor }]}>+ Add</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          {defaultShops.length === 0 ? (
-            <Text style={[s.emptyText, { color: colors.mutedText }]}>No default shops set</Text>
-          ) : (
-            defaultShops.map(shop => (
-              <TouchableOpacity
-                key={shop.id}
-                style={[s.shopItem, { backgroundColor: colors.cardBackground }]}
-                onLongPress={() => handleDeleteDefaultShop(shop.id, shop.name)}
-              >
-                <Text style={[{ fontSize: 16, color: colors.primaryText }]}>{shop.name}</Text>
-                <TouchableOpacity onPress={() => handleDeleteDefaultShop(shop.id, shop.name)}>
-                  <Text style={[s.deleteButton, { color: colors.deleteColor }]}>✕</Text>
+          <View style={{ marginBottom: 24 }}>
+            <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Theme</Text>
+            <View style={s.themeRow}>
+              {THEMES.map((t) => (
+                <TouchableOpacity
+                  key={t}
+                  style={[
+                    s.themeOption,
+                    { backgroundColor: colors.cardBackground },
+                    theme === t && { backgroundColor: colors.accentColor }
+                  ]}
+                  onPress={() => setTheme(t)}
+                >
+                  <Text style={[
+                    s.themeOptionText,
+                    { color: colors.secondaryText },
+                    theme === t && { color: colors.primaryText, fontWeight: '600' }
+                  ]}>
+                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                  </Text>
                 </TouchableOpacity>
-              </TouchableOpacity>
-            ))
-          )}
-          <Text style={[s.hintText, { color: colors.mutedText }]}>Long press or tap X to remove</Text>
-        </View>
-
-        <View style={{ marginBottom: 24 }}>
-          <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Info</Text>
-          <Text style={[s.infoText, { color: colors.secondaryText }]}>
-            • Shopping lists support multiple shop tabs{'\n'}
-            • Memos support inline title editing{'\n'}
-            • Todos support due dates and priorities{'\n'}
-            • All data is stored locally
-          </Text>
-        </View>
-      </View>
-
-      <Modal visible={showAddShop} transparent animationType="fade">
-        <View style={s.modalOverlay}>
-          <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Default Shop</Text>
-            <TextInput
-              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-              placeholder="Shop name (e.g., Tesco)"
-              placeholderTextColor={colors.mutedText}
-              value={newShopName}
-              onChangeText={setNewShopName}
-              autoFocus
-            />
-            <View style={s.modalButtons}>
-              <TouchableOpacity
-                style={s.modalButton}
-                onPress={() => { setShowAddShop(false); setNewShopName(''); }}
-              >
-                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[s.modalButton, s.modalButtonPrimary, !newShopName.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
-                onPress={handleAddDefaultShop}
-                disabled={!newShopName.trim()}
-              >
-                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
-              </TouchableOpacity>
+              ))}
             </View>
           </View>
+
+          <View style={{ marginBottom: 24 }}>
+            <View style={s.sectionHeader}>
+              <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Default Shops</Text>
+              {!showAddShop && (
+                <TouchableOpacity onPress={() => setShowAddShop(true)}>
+                  <Text style={[{ fontSize: 16, fontWeight: '600', color: colors.accentColor }]}>+ Add</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {defaultShops.length === 0 ? (
+              <Text style={[s.emptyText, { color: colors.mutedText }]}>No default shops set</Text>
+            ) : (
+              defaultShops.map(shop => (
+                <TouchableOpacity
+                  key={shop.id}
+                  style={[s.shopItem, { backgroundColor: colors.cardBackground }]}
+                  onLongPress={() => handleDeleteDefaultShop(shop.id, shop.name)}
+                >
+                  <Text style={[{ fontSize: 16, color: colors.primaryText }]}>{shop.name}</Text>
+                  <TouchableOpacity onPress={() => handleDeleteDefaultShop(shop.id, shop.name)}>
+                    <Text style={[s.deleteButton, { color: colors.deleteColor }]}>✕</Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              ))
+            )}
+            <Text style={[s.hintText, { color: colors.mutedText }]}>Long press or tap X to remove</Text>
+          </View>
+
+          <View style={{ marginBottom: 24 }}>
+            <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Info</Text>
+            <Text style={[s.infoText, { color: colors.secondaryText }]}>
+              • Shopping lists support multiple shop tabs{'\n'}
+              • Memos support inline title editing{'\n'}
+              • Todos support due dates and priorities{'\n'}
+              • All data is stored locally
+            </Text>
+          </View>
         </View>
-      </Modal>
-    </SafeAreaView>
+
+        <Modal visible={showAddShop} transparent animationType="fade">
+          <View style={s.modalOverlay}>
+            <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+              <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Default Shop</Text>
+              <TextInput
+                style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+                placeholder="Shop name (e.g., Tesco)"
+                placeholderTextColor={colors.mutedText}
+                value={newShopName}
+                onChangeText={setNewShopName}
+                autoFocus
+              />
+              <View style={s.modalButtons}>
+                <TouchableOpacity
+                  style={s.modalButton}
+                  onPress={() => { setShowAddShop(false); setNewShopName(''); }}
+                >
+                  <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.modalButton, s.modalButtonPrimary, !newShopName.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                  onPress={handleAddDefaultShop}
+                  disabled={!newShopName.trim()}
+                >
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }

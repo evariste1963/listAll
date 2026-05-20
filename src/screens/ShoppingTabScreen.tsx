@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { useTheme } from '../styles/theme';
+import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { RootStackParamList } from '../navigation/types';
@@ -262,44 +262,48 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
 
   if (hasNoShops) {
     return (
-      <SafeAreaView style={s.container}>
-        <View style={[s.header, headerStyle]}>
-          <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-            <Text style={s.homeButton}>🏠</Text>
-          </TouchableOpacity>
-          <Text style={[s.headerTitleSm, { color: colors.primaryText }]}>Summary</Text>
-          <View style={{ width: 40 }} />
-        </View>
-        <View style={s.emptyState}>
-          <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No shops yet</Text>
-          <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
-          <TouchableOpacity style={[s.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
-            <Text style={[s.addShopButtonText, { color: colors.accentColor }]}>+ Add Shop</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <ThemedBackground colors={colors}>
+        <SafeAreaView style={s.container}>
+          <View style={[s.header, headerStyle]}>
+            <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
+              <Text style={s.homeButton}>🏠</Text>
+            </TouchableOpacity>
+            <Text style={[s.headerTitleSm, { color: colors.primaryText }]}>Summary</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <View style={s.emptyState}>
+            <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No shops yet</Text>
+            <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
+            <TouchableOpacity style={[s.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
+              <Text style={[s.addShopButtonText, { color: colors.accentColor }]}>+ Add Shop</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </ThemedBackground>
     );
   }
 
   if (!shopList) {
     return (
-      <SafeAreaView style={s.container}>
-        <View style={[s.header, headerStyle]}>
-          <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-            <Text style={s.homeButton}>🏠</Text>
-          </TouchableOpacity>
-          <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
-          <View style={{ width: 40 }} />
-        </View>
-        <View style={s.emptyState}>
-          <Text style={s.emptyIcon}>🛒</Text>
-          <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
-          <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
-          <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreateList}>
-            <Text style={s.createButtonText}>+ Create Shopping List</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <ThemedBackground colors={colors}>
+        <SafeAreaView style={s.container}>
+          <View style={[s.header, headerStyle]}>
+            <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
+              <Text style={s.homeButton}>🏠</Text>
+            </TouchableOpacity>
+            <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <View style={s.emptyState}>
+            <Text style={s.emptyIcon}>🛒</Text>
+            <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
+            <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
+            <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreateList}>
+              <Text style={s.createButtonText}>+ Create Shopping List</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </ThemedBackground>
     );
   }
 
@@ -307,57 +311,59 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const displayShops = shopList ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
 
   return (
-    <SafeAreaView style={s.container}>
-      <View style={[s.header, headerStyle]}>
-        <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-          <Text style={s.homeButton}>🏠</Text>
-        </TouchableOpacity>
-        <Text style={[s.headerTitle, { color: colors.primaryText }]}>Summary</Text>
-        <View style={{ width: 40 }} />
-      </View>
+    <ThemedBackground colors={colors}>
+      <SafeAreaView style={s.container}>
+        <View style={[s.header, headerStyle]}>
+          <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
+            <Text style={s.homeButton}>🏠</Text>
+          </TouchableOpacity>
+          <Text style={[s.headerTitle, { color: colors.primaryText }]}>Summary</Text>
+          <View style={{ width: 40 }} />
+        </View>
 
-      <FlatList
-        data={displayShops}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={s.list}
-        renderItem={({ item }) => {
-          const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
-          return (
-          <TouchableOpacity 
-            style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
-            onPress={() => handleOpenShop(item.id, item.name)}
-          >
-            <View style={s.shopInfo}>
-              <Text style={[s.shopName, { color: colors.primaryText }]}>{item.name}</Text>
-              <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
-                {item.remainingItems} of {item.totalItems} items remaining
-              </Text>
-            </View>
-            <View style={s.shopActions}>
-              <TouchableOpacity 
-                style={[s.defaultButton, { backgroundColor: colors.inputBackground }]}
-                onPress={() => {
-                  if (inDefaults) {
-                    removeFromDefaults(item.name);
-                  } else {
-                    addToDefaults(item.name);
-                  }
-                }}
-              >
-                <Text style={[s.defaultButtonText, { color: colors.accentColor }]}>{inDefaults ? '−' : '+'}</Text>
-              </TouchableOpacity>
-              <View style={[
-                s.circleBadge,
-                { backgroundColor: item.remainingItems === 0 ? colors.completedColor : colors.accentColor }
-              ]}>
-                <Text style={s.circleBadgeText}>
-                  {item.remainingItems === 0 ? '✓' : item.remainingItems}
+        <FlatList
+          data={displayShops}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={s.list}
+          renderItem={({ item }) => {
+            const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
+            return (
+            <TouchableOpacity 
+              style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
+              onPress={() => handleOpenShop(item.id, item.name)}
+            >
+              <View style={s.shopInfo}>
+                <Text style={[s.shopName, { color: colors.primaryText }]}>{item.name}</Text>
+                <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
+                  {item.remainingItems} of {item.totalItems} items remaining
                 </Text>
               </View>
-            </View>
-          </TouchableOpacity>
-          )}}
-        />
-    </SafeAreaView>
+              <View style={s.shopActions}>
+                <TouchableOpacity 
+                  style={[s.defaultButton, { backgroundColor: colors.inputBackground }]}
+                  onPress={() => {
+                    if (inDefaults) {
+                      removeFromDefaults(item.name);
+                    } else {
+                      addToDefaults(item.name);
+                    }
+                  }}
+                >
+                  <Text style={[s.defaultButtonText, { color: colors.accentColor }]}>{inDefaults ? '−' : '+'}</Text>
+                </TouchableOpacity>
+                <View style={[
+                  s.circleBadge,
+                  { backgroundColor: item.remainingItems === 0 ? colors.completedColor : colors.accentColor }
+                ]}>
+                  <Text style={s.circleBadgeText}>
+                    {item.remainingItems === 0 ? '✓' : item.remainingItems}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            )}}
+          />
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
