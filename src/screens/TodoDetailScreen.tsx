@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal, Platform
+  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Platform
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { TodoDetailProps } from '../navigation/types';
 
@@ -29,6 +30,7 @@ export default function TodoDetailScreen() {
   const route = useRoute<TodoDetailProps['route']>();
   const db = useDB();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   const { listId } = route.params;
 
   const [newItemText, setNewItemText] = useState('');
@@ -157,8 +159,8 @@ export default function TodoDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={[styles.loading, { color: colors.primaryText }]}>Loading...</Text>
+      <SafeAreaView style={s.container}>
+        <Text style={[s.loadingText, { color: colors.primaryText }]}>Loading...</Text>
       </SafeAreaView>
     );
   }
@@ -175,11 +177,11 @@ export default function TodoDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+    <SafeAreaView style={s.container}>
+      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editTitle ? (
           <TextInput
-            style={[styles.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+            style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
             value={title}
             onChangeText={setTitle}
             onBlur={handleUpdateTitle}
@@ -188,96 +190,96 @@ export default function TodoDetailScreen() {
           />
         ) : (
           <TouchableOpacity onPress={() => setEditTitle(true)}>
-            <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
+            <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <Text style={[styles.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
+        <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
       </View>
 
       <TouchableOpacity
-        style={[styles.addItemButton, { backgroundColor: colors.inputBackground }]}
+        style={[s.addItemButton, { backgroundColor: colors.inputBackground }]}
         onPress={() => {
           setNewDueDate(null);
           setPickerDate(new Date());
           setShowAddModal(true);
         }}
       >
-        <Text style={[styles.addItemButtonText, { color: colors.accentColor }]}>+ Add Todo</Text>
+        <Text style={[s.addItemButtonText, { color: colors.accentColor }]}>+ Add Todo</Text>
       </TouchableOpacity>
 
       <FlatList
         data={items}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={[styles.itemRow, { borderBottomColor: colors.cardBackground }]}>
+          <View style={[s.itemRowStart, { borderBottomColor: colors.cardBackground }]}>
             <TouchableOpacity
-              style={styles.checkbox}
+              style={[s.checkbox, { marginTop: 4 }]}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
-              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.secondaryText }]}>
+              <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.itemTitle}
+              style={s.itemTitle}
               onPress={() => handleEditItem(item)}
             >
-              <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
+              <Text style={[s.itemText, { color: colors.primaryText, marginBottom: 4 }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                 {item.title}
               </Text>
-              <View style={styles.itemMeta}>
+              <View style={s.itemMeta}>
                 {item.dueDateFormatted && (
-                  <Text style={[styles.dueDate, { color: colors.tertiaryText }]}>{item.dueDateFormatted}</Text>
+                  <Text style={[s.dueDate, { color: colors.tertiaryText }]}>{item.dueDateFormatted}</Text>
                 )}
                 {item.priority && (
-                  <View style={[styles.priorityBadge, { backgroundColor: getPriorityColorFn(item.priority) }]}>
-                    <Text style={styles.priorityText}>{item.priority}</Text>
+                  <View style={[s.priorityBadge, { backgroundColor: getPriorityColorFn(item.priority) }]}>
+                    <Text style={s.priorityText}>{item.priority}</Text>
                   </View>
                 )}
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.deleteItem}
+              style={[s.deleteItem, { marginTop: 4 }]}
               onPress={() => handleDeleteItem(item.id)}
             >
-              <Text style={[styles.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
+              <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
             </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={[styles.emptyItems, { color: colors.mutedText }]}>No todos yet</Text>
+          <Text style={[s.emptyItems, { color: colors.mutedText }]}>No todos yet</Text>
         }
       />
 
       <Modal visible={showAddModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add Todo</Text>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Todo</Text>
 
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="What needs to be done?"
               placeholderTextColor={colors.mutedText}
               value={newItemText}
               onChangeText={setNewItemText}
             />
 
-            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
-            <View style={styles.priorityRow}>
+            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
+            <View style={s.priorityRow}>
               {(['low', 'medium', 'high'] as Priority[]).map(p => (
                 <TouchableOpacity
                   key={p!}
                   style={[
-                    styles.priorityOption,
+                    s.priorityOption,
                     { backgroundColor: colors.inputBackground },
                     newPriority === p && { backgroundColor: getPriorityColorFn(p) }
                   ]}
                   onPress={() => setNewPriority(p)}
                 >
                   <Text style={[
-                    styles.priorityOptionText,
+                    s.priorityOptionText,
                     { color: colors.secondaryText },
                     newPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
                   ]}>
@@ -287,19 +289,19 @@ export default function TodoDetailScreen() {
               ))}
             </View>
 
-            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
-            <View style={styles.dateRow}>
+            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
+            <View style={s.dateRow}>
               <TouchableOpacity
-                style={[styles.dateButton, { backgroundColor: colors.inputBackground }]}
+                style={[s.dateButton, { backgroundColor: colors.inputBackground }]}
                 onPress={openDatePicker}
               >
-                <Text style={[styles.dateButtonText, { color: colors.primaryText }]}>
+                <Text style={[s.dateButtonText, { color: colors.primaryText }]}>
                   {newDueDate ? newDueDate.toLocaleDateString() : 'Select date'}
                 </Text>
               </TouchableOpacity>
               {newDueDate && (
                 <TouchableOpacity onPress={() => setNewDueDate(null)}>
-                  <Text style={[styles.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
+                  <Text style={[s.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -323,24 +325,24 @@ export default function TodoDetailScreen() {
               />
             )}
 
-            <View style={styles.modalButtons}>
+            <View style={s.modalButtons}>
               <TouchableOpacity
-                style={styles.modalButton}
+                style={s.modalButton}
                 onPress={() => { setShowAddModal(false); setNewItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
-                  styles.modalButton,
-                  styles.modalButtonPrimary,
-                  !newItemText.trim() && styles.modalButtonDisabled,
+                  s.modalButton,
+                  s.modalButtonPrimary,
+                  !newItemText.trim() && s.modalButtonDisabled,
                   { backgroundColor: colors.accentColor }
                 ]}
                 onPress={handleAddItem}
                 disabled={!newItemText.trim()}
               >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -348,11 +350,11 @@ export default function TodoDetailScreen() {
       </Modal>
 
       <Modal visible={editItemId !== null} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Edit Todo</Text>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Todo</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Todo text"
               placeholderTextColor={colors.mutedText}
               value={editItemText}
@@ -360,20 +362,20 @@ export default function TodoDetailScreen() {
               autoFocus
             />
 
-            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
-            <View style={styles.priorityRow}>
+            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
+            <View style={s.priorityRow}>
               {(['low', 'medium', 'high'] as Priority[]).map(p => (
                 <TouchableOpacity
                   key={p!}
                   style={[
-                    styles.priorityOption,
+                    s.priorityOption,
                     { backgroundColor: colors.inputBackground },
                     editPriority === p && { backgroundColor: getPriorityColorFn(p) }
                   ]}
                   onPress={() => setEditPriority(p)}
                 >
                   <Text style={[
-                    styles.priorityOptionText,
+                    s.priorityOptionText,
                     { color: colors.secondaryText },
                     editPriority === p && { color: colors.primaryText, fontWeight: 'bold' }
                   ]}>
@@ -383,19 +385,19 @@ export default function TodoDetailScreen() {
               ))}
             </View>
 
-            <Text style={[styles.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
-            <View style={styles.dateRow}>
+            <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Due Date (optional)</Text>
+            <View style={s.dateRow}>
               <TouchableOpacity
-                style={[styles.dateButton, { backgroundColor: colors.inputBackground }]}
+                style={[s.dateButton, { backgroundColor: colors.inputBackground }]}
                 onPress={() => { setPickerDate(editDueDate || new Date()); setShowDatePicker(true); }}
               >
-                <Text style={[styles.dateButtonText, { color: colors.primaryText }]}>
+                <Text style={[s.dateButtonText, { color: colors.primaryText }]}>
                   {editDueDate ? editDueDate.toLocaleDateString() : 'Select date'}
                 </Text>
               </TouchableOpacity>
               {editDueDate && (
                 <TouchableOpacity onPress={() => setEditDueDate(null)}>
-                  <Text style={[styles.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
+                  <Text style={[s.clearDateText, { color: colors.deleteColor }]}>Clear</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -419,19 +421,19 @@ export default function TodoDetailScreen() {
               />
             )}
 
-            <View style={styles.modalButtons}>
+            <View style={s.modalButtons}>
               <TouchableOpacity
-                style={styles.modalButton}
+                style={s.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); setEditPriority(null); setEditDueDate(null); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                style={[s.modalButton, s.modalButtonPrimary, !editItemText.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
                 onPress={handleSaveEdit}
                 disabled={!editItemText.trim()}
               >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -440,180 +442,3 @@ export default function TodoDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loading: {
-    textAlign: 'center',
-    marginTop: 50,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  titleInput: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    minWidth: 200,
-  },
-  countText: {
-    fontSize: 14,
-  },
-  addItemButton: {
-    margin: 16,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  addItemButtonText: {
-    fontSize: 16,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-  },
-  checkbox: {
-    marginRight: 12,
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  checkboxUnchecked: {
-    fontSize: 24,
-  },
-  checkboxChecked: {
-    fontSize: 24,
-  },
-  itemTitle: {
-    flex: 1,
-  },
-  itemText: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  itemMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  dueDate: {
-    fontSize: 12,
-  },
-  priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  priorityText: {
-    fontSize: 10,
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-  },
-  deleteItem: {
-    padding: 8,
-    marginTop: 4,
-  },
-  deleteItemText: {
-    fontSize: 18,
-  },
-  emptyItems: {
-    textAlign: 'center',
-    marginTop: 32,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    width: '85%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  modalInput: {
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  modalLabel: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  priorityRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  priorityOption: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  priorityOptionText: {
-    textTransform: 'capitalize',
-  },
-  dateButton: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  dateButtonText: {
-    textAlign: 'center',
-  },
-  dateRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  clearDateText: {
-    fontSize: 14,
-    marginLeft: 12,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  modalButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 8,
-  },
-  modalButtonPrimary: {
-    borderRadius: 8,
-  },
-  modalButtonDisabled: {
-    opacity: 0.5,
-  },
-  modalButtonText: {
-    fontSize: 16,
-  },
-  modalButtonTextPrimary: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

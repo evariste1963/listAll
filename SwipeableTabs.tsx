@@ -1,7 +1,8 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './src/styles/theme';
+import { createThemedStyles } from './src/styles/global';
 import HomeTabScreen from './src/screens/HomeTabScreen';
 import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
 import MemosTabScreen from './src/screens/MemosTabScreen';
@@ -21,6 +22,7 @@ const TABS = [
 export default function SwipeableTabs() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
@@ -30,7 +32,7 @@ export default function SwipeableTabs() {
     scrollRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated });
   }, []);
 
-  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleMomentumScrollEnd = (event: any) => {
     const offset = event.nativeEvent.contentOffset.x;
     const index = Math.round(offset / SCREEN_WIDTH);
     if (index !== activeIndex && index >= 0 && index < TABS.length) {
@@ -39,7 +41,7 @@ export default function SwipeableTabs() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+    <SafeAreaView style={s.container} edges={['left', 'right']}>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -50,13 +52,13 @@ export default function SwipeableTabs() {
         bounces={false}
       >
         {TABS.map(({ name, Screen }) => (
-          <View key={name} style={styles.page}>
+          <View key={name} style={{ width: SCREEN_WIDTH }}>
             <Screen onTabChange={handleTabPress} />
           </View>
         ))}
       </ScrollView>
       <View style={[
-        styles.tabBar, 
+        s.tabBarContainer, 
         { 
           backgroundColor: colors.pageBackground, 
           borderTopColor: colors.dividerColor,
@@ -66,14 +68,14 @@ export default function SwipeableTabs() {
         {TABS.map((tab, index) => (
           <TouchableOpacity
             key={tab.name}
-            style={styles.tabButton}
+            style={s.tabBarButton}
             onPress={() => handleTabPress(index, false)}
           >
-            <View style={[styles.tabIconWrapper, tab.isTodos && { backgroundColor: colors.priorityLow }]}>
-              <Text style={[styles.tabIcon, tab.isTodos && { color: '#fff', fontSize: 16 }]}>{tab.icon}</Text>
+            <View style={[s.tabBarIconWrapper, tab.isTodos && { backgroundColor: colors.priorityLow }]}>
+              <Text style={[s.tabBarIcon, tab.isTodos && { color: '#fff', fontSize: 16 }]}>{tab.icon}</Text>
             </View>
             <Text style={[
-              styles.tabLabel,
+              s.tabBarLabel,
               { color: activeIndex === index ? colors.accentColor : colors.tertiaryText }
             ]}>
               {tab.name}
@@ -84,37 +86,3 @@ export default function SwipeableTabs() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    paddingTop: 4,
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-  },
-  tabIconWrapper: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabIcon: {
-    fontSize: 24,
-  },
-  tabLabel: {
-    fontSize: 10,
-    marginTop: 2,
-  },
-  page: {
-    width: SCREEN_WIDTH,
-  },
-});

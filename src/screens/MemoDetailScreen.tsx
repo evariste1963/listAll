@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal
+  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { MemoDetailProps } from '../navigation/types';
 
@@ -15,6 +16,7 @@ export default function MemoDetailScreen() {
   const route = useRoute<MemoDetailProps['route']>();
   const db = useDB();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   const { listId } = route.params;
 
   const [newItemText, setNewItemText] = useState('');
@@ -103,8 +105,8 @@ export default function MemoDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={[styles.loading, { color: colors.primaryText }]}>Loading...</Text>
+      <SafeAreaView style={s.container}>
+        <Text style={[s.loadingText, { color: colors.primaryText }]}>Loading...</Text>
       </SafeAreaView>
     );
   }
@@ -112,11 +114,11 @@ export default function MemoDetailScreen() {
   const remainingCount = items.filter(i => !i.isDone).length;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+    <SafeAreaView style={s.container}>
+      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         {editTitle ? (
           <TextInput
-            style={[styles.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+            style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
             value={title}
             onChangeText={setTitle}
             onBlur={handleUpdateTitle}
@@ -125,15 +127,15 @@ export default function MemoDetailScreen() {
           />
         ) : (
           <TouchableOpacity onPress={() => setEditTitle(true)}>
-            <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
+            <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
           </TouchableOpacity>
         )}
-        <Text style={[styles.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
+        <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
       </View>
 
-      <View style={styles.inputRow}>
+      <View style={s.inputRow}>
         <TextInput
-          style={[styles.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
+          style={[s.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
           placeholder="Add note..."
           placeholderTextColor={colors.mutedText}
           value={newItemText}
@@ -141,11 +143,11 @@ export default function MemoDetailScreen() {
           onSubmitEditing={handleAddItem}
         />
         <TouchableOpacity
-          style={[styles.addButton, !newItemText.trim() && styles.addButtonDisabled, { backgroundColor: colors.accentColor }]}
+          style={[s.addIconButton, !newItemText.trim() && s.buttonDisabled, { backgroundColor: colors.accentColor }]}
           onPress={handleAddItem}
           disabled={!newItemText.trim()}
         >
-          <Text style={styles.addButtonText}>+</Text>
+          <Text style={s.addIconButtonText}>+</Text>
         </TouchableOpacity>
       </View>
 
@@ -153,61 +155,61 @@ export default function MemoDetailScreen() {
         data={items}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={[styles.itemRow, { borderBottomColor: colors.cardBackground }]}>
+          <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
             <TouchableOpacity
-              style={styles.checkbox}
+              style={s.checkbox}
               onPress={() => handleToggleItem(item.id, item.isDone)}
             >
-              <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.secondaryText }]}>
+              <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
                 {item.isDone ? '✓' : '○'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.itemTitle}
+              style={s.itemTitle}
               onPress={() => handleEditItem(item.id, item.title)}
             >
-              <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
+              <Text style={[s.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                 {item.title}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.deleteItem}
+              style={s.deleteItem}
               onPress={() => handleDeleteItem(item.id)}
             >
-              <Text style={[styles.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
+              <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
             </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={[styles.emptyItems, { color: colors.mutedText }]}>No notes yet</Text>
+          <Text style={[s.emptyItems, { color: colors.mutedText }]}>No notes yet</Text>
         }
       />
 
       <Modal visible={editItemId !== null} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Edit Note</Text>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Note</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Note text"
               placeholderTextColor={colors.mutedText}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
             />
-            <View style={styles.modalButtons}>
+            <View style={s.modalButtons}>
               <TouchableOpacity
-                style={styles.modalButton}
+                style={s.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                style={[s.modalButton, s.modalButtonPrimary, !editItemText.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
                 onPress={handleSaveEdit}
                 disabled={!editItemText.trim()}
               >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -216,138 +218,3 @@ export default function MemoDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loading: {
-    textAlign: 'center',
-    marginTop: 50,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  titleInput: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    minWidth: 200,
-  },
-  countText: {
-    fontSize: 14,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    padding: 16,
-    paddingBottom: 8,
-  },
-  itemInput: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  addButton: {
-    width: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  addButtonDisabled: {
-    opacity: 0.5,
-  },
-  addButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-  },
-  checkbox: {
-    marginRight: 12,
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxUnchecked: {
-    fontSize: 24,
-  },
-  checkboxChecked: {
-    fontSize: 24,
-  },
-  itemTitle: {
-    flex: 1,
-  },
-  itemText: {
-    fontSize: 16,
-  },
-  deleteItem: {
-    padding: 8,
-  },
-  deleteItemText: {
-    fontSize: 18,
-  },
-  emptyItems: {
-    textAlign: 'center',
-    marginTop: 32,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  modalInput: {
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  modalButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 8,
-  },
-  modalButtonPrimary: {
-    borderRadius: 8,
-  },
-  modalButtonDisabled: {
-    opacity: 0.5,
-  },
-  modalButtonText: {
-    fontSize: 16,
-  },
-  modalButtonTextPrimary: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

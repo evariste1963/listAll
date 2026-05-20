@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -27,6 +28,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const db = useDB();
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   
   const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopSummary[]>([]);
@@ -256,21 +258,23 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const defaults = defaultShopsResult?.data || [];
   const hasNoShops = (defaults.length === 0 && shops.length === 0);
 
+  const headerStyle = { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor };
+
   if (hasNoShops) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+      <SafeAreaView style={s.container}>
+        <View style={[s.header, headerStyle]}>
           <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-            <Text style={styles.homeButton}>🏠</Text>
+            <Text style={s.homeButton}>🏠</Text>
           </TouchableOpacity>
-          <Text style={[styles.listTitle, { color: colors.primaryText }]}>Summary</Text>
+          <Text style={[s.headerTitleSm, { color: colors.primaryText }]}>Summary</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={styles.emptyShops}>
-          <Text style={[styles.emptyShopsText, { color: colors.primaryText }]}>No shops yet</Text>
-          <Text style={[styles.emptyShopsSubtext, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
-          <TouchableOpacity style={[styles.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
-            <Text style={[styles.addShopButtonText, { color: colors.accentColor }]}>+ Add Shop</Text>
+        <View style={s.emptyState}>
+          <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No shops yet</Text>
+          <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
+          <TouchableOpacity style={[s.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
+            <Text style={[s.addShopButtonText, { color: colors.accentColor }]}>+ Add Shop</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -279,20 +283,20 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
 
   if (!shopList) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+      <SafeAreaView style={s.container}>
+        <View style={[s.header, headerStyle]}>
           <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-            <Text style={styles.homeButton}>🏠</Text>
+            <Text style={s.homeButton}>🏠</Text>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
+          <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>🛒</Text>
-          <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
-          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreateList}>
-            <Text style={styles.createButtonText}>+ Create Shopping List</Text>
+        <View style={s.emptyState}>
+          <Text style={s.emptyIcon}>🛒</Text>
+          <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
+          <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
+          <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreateList}>
+            <Text style={s.createButtonText}>+ Create Shopping List</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -303,35 +307,35 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const displayShops = shopList ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+    <SafeAreaView style={s.container}>
+      <View style={[s.header, headerStyle]}>
         <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-          <Text style={styles.homeButton}>🏠</Text>
+          <Text style={s.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Summary</Text>
+        <Text style={[s.headerTitle, { color: colors.primaryText }]}>Summary</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <FlatList
         data={displayShops}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={s.list}
         renderItem={({ item }) => {
           const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
           return (
           <TouchableOpacity 
-            style={[styles.shopCard, { backgroundColor: colors.cardBackground }]}
+            style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
             onPress={() => handleOpenShop(item.id, item.name)}
           >
-            <View style={styles.shopInfo}>
-              <Text style={[styles.shopName, { color: colors.primaryText }]}>{item.name}</Text>
-              <Text style={[styles.shopItems, { color: colors.tertiaryText }]}>
+            <View style={s.shopInfo}>
+              <Text style={[s.shopName, { color: colors.primaryText }]}>{item.name}</Text>
+              <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
                 {item.remainingItems} of {item.totalItems} items remaining
               </Text>
             </View>
-            <View style={styles.shopActions}>
+            <View style={s.shopActions}>
               <TouchableOpacity 
-                style={[styles.defaultButton, { backgroundColor: colors.inputBackground }]}
+                style={[s.defaultButton, { backgroundColor: colors.inputBackground }]}
                 onPress={() => {
                   if (inDefaults) {
                     removeFromDefaults(item.name);
@@ -340,13 +344,13 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
                   }
                 }}
               >
-                <Text style={[styles.defaultButtonText, { color: colors.accentColor }]}>{inDefaults ? '−' : '+'}</Text>
+                <Text style={[s.defaultButtonText, { color: colors.accentColor }]}>{inDefaults ? '−' : '+'}</Text>
               </TouchableOpacity>
               <View style={[
-                styles.badge,
+                s.circleBadge,
                 { backgroundColor: item.remainingItems === 0 ? colors.completedColor : colors.accentColor }
               ]}>
-                <Text style={styles.badgeText}>
+                <Text style={s.circleBadgeText}>
                   {item.remainingItems === 0 ? '✓' : item.remainingItems}
                 </Text>
               </View>
@@ -357,127 +361,3 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  homeButton: {
-    fontSize: 24,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  listTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  createButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  createButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  emptyShops: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyShopsText: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  emptyShopsSubtext: {
-    fontSize: 14,
-    marginBottom: 16,
-  },
-  addShopButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  addShopButtonText: {
-    fontSize: 16,
-  },
-  list: {
-    padding: 16,
-  },
-  shopCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  shopInfo: {
-    flex: 1,
-  },
-  shopName: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  shopItems: {
-    fontSize: 14,
-  },
-  badge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  shopActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  defaultButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  defaultButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});

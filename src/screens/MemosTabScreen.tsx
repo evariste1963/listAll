@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -28,6 +29,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   const db = useDB();
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   
   const [memos, setMemos] = useState<MemoWithCount[]>([]);
 
@@ -93,45 +95,45 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+    <SafeAreaView style={s.container}>
+      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-          <Text style={styles.homeButton}>🏠</Text>
+          <Text style={s.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Memos</Text>
+        <Text style={[s.headerTitle, { color: colors.primaryText }]}>Memos</Text>
         <TouchableOpacity onPress={handleCreate}>
-          <Text style={[styles.addButton, { color: colors.accentColor }]}>+</Text>
+          <Text style={[s.addButton, { color: colors.accentColor }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {memos.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a memo to remember things</Text>
-          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
-            <Text style={styles.createButtonText}>+ Create Memo</Text>
+        <View style={s.emptyState}>
+          <Text style={s.emptyIcon}>📝</Text>
+          <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
+          <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a memo to remember things</Text>
+          <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
+            <Text style={s.createButtonText}>+ Create Memo</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
           data={memos}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={s.list}
           renderItem={({ item }) => (
             <TouchableOpacity 
-              style={[styles.memoCard, { backgroundColor: colors.cardBackground }]}
+              style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
               onPress={() => handleOpen(item.id)}
               onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
             >
-              <View style={styles.memoInfo}>
-                <Text style={[styles.memoTitle, { color: colors.primaryText }]}>{item.title}</Text>
-                <Text style={[styles.memoItems, { color: colors.tertiaryText }]}>
+              <View style={s.shopInfo}>
+                <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
+                <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
                   {item.remainingItems} remaining
                 </Text>
               </View>
-              <View style={styles.memoMeta}>
-                <Text style={[styles.memoDate, { color: colors.mutedText }]}>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={[{ fontSize: 12, color: colors.mutedText }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
@@ -142,84 +144,3 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  homeButton: {
-    fontSize: 24,
-  },
-  addButton: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  createButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  createButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  list: {
-    padding: 16,
-  },
-  memoCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  memoInfo: {
-    flex: 1,
-  },
-  memoTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  memoItems: {
-    fontSize: 14,
-  },
-  memoMeta: {
-    alignItems: 'flex-end',
-  },
-  memoDate: {
-    fontSize: 12,
-  },
-});

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -31,6 +32,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
   const db = useDB();
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   
   const [todos, setTodos] = useState<TodoWithCount[]>([]);
 
@@ -103,65 +105,74 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
     );
   };
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return colors.priorityHigh;
+      case 'medium': return colors.priorityMedium;
+      case 'low': return colors.priorityLow;
+      default: return colors.mutedText;
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+    <SafeAreaView style={s.container}>
+      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
         <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
-          <Text style={styles.homeButton}>🏠</Text>
+          <Text style={s.homeButton}>🏠</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Todos</Text>
+        <Text style={[s.headerTitle, { color: colors.primaryText }]}>Todos</Text>
         <TouchableOpacity onPress={handleCreate}>
-          <Text style={[styles.addButton, { color: colors.accentColor }]}>+</Text>
+          <Text style={[s.addButton, { color: colors.accentColor }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {todos.length === 0 ? (
-        <View style={styles.emptyState}>
-          <View style={[styles.emptyIconContainer, { backgroundColor: colors.priorityLow }]}>
-            <Text style={styles.emptyIcon}>✓</Text>
+        <View style={s.emptyState}>
+          <View style={[s.emptyIconContainer, { backgroundColor: colors.priorityLow }]}>
+            <Text style={s.emptyIconLarge}>✓</Text>
           </View>
-          <Text style={[styles.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.tertiaryText }]}>Create a todo list to track tasks</Text>
-          <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
-            <Text style={styles.createButtonText}>+ Create Todo List</Text>
+          <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
+          <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a todo list to track tasks</Text>
+          <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
+            <Text style={s.createButtonText}>+ Create Todo List</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
           data={todos}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={s.list}
           renderItem={({ item }) => (
             <TouchableOpacity 
-              style={[styles.todoCard, { backgroundColor: colors.cardBackground }]}
+              style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
               onPress={() => handleOpen(item.id)}
               onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
             >
-              <View style={styles.todoInfo}>
-                <Text style={[styles.todoTitle, { color: colors.primaryText }]}>{item.title}</Text>
-                <Text style={[styles.todoItems, { color: colors.tertiaryText }]}>
+              <View style={s.shopInfo}>
+                <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
+                <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
                   {item.remainingItems} remaining
                 </Text>
-                <View style={styles.priorityRow}>
+                <View style={s.priorityRow}>
                   {item.remainingHigh > 0 && (
-                    <View style={[styles.priorityBadge, { backgroundColor: colors.priorityHigh }]}>
-                      <Text style={styles.priorityText}>{item.remainingHigh}</Text>
+                    <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('high') }]}>
+                      <Text style={s.priorityText}>{item.remainingHigh}</Text>
                     </View>
                   )}
                   {item.remainingMedium > 0 && (
-                    <View style={[styles.priorityBadge, { backgroundColor: colors.priorityMedium }]}>
-                      <Text style={styles.priorityText}>{item.remainingMedium}</Text>
+                    <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('medium') }]}>
+                      <Text style={s.priorityText}>{item.remainingMedium}</Text>
                     </View>
                   )}
                   {item.remainingLow > 0 && (
-                    <View style={[styles.priorityBadge, { backgroundColor: colors.priorityLow }]}>
-                      <Text style={styles.priorityText}>{item.remainingLow}</Text>
+                    <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('low') }]}>
+                      <Text style={s.priorityText}>{item.remainingLow}</Text>
                     </View>
                   )}
                 </View>
               </View>
-              <View style={styles.todoMeta}>
-                <Text style={[styles.todoDate, { color: colors.mutedText }]}>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={[{ fontSize: 12, color: colors.mutedText }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
@@ -172,108 +183,3 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  homeButton: {
-    fontSize: 24,
-  },
-  addButton: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  createButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  createButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  list: {
-    padding: 16,
-  },
-  todoCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  todoInfo: {
-    flex: 1,
-  },
-  todoTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  todoItems: {
-    fontSize: 14,
-  },
-  priorityRow: {
-    flexDirection: 'row',
-    marginTop: 6,
-    gap: 6,
-  },
-  priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  priorityText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  todoMeta: {
-    alignItems: 'flex-end',
-  },
-  todoDate: {
-    fontSize: 12,
-  },
-});

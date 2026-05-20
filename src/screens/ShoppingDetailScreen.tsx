@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput,
+  View, Text, FlatList, TouchableOpacity, TextInput,
   Alert, ScrollView, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq, inArray } from 'drizzle-orm';
 import type { ShoppingDetailProps } from '../navigation/types';
 
@@ -30,6 +31,7 @@ export default function ShoppingDetailScreen() {
   const route = useRoute<ShoppingDetailProps['route']>();
   const db = useDB();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
   const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
 
   const [shops, setShops] = useState<ShopTabType[]>([]);
@@ -258,20 +260,20 @@ export default function ShoppingDetailScreen() {
 
   if (!list) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={[styles.loading, { color: colors.primaryText }]}>Loading...</Text>
+      <SafeAreaView style={s.container}>
+        <Text style={[s.loadingText, { color: colors.primaryText }]}>Loading...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <View style={[styles.header, { backgroundColor: colors.pageBackground, borderBottomColor: colors.dividerColor }]}>
-        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>{list?.title}</Text>
+    <SafeAreaView style={s.container} edges={['left', 'right', 'bottom']}>
+      <View style={[s.headerCenter, { backgroundColor: colors.pageBackground, borderBottomColor: colors.dividerColor }]}>
+        <Text style={[s.headerTitleLg, { color: colors.primaryText }]}>{list?.title}</Text>
       </View>
 
-      <View style={[styles.summary, { backgroundColor: colors.inputBackground }]}>
-        <Text style={[styles.summaryText, { color: colors.secondaryText }]}>
+      <View style={[s.summary, { backgroundColor: colors.inputBackground }]}>
+        <Text style={[s.summaryText, { color: colors.secondaryText }]}>
           {remainingItems} of {totalItems} items remaining
         </Text>
       </View>
@@ -279,15 +281,15 @@ export default function ShoppingDetailScreen() {
       {shops.length > 0 && (
         <ScrollView
           horizontal
-          style={[styles.tabBar, { backgroundColor: colors.cardBackground }]}
-          contentContainerStyle={styles.tabContent}
+          style={[s.tabBar, { backgroundColor: colors.cardBackground }]}
+          contentContainerStyle={s.tabBarContent}
           showsHorizontalScrollIndicator={false}
         >
           {shops.map(shop => (
             <TouchableOpacity
               key={shop.id}
               style={[
-                styles.tab,
+                s.tab,
                 { backgroundColor: colors.inputBackground },
                 activeTabId === shop.id && { backgroundColor: colors.accentColor }
               ]}
@@ -295,43 +297,43 @@ export default function ShoppingDetailScreen() {
               onLongPress={() => handleDeleteShop(shop.id, shop.name, shop.items?.length || 0)}
             >
               <Text style={[
-                styles.tabText,
+                s.tabText,
                 { color: colors.secondaryText },
                 activeTabId === shop.id && { color: colors.primaryText, fontWeight: '600' }
               ]}>
                 {shop.name}
               </Text>
-              <Text style={[styles.tabCount, { color: colors.secondaryText }]}>
+              <Text style={[s.tabCount, { color: colors.secondaryText }]}>
                 {shop.items?.filter(i => !i.isDone).length || 0}
               </Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity
-            style={[styles.addTab, { borderColor: colors.accentColor }]}
+            style={[s.addTab, { borderColor: colors.accentColor }]}
             onPress={() => setShowAddShop(true)}
           >
-            <Text style={[styles.addTabText, { color: colors.accentColor }]}>+ Add</Text>
+            <Text style={[s.addTabText, { color: colors.accentColor }]}>+ Add</Text>
           </TouchableOpacity>
         </ScrollView>
       )}
 
       {shops.length === 0 && (
-        <View style={styles.noShops}>
-          <Text style={[styles.noShopsText, { color: colors.tertiaryText }]}>Add your first shop</Text>
+        <View style={s.noShops}>
+          <Text style={[s.noShopsText, { color: colors.tertiaryText }]}>Add your first shop</Text>
           <TouchableOpacity
-            style={[styles.addShopButton, { backgroundColor: colors.accentColor }]}
+            style={[s.addShopButton, { backgroundColor: colors.accentColor }]}
             onPress={() => setShowAddShop(true)}
           >
-            <Text style={[styles.addShopButtonText, { color: colors.primaryText }]}>+ Add Shop</Text>
+            <Text style={[s.addShopButtonText, { color: colors.primaryText }]}>+ Add Shop</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {activeShop && (
-        <View style={styles.itemsContainer}>
-          <View style={styles.inputRow}>
+        <View style={{ flex: 1, padding: 16 }}>
+          <View style={s.inputRow}>
             <TextInput
-              style={[styles.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
+              style={[s.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
               placeholder="Add item..."
               placeholderTextColor={colors.mutedText}
               value={newItemText}
@@ -339,17 +341,17 @@ export default function ShoppingDetailScreen() {
               onSubmitEditing={handleAddItem}
             />
             <TouchableOpacity
-              style={[styles.addButton, !newItemText.trim() && styles.addButtonDisabled, { backgroundColor: colors.accentColor }]}
+              style={[s.addIconButton, !newItemText.trim() && s.buttonDisabled, { backgroundColor: colors.accentColor }]}
               onPress={handleAddItem}
               disabled={!newItemText.trim()}
             >
-              <Text style={styles.addButtonText}>+</Text>
+              <Text style={s.addIconButtonText}>+</Text>
             </TouchableOpacity>
           </View>
 
           {activeShop.items?.some(i => i.isDone) && (
-            <TouchableOpacity style={styles.deleteCompleted} onPress={handleDeleteCompleted}>
-              <Text style={[styles.deleteCompletedText, { color: colors.deleteColor }]}>🗑️ Delete Completed</Text>
+            <TouchableOpacity style={s.deleteCompleted} onPress={handleDeleteCompleted}>
+              <Text style={[s.deleteCompletedText, { color: colors.deleteColor }]}>🗑️ Delete Completed</Text>
             </TouchableOpacity>
           )}
 
@@ -357,63 +359,63 @@ export default function ShoppingDetailScreen() {
             data={activeShop.items || []}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={[styles.itemRow, { borderBottomColor: colors.cardBackground }]}>
+              <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
                 <TouchableOpacity
-                  style={styles.checkbox}
+                  style={s.checkbox}
                   onPress={() => handleToggleItem(item.id, item.isDone)}
                 >
-                  <Text style={item.isDone ? [styles.checkboxChecked, { color: colors.completedColor }] : [styles.checkboxUnchecked, { color: colors.secondaryText }]}>
+                  <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
                     {item.isDone ? '✓' : '○'}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.itemTitle}
+                  style={s.itemTitle}
                   onPress={() => handleEditItem(item.id, item.title)}
                 >
-                  <Text style={[styles.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
+                  <Text style={[s.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                     {item.title}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.deleteItem}
+                  style={s.deleteItem}
                   onPress={() => handleDeleteItem(item.id)}
                 >
-                  <Text style={[styles.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
+                  <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
                 </TouchableOpacity>
               </View>
             )}
             ListEmptyComponent={
-              <Text style={[styles.emptyItems, { color: colors.mutedText }]}>No items yet</Text>
+              <Text style={[s.emptyItems, { color: colors.mutedText }]}>No items yet</Text>
             }
           />
         </View>
       )}
 
       <Modal visible={showAddShop} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add New Shop</Text>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add New Shop</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Shop name (e.g., Walmart)"
               placeholderTextColor={colors.mutedText}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
             />
-            <View style={styles.modalButtons}>
+            <View style={s.modalButtons}>
               <TouchableOpacity
-                style={styles.modalButton}
+                style={s.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                style={[s.modalButton, s.modalButtonPrimary, !newShopName.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
                 onPress={handleAddShop}
                 disabled={!newShopName.trim()}
               >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -421,30 +423,30 @@ export default function ShoppingDetailScreen() {
       </Modal>
 
       <Modal visible={editItemId !== null} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Edit Item</Text>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Item</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Item name"
               placeholderTextColor={colors.mutedText}
               value={editItemText}
               onChangeText={setEditItemText}
               autoFocus
             />
-            <View style={styles.modalButtons}>
+            <View style={s.modalButtons}>
               <TouchableOpacity
-                style={styles.modalButton}
+                style={s.modalButton}
                 onPress={() => { setEditItemId(null); setEditItemText(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !editItemText.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                style={[s.modalButton, s.modalButtonPrimary, !editItemText.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
                 onPress={handleSaveEdit}
                 disabled={!editItemText.trim()}
               >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -453,195 +455,3 @@ export default function ShoppingDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loading: {
-    textAlign: 'center',
-    marginTop: 50,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  summary: {
-    padding: 8,
-  },
-  summaryText: {
-    textAlign: 'center',
-  },
-  tabBar: {
-    maxHeight: 60,
-  },
-  tabContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  tabText: {
-    fontSize: 14,
-  },
-  tabCount: {
-    marginLeft: 8,
-    fontSize: 12,
-  },
-  addTab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderRadius: 20,
-    borderStyle: 'dashed',
-  },
-  addTabText: {
-    fontSize: 14,
-  },
-  noShops: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noShopsText: {
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  addShopButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  addShopButtonText: {
-    fontSize: 16,
-  },
-  itemsContainer: {
-    flex: 1,
-    padding: 16,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  itemInput: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  addButton: {
-    width: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  addButtonDisabled: {
-    opacity: 0.5,
-  },
-  addButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  deleteCompleted: {
-    alignSelf: 'flex-end',
-    marginBottom: 8,
-  },
-  deleteCompletedText: {
-    fontSize: 14,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-  },
-  checkbox: {
-    marginRight: 12,
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxUnchecked: {
-    fontSize: 24,
-  },
-  checkboxChecked: {
-    fontSize: 24,
-  },
-  itemTitle: {
-    flex: 1,
-  },
-  itemText: {
-    fontSize: 16,
-  },
-  deleteItem: {
-    padding: 8,
-  },
-  deleteItemText: {
-    fontSize: 18,
-  },
-  emptyItems: {
-    textAlign: 'center',
-    marginTop: 32,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  modalInput: {
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  modalButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 8,
-  },
-  modalButtonPrimary: {
-    borderRadius: 8,
-  },
-  modalButtonDisabled: {
-    opacity: 0.5,
-  },
-  modalButtonText: {
-    fontSize: 16,
-  },
-  modalButtonTextPrimary: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

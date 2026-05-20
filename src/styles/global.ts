@@ -110,57 +110,91 @@ export const fontWeight = {
 export const createThemedStyles = (theme: ThemeColors) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.pageBackground,
+  },
+  containerPadded: {
+    flex: 1,
+    padding: spacing.xxxl,
   },
   header: {
     flexDirection: 'row' as const,
     justifyContent: 'space-between' as const,
     alignItems: 'center' as const,
     padding: spacing.lg,
-    backgroundColor: theme.cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: theme.dividerColor,
+  },
+  headerCenter: {
+    flexDirection: 'row' as const,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderBottomWidth: 1,
   },
   headerTitle: {
     fontSize: fontSize.xxl,
     fontWeight: fontWeight.bold,
-    color: theme.primaryText,
+  },
+  headerTitleSm: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+  },
+  headerTitleLg: {
+    fontSize: fontSize.xxxl,
+    fontWeight: fontWeight.bold,
+    textAlign: 'center' as const,
   },
   homeButton: {
-    fontSize: 24,
+    fontSize: fontSize.xxl,
   },
   addButton: {
-    fontSize: 28,
-    color: theme.accentColor,
+    fontSize: fontSize.xxxl,
     fontWeight: fontWeight.bold,
   },
   list: {
     padding: spacing.lg,
   },
   card: {
-    backgroundColor: theme.cardBackground,
     padding: spacing.lg,
     borderRadius: borderRadius.lg,
     marginBottom: spacing.md,
   },
+  cardRow: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+  },
   cardTitle: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.semibold,
-    color: theme.primaryText,
     marginBottom: spacing.xs,
   },
   cardSubtitle: {
     fontSize: fontSize.md,
-    color: theme.tertiaryText,
+  },
+  cardIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    marginRight: spacing.md,
+  },
+  cardIcon: {
+    fontSize: fontSize.xxl,
+    fontWeight: fontWeight.bold,
+  },
+  cardText: {
+    flex: 1,
+  },
+  cardDesc: {
+    fontSize: fontSize.xs,
+    marginTop: spacing.xs,
   },
   input: {
-    backgroundColor: theme.inputBackground,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    color: theme.primaryText,
-    fontSize: fontSize.base,
     borderWidth: 1,
-    borderColor: theme.dividerColor,
+    fontSize: fontSize.base,
   },
   inputRow: {
     flexDirection: 'row' as const,
@@ -169,20 +203,26 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   itemInput: {
     flex: 1,
-    backgroundColor: theme.cardBackground,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    color: theme.primaryText,
     marginRight: spacing.sm,
   },
+  addIconButton: {
+    width: 48,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    borderRadius: borderRadius.md,
+  },
+  addIconButtonText: {
+    fontSize: fontSize.xxl,
+    fontWeight: fontWeight.bold,
+  },
   button: {
-    backgroundColor: theme.accentColor,
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
   },
   buttonText: {
-    color: theme.primaryText,
     fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
   },
@@ -190,14 +230,12 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     opacity: 0.5,
   },
   primaryButton: {
-    backgroundColor: theme.accentColor,
     borderRadius: borderRadius.lg,
     padding: spacing.lg,
     alignItems: 'center' as const,
   },
   primaryButtonText: {
-    color: theme.primaryText,
-    fontSize: fontSize.lg,
+    fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
   },
   secondaryButton: {
@@ -205,7 +243,6 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     alignItems: 'center' as const,
   },
   secondaryButtonText: {
-    color: theme.tertiaryText,
     fontSize: fontSize.base,
   },
   emptyState: {
@@ -218,22 +255,50 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     fontSize: 64,
     marginBottom: spacing.lg,
   },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    marginBottom: spacing.lg,
+  },
+  emptyIconLarge: {
+    fontSize: 48,
+    fontWeight: fontWeight.bold,
+    color: '#fff',
+  },
   emptyTitle: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    color: theme.primaryText,
     marginBottom: spacing.sm,
   },
   emptySubtitle: {
     fontSize: fontSize.md,
-    color: theme.tertiaryText,
     marginBottom: spacing.xxl,
     textAlign: 'center' as const,
   },
-  sectionTitle: {
-    fontSize: fontSize.sm,
+  emptyItems: {
+    textAlign: 'center' as const,
+    marginTop: spacing.xxxl,
+  },
+  emptyText: {
+    fontSize: fontSize.md,
+    fontStyle: 'italic' as const,
+    marginBottom: spacing.sm,
+  },
+  createButton: {
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+  },
+  createButtonText: {
+    fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
-    color: theme.accentColor,
+  },
+  sectionTitle: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
     marginBottom: spacing.md,
     textTransform: 'uppercase' as const,
   },
@@ -249,7 +314,13 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: theme.cardBackground,
+  },
+  itemRowStart: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderBottomWidth: 1,
   },
   checkbox: {
     marginRight: spacing.md,
@@ -259,35 +330,214 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     alignItems: 'center' as const,
   },
   checkboxUnchecked: {
-    fontSize: 24,
-    color: theme.secondaryText,
+    fontSize: fontSize.xxl,
   },
   checkboxChecked: {
-    fontSize: 24,
-    color: theme.completedColor,
+    fontSize: fontSize.xxl,
   },
   itemTitle: {
     flex: 1,
   },
   itemText: {
     fontSize: fontSize.base,
-    color: theme.primaryText,
   },
-  itemDone: {
-    textDecorationLine: 'line-through' as const,
-    color: theme.mutedText,
+  itemMeta: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
   },
   deleteItem: {
     padding: spacing.sm,
   },
   deleteItemText: {
-    color: theme.deleteColor,
     fontSize: 18,
   },
-  emptyItems: {
+  countText: {
+    fontSize: fontSize.md,
+  },
+  titleInput: {
+    fontSize: fontSize.xxl,
+    fontWeight: fontWeight.bold,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    minWidth: 200,
+  },
+  loadingText: {
     textAlign: 'center' as const,
-    color: theme.mutedText,
-    marginTop: spacing.xxl,
+    marginTop: 50,
+  },
+  summary: {
+    padding: spacing.sm,
+  },
+  summaryText: {
+    textAlign: 'center' as const,
+  },
+  tabBar: {
+    maxHeight: 60,
+  },
+  tabBarContent: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    alignItems: 'center' as const,
+  },
+  tab: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
+    marginRight: spacing.sm,
+  },
+  tabText: {
+    fontSize: fontSize.md,
+  },
+  tabCount: {
+    marginLeft: spacing.sm,
+    fontSize: fontSize.sm,
+  },
+  addTab: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderRadius: borderRadius.full,
+    borderStyle: 'dashed' as const,
+  },
+  addTabText: {
+    fontSize: fontSize.md,
+  },
+  priorityRow: {
+    flexDirection: 'row' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  priorityBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+  },
+  priorityText: {
+    fontSize: fontSize.xs,
+    textTransform: 'uppercase' as const,
+    fontWeight: fontWeight.bold,
+    color: '#fff',
+  },
+  priorityOption: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center' as const,
+  },
+  priorityOptionText: {
+    textTransform: 'capitalize' as const,
+  },
+  circleBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  circleBadgeText: {
+    fontWeight: fontWeight.bold,
+    fontSize: fontSize.md,
+  },
+  shopInfo: {
+    flex: 1,
+  },
+  shopName: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    marginBottom: spacing.xs,
+  },
+  shopItems: {
+    fontSize: fontSize.md,
+  },
+  shopActions: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+  },
+  defaultButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  defaultButtonText: {
+    fontSize: 18,
+    fontWeight: fontWeight.bold,
+  },
+  deleteButton: {
+    fontSize: 18,
+    padding: spacing.xs,
+  },
+  shopItem: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+  },
+  hintText: {
+    fontSize: fontSize.sm,
+    marginTop: spacing.xs,
+  },
+  addItemButton: {
+    margin: spacing.lg,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center' as const,
+  },
+  addItemButtonText: {
+    fontSize: fontSize.base,
+  },
+  dueDate: {
+    fontSize: fontSize.sm,
+  },
+  dateButton: {
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.lg,
+  },
+  dateButtonText: {
+    textAlign: 'center' as const,
+  },
+  dateRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    marginBottom: spacing.lg,
+  },
+  clearDateText: {
+    fontSize: fontSize.md,
+    marginLeft: spacing.md,
+  },
+  deleteCompleted: {
+    alignSelf: 'flex-end' as const,
+    marginBottom: spacing.sm,
+  },
+  deleteCompletedText: {
+    fontSize: fontSize.md,
+  },
+  noShops: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  noShopsText: {
+    fontSize: fontSize.base,
+    marginBottom: spacing.lg,
+  },
+  addShopButton: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+  },
+  addShopButtonText: {
+    fontSize: fontSize.base,
   },
   modalOverlay: {
     flex: 1,
@@ -296,33 +546,27 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     alignItems: 'center' as const,
   },
   modalContent: {
-    backgroundColor: theme.cardBackground,
     borderRadius: borderRadius.xl,
     padding: spacing.xxl,
-    width: '80%',
+    width: '80%' as any,
   },
   modalContentWide: {
-    backgroundColor: theme.cardBackground,
     borderRadius: borderRadius.xl,
     padding: spacing.xxl,
-    width: '85%',
+    width: '85%' as any,
   },
   modalTitle: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    color: theme.primaryText,
     marginBottom: spacing.lg,
   },
   modalInput: {
-    backgroundColor: theme.inputBackground,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    color: theme.primaryText,
     fontSize: fontSize.base,
     marginBottom: spacing.lg,
   },
   modalLabel: {
-    color: theme.secondaryText,
     fontSize: fontSize.md,
     marginBottom: spacing.sm,
   },
@@ -336,34 +580,179 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     marginLeft: spacing.sm,
   },
   modalButtonPrimary: {
-    backgroundColor: theme.accentColor,
     borderRadius: borderRadius.md,
   },
   modalButtonDisabled: {
     opacity: 0.5,
   },
   modalButtonText: {
-    color: theme.secondaryText,
     fontSize: fontSize.base,
   },
   modalButtonTextPrimary: {
-    color: theme.primaryText,
     fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
   },
-  titleInput: {
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.bold,
-    color: theme.primaryText,
-    backgroundColor: theme.inputBackground,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.sm,
-    minWidth: 200,
+  themeRow: {
+    flexDirection: 'row' as const,
+    gap: spacing.md,
   },
-  countText: {
-    color: theme.secondaryText,
+  themeOption: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center' as const,
+  },
+  themeOptionText: {
     fontSize: fontSize.md,
+    textTransform: 'capitalize' as const,
+  },
+  appName: {
+    fontSize: fontSize.xxxl,
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.xs,
+  },
+  version: {
+    fontSize: fontSize.md,
+    marginBottom: spacing.lg,
+  },
+  description: {
+    fontSize: fontSize.md,
+    lineHeight: 20,
+  },
+  infoText: {
+    fontSize: fontSize.md,
+    lineHeight: 24,
+  },
+  createScreenContainer: {
+    flex: 1,
+    padding: spacing.xxl,
+    justifyContent: 'center' as const,
+  },
+  createScreenTitle: {
+    fontSize: fontSize.xxxl,
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.sm,
+    textAlign: 'center' as const,
+  },
+  createScreenSubtitle: {
+    fontSize: fontSize.base,
+    marginBottom: spacing.xxxl,
+    textAlign: 'center' as const,
+  },
+  createScreenInputContainer: {
+    marginBottom: spacing.xxl,
+  },
+  createScreenInput: {
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    fontSize: fontSize.lg,
+    borderWidth: 1,
+  },
+  createScreenButton: {
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    alignItems: 'center' as const,
+  },
+  createScreenButtonText: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+  },
+  createScreenCancelButton: {
+    marginTop: spacing.lg,
+    alignItems: 'center' as const,
+  },
+  createScreenCancelText: {
+    fontSize: fontSize.base,
+  },
+  guideContainer: {
+    flex: 1,
+  },
+  guideScrollView: {
+    flex: 1,
+  },
+  guideContent: {
+    padding: spacing.xl,
+    paddingBottom: spacing.xxxl + spacing.md,
+  },
+  guideMainTitle: {
+    fontSize: fontSize.xxxl,
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.sm,
+  },
+  guideIntro: {
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: spacing.xxl,
+  },
+  guideSectionTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  guideBullet: {
+    fontSize: fontSize.md,
+    lineHeight: 22,
+    marginBottom: spacing.xs,
+    paddingLeft: spacing.xs,
+  },
+  homeHeader: {
+    alignItems: 'center' as const,
+    paddingVertical: 30,
+  },
+  logoContainer: {
+    width: 180,
+    height: 180,
+    borderRadius: 18,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    marginBottom: spacing.md,
+    overflow: 'hidden' as const,
+  },
+  logo: {
+    width: 135,
+    height: 135,
+  },
+  homeSubtitle: {
+    fontSize: fontSize.md,
+  },
+  cardsContainer: {
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+  },
+  homeCard: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    padding: spacing.lg,
+    borderRadius: 14,
+  },
+  tabBarContainer: {
+    flexDirection: 'row' as const,
+    borderTopWidth: 1,
+    paddingTop: spacing.xs,
+  },
+  tabBarButton: {
+    flex: 1,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    paddingVertical: spacing.sm,
+  },
+  tabBarIconWrapper: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  tabBarIcon: {
+    fontSize: fontSize.xxl,
+  },
+  tabBarLabel: {
+    fontSize: fontSize.xs,
+    marginTop: spacing.xs,
+  },
+  swipePage: {
+    width: 0,
   },
   placeholderText: {
     color: theme.mutedText,

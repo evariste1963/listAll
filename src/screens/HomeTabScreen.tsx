@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
@@ -30,20 +31,21 @@ interface NavigationCardProps {
   iconBgColor?: string;
   iconColor?: string;
   colors: ReturnType<typeof useTheme>['colors'];
+  s: ReturnType<typeof createThemedStyles>;
 }
 
-function NavigationCard({ tab, onPress, iconBgColor, iconColor, colors }: NavigationCardProps) {
+function NavigationCard({ tab, onPress, iconBgColor, iconColor, colors, s }: NavigationCardProps) {
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.cardBackground }]}
+      style={[s.homeCard, { backgroundColor: colors.cardBackground }]}
       onPress={onPress}
     >
-      <View style={[styles.cardIconWrapper, iconBgColor && { backgroundColor: iconBgColor }]}>
-        <Text style={[styles.cardIcon, iconColor && { color: iconColor }]}>{tab.icon}</Text>
+      <View style={[s.cardIconWrapper, iconBgColor && { backgroundColor: iconBgColor }]}>
+        <Text style={[s.cardIcon, iconColor && { color: iconColor }]}>{tab.icon}</Text>
       </View>
-      <View style={styles.cardText}>
-        <Text style={[styles.cardTitle, { color: colors.primaryText }]}>{tab.title}</Text>
-        <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>{tab.desc}</Text>
+      <View style={s.cardText}>
+        <Text style={[s.cardTitle, { color: colors.primaryText }]}>{tab.title}</Text>
+        <Text style={[s.cardDesc, { color: colors.tertiaryText }]}>{tab.desc}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -56,23 +58,25 @@ interface HomeTabScreenProps {
 export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
+  const s = createThemedStyles(colors);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <View style={[styles.logoContainer, { backgroundColor: colors.cardBackground }]}>
-            <Image source={require('../../assets/listAll_logo.png')} style={styles.logo} resizeMode="contain" />
+    <SafeAreaView style={s.container}>
+      <ScrollView style={s.guideScrollView} contentContainerStyle={s.guideContent}>
+        <View style={s.homeHeader}>
+          <View style={[s.logoContainer, { backgroundColor: colors.cardBackground }]}>
+            <Image source={require('../../assets/listAll_logo.png')} style={s.logo} resizeMode="contain" />
           </View>
-          <Text style={[styles.subtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
+          <Text style={[s.homeSubtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
         </View>
 
-        <View style={styles.cardsContainer}>
+        <View style={s.cardsContainer}>
           {TABS.map((tab) => (
             <NavigationCard
               key={tab.title}
               tab={tab}
               colors={colors}
+              s={s}
               iconBgColor={tab.iconBg ? colors[tab.iconBg as keyof typeof colors] : undefined}
               iconColor={tab.iconBg ? '#fff' : undefined}
               onPress={() =>
@@ -87,68 +91,3 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  logoContainer: {
-    width: 180,
-    height: 180,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-    overflow: 'hidden',
-  },
-  logo: {
-    width: 135,
-    height: 135,
-  },
-  subtitle: {
-    fontSize: 14,
-  },
-  cardsContainer: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 14,
-  },
-  cardIconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
-  },
-  cardIcon: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  cardText: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  cardDesc: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-});

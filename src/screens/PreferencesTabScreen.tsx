@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme, ThemeName } from '../styles/theme';
+import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 
@@ -12,6 +13,7 @@ const THEMES: ThemeName[] = ['dark', 'green', 'light'];
 export default function PreferencesTabScreen() {
   const db = useDB();
   const { theme, setTheme, colors } = useTheme();
+  const s = createThemedStyles(colors);
 
   const [showAddShop, setShowAddShop] = useState(false);
   const [newShopName, setNewShopName] = useState('');
@@ -61,36 +63,36 @@ export default function PreferencesTabScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-        <Text style={[styles.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
+    <SafeAreaView style={s.container}>
+      <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+        <Text style={[s.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>About</Text>
-          <Text style={[styles.appName, { color: colors.primaryText }]}>listAll</Text>
-          <Text style={[styles.version, { color: colors.tertiaryText }]}>Version 1.0.0</Text>
-          <Text style={[styles.description, { color: colors.secondaryText }]}>
+      <View style={{ flex: 1, padding: 16 }}>
+        <View style={s.sectionTitle && { marginBottom: 24 }}>
+          <Text style={[s.sectionTitle, { color: colors.accentColor }]}>About</Text>
+          <Text style={[s.appName, { color: colors.primaryText }]}>listAll</Text>
+          <Text style={[s.version, { color: colors.tertiaryText }]}>Version 1.0.0</Text>
+          <Text style={[s.description, { color: colors.secondaryText }]}>
             A scalable list app for Shopping Lists, Memos, and Todos.
           </Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Theme</Text>
-          <View style={styles.themeRow}>
+        <View style={{ marginBottom: 24 }}>
+          <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Theme</Text>
+          <View style={s.themeRow}>
             {THEMES.map((t) => (
               <TouchableOpacity
                 key={t}
                 style={[
-                  styles.themeOption,
+                  s.themeOption,
                   { backgroundColor: colors.cardBackground },
                   theme === t && { backgroundColor: colors.accentColor }
                 ]}
                 onPress={() => setTheme(t)}
               >
                 <Text style={[
-                  styles.themeOptionText,
+                  s.themeOptionText,
                   { color: colors.secondaryText },
                   theme === t && { color: colors.primaryText, fontWeight: '600' }
                 ]}>
@@ -101,37 +103,37 @@ export default function PreferencesTabScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Default Shops</Text>
+        <View style={{ marginBottom: 24 }}>
+          <View style={s.sectionHeader}>
+            <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Default Shops</Text>
             {!showAddShop && (
               <TouchableOpacity onPress={() => setShowAddShop(true)}>
-                <Text style={[styles.addButton, { color: colors.accentColor }]}>+ Add</Text>
+                <Text style={[{ fontSize: 16, fontWeight: '600', color: colors.accentColor }]}>+ Add</Text>
               </TouchableOpacity>
             )}
           </View>
           {defaultShops.length === 0 ? (
-            <Text style={[styles.emptyText, { color: colors.mutedText }]}>No default shops set</Text>
+            <Text style={[s.emptyText, { color: colors.mutedText }]}>No default shops set</Text>
           ) : (
             defaultShops.map(shop => (
               <TouchableOpacity
                 key={shop.id}
-                style={[styles.shopItem, { backgroundColor: colors.cardBackground }]}
+                style={[s.shopItem, { backgroundColor: colors.cardBackground }]}
                 onLongPress={() => handleDeleteDefaultShop(shop.id, shop.name)}
               >
-                <Text style={[styles.shopName, { color: colors.primaryText }]}>{shop.name}</Text>
+                <Text style={[{ fontSize: 16, color: colors.primaryText }]}>{shop.name}</Text>
                 <TouchableOpacity onPress={() => handleDeleteDefaultShop(shop.id, shop.name)}>
-                  <Text style={[styles.deleteButton, { color: colors.deleteColor }]}>✕</Text>
+                  <Text style={[s.deleteButton, { color: colors.deleteColor }]}>✕</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             ))
           )}
-          <Text style={[styles.hintText, { color: colors.mutedText }]}>Long press or tap X to remove</Text>
+          <Text style={[s.hintText, { color: colors.mutedText }]}>Long press or tap X to remove</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Info</Text>
-          <Text style={[styles.infoText, { color: colors.secondaryText }]}>
+        <View style={{ marginBottom: 24 }}>
+          <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Info</Text>
+          <Text style={[s.infoText, { color: colors.secondaryText }]}>
             • Shopping lists support multiple shop tabs{'\n'}
             • Memos support inline title editing{'\n'}
             • Todos support due dates and priorities{'\n'}
@@ -141,30 +143,30 @@ export default function PreferencesTabScreen() {
       </View>
 
       <Modal visible={showAddShop} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-            <Text style={[styles.modalTitle, { color: colors.primaryText }]}>Add Default Shop</Text>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Default Shop</Text>
             <TextInput
-              style={[styles.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+              style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
               placeholder="Shop name (e.g., Tesco)"
               placeholderTextColor={colors.mutedText}
               value={newShopName}
               onChangeText={setNewShopName}
               autoFocus
             />
-            <View style={styles.modalButtons}>
+            <View style={s.modalButtons}>
               <TouchableOpacity
-                style={styles.modalButton}
+                style={s.modalButton}
                 onPress={() => { setShowAddShop(false); setNewShopName(''); }}
               >
-                <Text style={[styles.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonPrimary, !newShopName.trim() && styles.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
+                style={[s.modalButton, s.modalButtonPrimary, !newShopName.trim() && s.modalButtonDisabled, { backgroundColor: colors.accentColor }]}
                 onPress={handleAddDefaultShop}
                 disabled={!newShopName.trim()}
               >
-                <Text style={[styles.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -173,139 +175,3 @@ export default function PreferencesTabScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 12,
-    textTransform: 'uppercase',
-  },
-  appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  version: {
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  infoText: {
-    fontSize: 14,
-    lineHeight: 24,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  addButton: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  emptyText: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    marginBottom: 8,
-  },
-  shopItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  shopName: {
-    fontSize: 16,
-  },
-  deleteButton: {
-    fontSize: 18,
-    padding: 4,
-  },
-  hintText: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    borderRadius: 16,
-    padding: 24,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  modalInput: {
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  modalButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 8,
-  },
-  modalButtonPrimary: {
-    borderRadius: 8,
-  },
-  modalButtonDisabled: {
-    opacity: 0.5,
-  },
-  modalButtonText: {
-    fontSize: 16,
-  },
-  modalButtonTextPrimary: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  themeRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  themeOption: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  themeOptionText: {
-    fontSize: 14,
-    textTransform: 'capitalize',
-  },
-});
