@@ -10,6 +10,7 @@ export type RootStackParamList = {
   CreateShoppingList: undefined;
   CreateMemoList: undefined;
   CreateTodoList: undefined;
+  Guide: undefined;
 };
 
 export type TabParamList = {
