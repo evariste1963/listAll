@@ -62,7 +62,7 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
 
   return (
     <SafeAreaView style={s.container}>
-      <ScrollView style={s.guideScrollView} contentContainerStyle={s.guideContent}>
+      <ScrollView style={s.guideScrollView} contentContainerStyle={s.homeContent}>
         <View style={s.homeHeader}>
           <View style={[s.logoContainer, { backgroundColor: colors.cardBackground }]}>
             <Image source={require('../../assets/listAll_logo.png')} style={s.logo} resizeMode="contain" />

@@ -670,6 +670,10 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   guideScrollView: {
     flex: 1,
   },
+  homeContent: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 80,
+  },
   guideContent: {
     padding: spacing.xl,
     paddingBottom: spacing.xxxl + spacing.md,
