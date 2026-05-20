@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
+import type { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface TodoWithCount {
   id: number;
@@ -21,31 +25,16 @@ interface TodoWithCount {
 
 interface TodosTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
-  isHomeTab?: boolean;
 }
 
 export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}) {
   const db = useDB();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   
   const [todos, setTodos] = useState<TodoWithCount[]>([]);
 
   const result = useLiveQuery(db.select().from(schema.todoList).orderBy(schema.todoList.createdAt));
-
-  useEffect(() => {
-    if (result && result.data) {
-      loadTodoCounts(result.data);
-    }
-  }, [result?.data]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (result && result.data) {
-        loadTodoCounts(result.data);
-      }
-    }, [result])
-  );
 
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
@@ -70,6 +59,14 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
     }
     setTodos(withCounts);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (result && result.data) {
+        loadTodoCounts(result.data);
+      }
+    }, [result])
+  );
 
   const handleCreate = () => {
     navigation.navigate('CreateTodoList');

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal, Platform
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -27,13 +27,10 @@ interface TodoItemType {
 
 export default function TodoDetailScreen() {
   const route = useRoute<TodoDetailProps['route']>();
-  const navigation = useNavigation<any>();
   const db = useDB();
   const { colors } = useTheme();
   const { listId } = route.params;
 
-  const [list, setList] = useState<typeof schema.todoList.$inferSelect | null>(null);
-  const [items, setItems] = useState<TodoItemType[]>([]);
   const [newItemText, setNewItemText] = useState('');
   const [editTitle, setEditTitle] = useState(false);
   const [title, setTitle] = useState('');
@@ -64,35 +61,22 @@ export default function TodoDetailScreen() {
       .orderBy(schema.todoItem.order)
   );
 
-  useEffect(() => {
-    if (listResult && listResult.data) {
-      const data = listResult.data;
-      if (data.length > 0) {
-        setList(data[0]);
-        setTitle(data[0].title);
-      }
-    }
-  }, [listResult?.data]);
+  const list = listResult.data?.[0] ?? null;
 
-  useEffect(() => {
-    if (itemsResult && itemsResult.data) {
-      const formatted = itemsResult.data.map((item: any) => ({
-        ...item,
-        dueDateFormatted: item.dueDate
-          ? new Date(item.dueDate).toLocaleDateString()
-          : undefined
-      }));
-
-      formatted.sort((a, b) => {
-        if (!a.dueDate && !b.dueDate) return 0;
-        if (!a.dueDate) return 1;
-        if (!b.dueDate) return -1;
-        return a.dueDate - b.dueDate;
-      });
-
-      setItems(formatted);
-    }
-  }, [itemsResult?.data]);
+  const items = useMemo<TodoItemType[]>(() => {
+    if (!itemsResult.data) return [];
+    return itemsResult.data.map((item: any) => ({
+      ...item,
+      dueDateFormatted: item.dueDate
+        ? new Date(item.dueDate).toLocaleDateString()
+        : undefined
+    })).sort((a, b) => {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return a.dueDate - b.dueDate;
+    });
+  }, [itemsResult.data]);
 
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;
@@ -114,15 +98,27 @@ export default function TodoDetailScreen() {
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
-    const newDone = currentDone ? false : true;
     await db.update(schema.todoItem)
-      .set({ isDone: newDone })
+      .set({ isDone: !currentDone })
       .where(eq(schema.todoItem.id, itemId))
       .run();
   };
 
-  const handleDeleteItem = async (itemId: number) => {
-    await db.delete(schema.todoItem).where(eq(schema.todoItem.id, itemId)).run();
+  const handleDeleteItem = (itemId: number) => {
+    Alert.alert(
+      'Delete Todo',
+      'Are you sure you want to delete this todo?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await db.delete(schema.todoItem).where(eq(schema.todoItem.id, itemId)).run();
+          },
+        },
+      ]
+    );
   };
 
   const handleEditItem = (item: TodoItemType) => {
@@ -135,7 +131,7 @@ export default function TodoDetailScreen() {
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
       await db.update(schema.todoItem)
-        .set({ 
+        .set({
           title: editItemText.trim(),
           priority: editPriority,
           dueDate: editDueDate ? editDueDate.getTime() : null
@@ -200,10 +196,10 @@ export default function TodoDetailScreen() {
 
       <TouchableOpacity
         style={[styles.addItemButton, { backgroundColor: colors.inputBackground }]}
-        onPress={() => { 
-          setNewDueDate(null); 
-          setPickerDate(new Date()); 
-          setShowAddModal(true); 
+        onPress={() => {
+          setNewDueDate(null);
+          setPickerDate(new Date());
+          setShowAddModal(true);
         }}
       >
         <Text style={[styles.addItemButtonText, { color: colors.accentColor }]}>+ Add Todo</Text>
@@ -512,9 +508,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 4,
   },
-  itemDone: {
-    textDecorationLine: 'line-through',
-  },
   itemMeta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -582,9 +575,6 @@ const styles = StyleSheet.create({
   },
   priorityOptionText: {
     textTransform: 'capitalize',
-  },
-  priorityOptionTextSelected: {
-    fontWeight: 'bold',
   },
   dateButton: {
     padding: 12,
