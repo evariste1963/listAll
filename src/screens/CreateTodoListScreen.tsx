@@ -2,38 +2,43 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme } from '../styles/theme';
-import { desc } from 'drizzle-orm';
+import type { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateTodoList'>;
 
 export default function CreateTodoListScreen() {
   const db = useDB();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const [title, setTitle] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
-    if (!title.trim()) {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
       Alert.alert('Error', 'Please enter a title');
       return;
     }
 
-    await db.insert(schema.todoList).values({ 
-      title: title.trim(),
-      createdAt: new Date()
-    }).run();
+    setLoading(true);
+    try {
+      const [newList] = await db.insert(schema.todoList)
+        .values({ title: trimmedTitle })
+        .returning();
 
-    const newList = await db.select()
-      .from(schema.todoList)
-      .orderBy(desc(schema.todoList.id))
-      .limit(1)
-      .get();
-
-    if (newList) {
-      navigation.replace('TodoDetail', { listId: newList.id });
-    } else {
-      navigation.goBack();
+      if (newList) {
+        navigation.replace('TodoDetail', { listId: newList.id });
+      } else {
+        Alert.alert('Error', 'Failed to create todo list');
+        setLoading(false);
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to create todo list');
+      setLoading(false);
     }
   };
 
@@ -54,16 +59,19 @@ export default function CreateTodoListScreen() {
       </View>
 
       <TouchableOpacity 
-        style={[styles.button, !title.trim() && styles.buttonDisabled, { backgroundColor: colors.accentColor }]}
+        style={[styles.button, (!title.trim() || loading) && styles.buttonDisabled, { backgroundColor: colors.accentColor }]}
         onPress={handleCreate}
-        disabled={!title.trim()}
+        disabled={!title.trim() || loading}
       >
-        <Text style={[styles.buttonText, { color: colors.primaryText }]}>Create Todo List</Text>
+        <Text style={[styles.buttonText, { color: colors.primaryText }]}>
+          {loading ? 'Creating...' : 'Create Todo List'}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={styles.cancelButton}
         onPress={() => navigation.goBack()}
+        disabled={loading}
       >
         <Text style={[styles.cancelText, { color: colors.tertiaryText }]}>Cancel</Text>
       </TouchableOpacity>
