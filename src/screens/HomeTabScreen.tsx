@@ -81,7 +81,7 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
                 tab={tab}
                 colors={colors}
                 s={s}
-                iconBgColor={tab.iconBg ? colors[tab.iconBg as keyof typeof colors] : undefined}
+                iconBgColor={tab.iconBg ? (theme === 'green' && tab.title === 'Todos' ? colors.accentColor : colors[tab.iconBg as keyof typeof colors]) : undefined}
                 iconColor={tab.iconBg ? '#fff' : undefined}
                 onPress={() =>
                   tab.index === -1
