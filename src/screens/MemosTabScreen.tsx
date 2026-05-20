@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
 import { eq } from 'drizzle-orm';
+import type { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface MemoWithCount {
   id: number;
@@ -18,31 +22,16 @@ interface MemoWithCount {
 
 interface MemosTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
-  isHomeTab?: boolean;
 }
 
 export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}) {
   const db = useDB();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   
   const [memos, setMemos] = useState<MemoWithCount[]>([]);
 
   const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
-
-  useEffect(() => {
-    if (result && result.data) {
-      loadMemoCounts(result.data);
-    }
-  }, [result?.data]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (result && result.data) {
-        loadMemoCounts(result.data);
-      }
-    }, [result])
-  );
 
   const loadMemoCounts = async (lists: typeof schema.memoList.$inferSelect[]) => {
     const withCounts: MemoWithCount[] = [];
@@ -59,6 +48,14 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     }
     setMemos(withCounts);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (result && result.data) {
+        loadMemoCounts(result.data);
+      }
+    }, [result])
+  );
 
   const handleCreate = () => {
     navigation.navigate('CreateMemoList');
