@@ -7,12 +7,9 @@ import { useTheme, ThemeName } from '../styles/theme';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 
-interface PreferencesTabScreenProps {
-  onTabChange?: (index: number, animated?: boolean) => void;
-  isHomeTab?: boolean;
-}
+const THEMES: ThemeName[] = ['dark', 'green', 'light'];
 
-export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScreenProps = {}) {
+export default function PreferencesTabScreen() {
   const db = useDB();
   const { theme, setTheme, colors } = useTheme();
 
@@ -26,9 +23,20 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
 
   const handleAddDefaultShop = async () => {
     if (!newShopName.trim()) return;
+
+    const trimmedName = newShopName.trim();
+    const duplicate = defaultShops.find(
+      shop => shop.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (duplicate) {
+      Alert.alert('Shop Already Exists', `"${duplicate.name}" is already a default shop.`);
+      return;
+    }
+
     const maxOrder = defaultShops.length;
     await db.insert(schema.defaultShop).values({
-      name: newShopName.trim(),
+      name: trimmedName,
       order: maxOrder + 1,
     }).run();
     setNewShopName('');
@@ -71,7 +79,7 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Theme</Text>
           <View style={styles.themeRow}>
-            {(['dark', 'green', 'light'] as ThemeName[]).map((t) => (
+            {THEMES.map((t) => (
               <TouchableOpacity
                 key={t}
                 style={[
@@ -125,7 +133,7 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
           <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Info</Text>
           <Text style={[styles.infoText, { color: colors.secondaryText }]}>
             • Shopping lists support multiple shop tabs{'\n'}
-            • Memos can have optional checkboxes{'\n'}
+            • Memos support inline title editing{'\n'}
             • Todos support due dates and priorities{'\n'}
             • All data is stored locally
           </Text>
@@ -203,17 +211,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     lineHeight: 20,
-  },
-  option: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  optionText: {
-    fontSize: 16,
-  },
-  optionTextDanger: {
-    fontSize: 16,
   },
   infoText: {
     fontSize: 14,
@@ -307,12 +304,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  themeOptionActive: {},
   themeOptionText: {
     fontSize: 14,
     textTransform: 'capitalize',
-  },
-  themeOptionTextActive: {
-    fontWeight: '600',
   },
 });
