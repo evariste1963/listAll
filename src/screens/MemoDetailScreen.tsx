@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, TextInputProps, Modal
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -13,13 +13,10 @@ import type { MemoDetailProps } from '../navigation/types';
 
 export default function MemoDetailScreen() {
   const route = useRoute<MemoDetailProps['route']>();
-  const navigation = useNavigation<any>();
   const db = useDB();
   const { colors } = useTheme();
   const { listId } = route.params;
 
-  const [list, setList] = useState<typeof schema.memoList.$inferSelect | null>(null);
-  const [items, setItems] = useState<typeof schema.memoItem.$inferSelect[]>([]);
   const [newItemText, setNewItemText] = useState('');
   const [editTitle, setEditTitle] = useState(false);
   const [title, setTitle] = useState('');
@@ -36,21 +33,8 @@ export default function MemoDetailScreen() {
       .orderBy(schema.memoItem.order)
   );
 
-  useEffect(() => {
-    if (listResult && listResult.data) {
-      const data = listResult.data;
-      if (data.length > 0) {
-        setList(data[0]);
-        setTitle(data[0].title);
-      }
-    }
-  }, [listResult?.data]);
-
-  useEffect(() => {
-    if (itemsResult && itemsResult.data) {
-      setItems([...itemsResult.data]);
-    }
-  }, [itemsResult?.data]);
+  const list = listResult.data?.[0] ?? null;
+  const items = itemsResult.data ?? [];
 
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;
@@ -68,15 +52,27 @@ export default function MemoDetailScreen() {
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
-    const newDone = currentDone ? false : true;
     await db.update(schema.memoItem)
-      .set({ isDone: newDone })
+      .set({ isDone: !currentDone })
       .where(eq(schema.memoItem.id, itemId))
       .run();
   };
 
-  const handleDeleteItem = async (itemId: number) => {
-    await db.delete(schema.memoItem).where(eq(schema.memoItem.id, itemId)).run();
+  const handleDeleteItem = (itemId: number) => {
+    Alert.alert(
+      'Delete Note',
+      'Are you sure you want to delete this note?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await db.delete(schema.memoItem).where(eq(schema.memoItem.id, itemId)).run();
+          },
+        },
+      ]
+    );
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
@@ -300,9 +296,6 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-  },
-  itemDone: {
-    textDecorationLine: 'line-through',
   },
   deleteItem: {
     padding: 8,
