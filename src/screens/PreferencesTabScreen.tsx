@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, Alert, TextInput, Modal } from 'react-nat
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
-import { useTheme, ThemedBackground, ThemeName } from '../styles/theme';
+import { useTheme, ThemedBackground } from '../styles/theme';
+import type { ThemeName } from '../styles/global';
 import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';

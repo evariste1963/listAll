@@ -72,4 +72,5 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
 });
 
-export { themes, getTheme, ThemeName, ThemeColors };
+export { themes, getTheme };
+export type { ThemeName, ThemeColors };
