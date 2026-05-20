@@ -33,7 +33,6 @@ export function DBProvider({ children }: DBProviderProps) {
         for (const stmt of migrationStatements) {
           await expoDb.execAsync(stmt);
         }
-        await seedListTypes();
         setReady(true);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Migration failed');
@@ -76,18 +75,6 @@ export function DBProvider({ children }: DBProviderProps) {
   }
 
   return <DBContext.Provider value={db}>{children}</DBContext.Provider>;
-}
-
-async function seedListTypes() {
-  const existing = await db.select().from(schema.listType).limit(1).get();
-  
-  if (!existing) {
-    await db.insert(schema.listType).values([
-      { id: 1, name: 'shopping', icon: '🛒', fieldsConfig: '{}', isDefault: true },
-      { id: 2, name: 'memo', icon: '📝', fieldsConfig: '{"isCheckable":true}', isDefault: true },
-      { id: 3, name: 'todo', icon: '✓', fieldsConfig: '{"dueDate":true,"priority":true}', isDefault: true },
-    ]).run();
-  }
 }
 
 export { db };

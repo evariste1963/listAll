@@ -52,28 +52,6 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
     );
   };
 
-  const handleResetTemplates = () => {
-    Alert.alert(
-      'Reset Templates',
-      'Reset list types to defaults?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Reset', 
-          onPress: async () => {
-            await db.delete(schema.listType).run();
-            await db.insert(schema.listType).values([
-              { id: 1, name: 'shopping', icon: '🛒', fieldsConfig: '{}', isDefault: true },
-              { id: 2, name: 'memo', icon: '📝', fieldsConfig: '{"isCheckable":true}', isDefault: true },
-              { id: 3, name: 'todo', icon: '✓', fieldsConfig: '{"dueDate":true,"priority":true}', isDefault: true },
-            ]).run();
-            Alert.alert('Done', 'Templates reset');
-          }
-        },
-      ]
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
@@ -113,13 +91,6 @@ export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScre
               </TouchableOpacity>
             ))}
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.accentColor }]}>Data</Text>
-          <TouchableOpacity style={[styles.option, { backgroundColor: colors.cardBackground }]} onPress={handleResetTemplates}>
-            <Text style={[styles.optionText, { color: colors.primaryText }]}>Reset Templates</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>

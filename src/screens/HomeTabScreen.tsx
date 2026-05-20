@@ -51,7 +51,9 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
           style={[styles.card, { backgroundColor: colors.cardBackground }]}
           onPress={() => navigation.navigate('Guide')}
         >
-          <Text style={styles.cardIcon}>📖</Text>
+          <View style={styles.cardIconWrapper}>
+            <Text style={styles.cardIcon}>📖</Text>
+          </View>
           <View style={styles.cardText}>
             <Text style={[styles.cardTitle, { color: colors.primaryText }]}>Guide</Text>
             <Text style={[styles.cardDesc, { color: colors.tertiaryText }]}>How to use listAll</Text>

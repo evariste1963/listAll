@@ -1,13 +1,5 @@
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
-export const listType = sqliteTable('list_type', {
-  id: integer('id').primaryKey(),
-  name: text('name').notNull(),
-  icon: text('icon').notNull(),
-  fieldsConfig: text('fields_config'), // JSON string
-  isDefault: integer('is_default', { mode: 'boolean' }).default(false),
-});
-
 export const shoppingList = sqliteTable('shopping_list', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   title: text('title').notNull(),
@@ -68,7 +60,6 @@ export const defaultShop = sqliteTable('default_shop', {
 });
 
 // Types
-export type ListType = typeof listType.$inferSelect;
 export type ShoppingList = typeof shoppingList.$inferSelect;
 export type ShopTab = typeof shopTab.$inferSelect;
 export type MemoList = typeof memoList.$inferSelect;

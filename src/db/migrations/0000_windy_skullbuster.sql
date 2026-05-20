@@ -1,11 +1,3 @@
-CREATE TABLE `list_type` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`name` text NOT NULL,
-	`icon` text NOT NULL,
-	`fields_config` text,
-	`is_default` integer DEFAULT false
-);
---> statement-breakpoint
 CREATE TABLE `memo_item` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`list_id` integer NOT NULL,
