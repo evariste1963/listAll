@@ -50,22 +50,18 @@ interface ThemedBackgroundProps {
 export function ThemedBackground({ colors, children }: ThemedBackgroundProps) {
   const img = colors.backgroundImage ? bgImages[colors.backgroundImage] : null;
 
-  if (img) {
-    return (
-      <ImageBackground
-        source={img}
-        style={styles.fill}
-        resizeMode="repeat"
-        imageStyle={styles.fill}
-      >
-        <View style={[styles.fill, { backgroundColor: colors.pageBackground, opacity: 0.92 }]}>
-          {children}
-        </View>
-      </ImageBackground>
-    );
-  }
-
-  return <View style={[styles.fill, { backgroundColor: colors.pageBackground }]}>{children}</View>;
+  return (
+    <ImageBackground
+      source={img ?? undefined}
+      style={styles.fill}
+      resizeMode="repeat"
+      imageStyle={styles.fill}
+    >
+      <View style={[styles.fill, { backgroundColor: colors.pageBackground, opacity: img ? 0.85 : 1 }]}>
+        {children}
+      </View>
+    </ImageBackground>
+  );
 }
 
 const styles = StyleSheet.create({
