@@ -164,10 +164,25 @@ export default function ShoppingDetailScreen() {
   const handleAddShop = async () => {
     if (!newShopName.trim()) return;
 
+    const trimmedName = newShopName.trim();
+    const existingShops = await db.select()
+      .from(schema.shopTab)
+      .where(eq(schema.shopTab.listId, listId))
+      .all();
+
+    const duplicate = existingShops.find(
+      shop => shop.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (duplicate) {
+      Alert.alert('Shop Already Exists', `"${duplicate.name}" already exists in this list.`);
+      return;
+    }
+
     const maxOrder = shops.length;
     const result = await db.insert(schema.shopTab).values({
       listId,
-      name: newShopName.trim(),
+      name: trimmedName,
       order: maxOrder + 1,
     }).returning();
 

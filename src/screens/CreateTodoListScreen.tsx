@@ -26,6 +26,20 @@ export default function CreateTodoListScreen() {
 
     setLoading(true);
     try {
+      const existing = await db.select()
+        .from(schema.todoList)
+        .all();
+
+      const duplicate = existing.find(
+        list => list.title.toLowerCase() === trimmedTitle.toLowerCase()
+      );
+
+      if (duplicate) {
+        Alert.alert('List Already Exists', `"${duplicate.title}" already exists.`);
+        setLoading(false);
+        return;
+      }
+
       const [newList] = await db.insert(schema.todoList)
         .values({ title: trimmedTitle })
         .returning();

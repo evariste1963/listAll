@@ -26,6 +26,20 @@ export default function CreateMemoListScreen() {
 
     setLoading(true);
     try {
+      const existing = await db.select()
+        .from(schema.memoList)
+        .all();
+
+      const duplicate = existing.find(
+        list => list.title.toLowerCase() === trimmedTitle.toLowerCase()
+      );
+
+      if (duplicate) {
+        Alert.alert('List Already Exists', `"${duplicate.title}" already exists.`);
+        setLoading(false);
+        return;
+      }
+
       const [newList] = await db.insert(schema.memoList)
         .values({ title: trimmedTitle })
         .returning();
