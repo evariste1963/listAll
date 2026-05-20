@@ -93,6 +93,8 @@ export default function MemoDetailScreen() {
     setEditItemText('');
   };
 
+  const startEditing = () => { setTitle(list.title); setEditTitle(true); };
+
   const handleUpdateTitle = async () => {
     if (title.trim() && list) {
       await db.update(schema.memoList)
@@ -129,7 +131,7 @@ export default function MemoDetailScreen() {
               autoFocus
             />
           ) : (
-            <TouchableOpacity onPress={() => setEditTitle(true)}>
+            <TouchableOpacity style={{ flex: 1 }} onPress={startEditing}>
               <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
             </TouchableOpacity>
           )}

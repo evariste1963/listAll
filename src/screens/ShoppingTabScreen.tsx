@@ -274,8 +274,8 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           <View style={s.emptyState}>
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No shops yet</Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
-            <TouchableOpacity style={[s.addShopButton, { backgroundColor: colors.inputBackground }]} onPress={handleAddFirstShop}>
-              <Text style={[s.addShopButtonText, { color: colors.accentColor }]}>+ Add Shop</Text>
+            <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleAddFirstShop}>
+              <Text style={[s.createButtonText, { color: colors.primaryText }]}>+ Add Shop</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

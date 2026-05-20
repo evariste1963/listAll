@@ -135,7 +135,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a todo list to track tasks</Text>
             <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
-              <Text style={s.createButtonText}>+ Create Todo List</Text>
+              <Text style={[s.createButtonText, { color: colors.primaryText }]}>+ Create Todo List</Text>
             </TouchableOpacity>
           </View>
         ) : (

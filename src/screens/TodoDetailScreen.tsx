@@ -147,6 +147,8 @@ export default function TodoDetailScreen() {
     setEditDueDate(null);
   };
 
+  const startEditing = () => { setTitle(list.title); setEditTitle(true); };
+
   const handleUpdateTitle = async () => {
     if (title.trim() && list) {
       await db.update(schema.todoList)
@@ -192,7 +194,7 @@ export default function TodoDetailScreen() {
               autoFocus
             />
           ) : (
-            <TouchableOpacity onPress={() => setEditTitle(true)}>
+            <TouchableOpacity style={{ flex: 1 }} onPress={startEditing}>
               <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
             </TouchableOpacity>
           )}
