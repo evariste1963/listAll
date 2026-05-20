@@ -1,14 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../styles/theme';
 
 function SectionTitle({ children, color }: { children: string; color: string }) {
   return <Text style={[styles.sectionTitle, { color }]}>{children}</Text>;
-}
-
-function BodyText({ children }: { children: string }) {
-  return <Text style={styles.bodyText}>{children}</Text>;
 }
 
 function BulletItem({ text, color }: { text: string; color: string }) {
@@ -118,11 +114,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginTop: 16,
-    marginBottom: 8,
-  },
-  bodyText: {
-    fontSize: 15,
-    lineHeight: 22,
     marginBottom: 8,
   },
   bulletItem: {
