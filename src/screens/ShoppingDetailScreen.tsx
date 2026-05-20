@@ -9,7 +9,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme } from '../styles/theme';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import type { ShoppingDetailProps } from '../navigation/types';
 
 interface ShopTabType {
@@ -32,7 +32,6 @@ export default function ShoppingDetailScreen() {
   const { colors } = useTheme();
   const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
 
-  const [list, setList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopTabType[]>([]);
   const [activeTabId, setActiveTabId] = useState<number | null>(initialActiveTabId || null);
   const [newItemText, setNewItemText] = useState('');
@@ -51,11 +50,7 @@ export default function ShoppingDetailScreen() {
       .orderBy(schema.shopTab.order)
   );
 
-  useEffect(() => {
-    if (listResult && listResult.data && listResult.data.length > 0) {
-      setList(listResult.data[0]);
-    }
-  }, [listResult?.data]);
+  const list = listResult.data?.[0] ?? null;
 
   useEffect(() => {
     if (shopsResult && shopsResult.data) {
@@ -125,9 +120,8 @@ export default function ShoppingDetailScreen() {
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
-    const newDone = currentDone ? false : true;
     await db.update(schema.shoppingItem)
-      .set({ isDone: newDone })
+      .set({ isDone: !currentDone })
       .where(eq(schema.shoppingItem.id, itemId))
       .run();
     if (shopsResult.data) {
@@ -135,11 +129,24 @@ export default function ShoppingDetailScreen() {
     }
   };
 
-  const handleDeleteItem = async (itemId: number) => {
-    await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, itemId)).run();
-    if (shopsResult.data) {
-      loadShopItems(shopsResult.data);
-    }
+  const handleDeleteItem = (itemId: number) => {
+    Alert.alert(
+      'Delete Item',
+      'Are you sure you want to delete this item?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, itemId)).run();
+            if (shopsResult.data) {
+              loadShopItems(shopsResult.data);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
@@ -242,9 +249,8 @@ export default function ShoppingDetailScreen() {
   const handleDeleteCompleted = async () => {
     if (!activeShop || !activeShop.items) return;
     const completedIds = activeShop.items.filter(i => i.isDone).map(i => i.id);
-    for (const id of completedIds) {
-      await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, id)).run();
-    }
+    if (completedIds.length === 0) return;
+    await db.delete(schema.shoppingItem).where(inArray(schema.shoppingItem.id, completedIds)).run();
     if (shopsResult.data) {
       loadShopItems(shopsResult.data);
     }
@@ -469,15 +475,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  titleInput: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    minWidth: 200,
-  },
-  endButton: {},
   summary: {
     padding: 8,
   },
