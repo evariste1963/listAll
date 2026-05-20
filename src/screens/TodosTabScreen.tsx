@@ -79,7 +79,16 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
     navigation.navigate('TodoDetail', { listId });
   };
 
-  const handleDelete = (listId: number, title: string) => {
+  const handleDelete = (listId: number, title: string, itemCount: number) => {
+    if (itemCount > 0) {
+      Alert.alert(
+        'Cannot Delete Todo List',
+        `"${title}" has ${itemCount} item${itemCount > 1 ? 's' : ''}. Delete all items first.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     Alert.alert(
       'Delete Todo List',
       `Delete "${title}"?`,
@@ -129,7 +138,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
             <TouchableOpacity 
               style={[styles.todoCard, { backgroundColor: colors.cardBackground }]}
               onPress={() => handleOpen(item.id)}
-              onLongPress={() => handleDelete(item.id, item.title)}
+              onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
             >
               <View style={styles.todoInfo}>
                 <Text style={[styles.todoTitle, { color: colors.primaryText }]}>{item.title}</Text>

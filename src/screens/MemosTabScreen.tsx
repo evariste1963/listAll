@@ -68,7 +68,16 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     navigation.navigate('MemoDetail', { listId });
   };
 
-  const handleDelete = (listId: number, title: string) => {
+  const handleDelete = (listId: number, title: string, itemCount: number) => {
+    if (itemCount > 0) {
+      Alert.alert(
+        'Cannot Delete Memo',
+        `"${title}" has ${itemCount} item${itemCount > 1 ? 's' : ''}. Delete all items first.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     Alert.alert(
       'Delete Memo',
       `Delete "${title}"?`,
@@ -116,7 +125,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
             <TouchableOpacity 
               style={[styles.memoCard, { backgroundColor: colors.cardBackground }]}
               onPress={() => handleOpen(item.id)}
-              onLongPress={() => handleDelete(item.id, item.title)}
+              onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
             >
               <View style={styles.memoInfo}>
                 <Text style={[styles.memoTitle, { color: colors.primaryText }]}>{item.title}</Text>
