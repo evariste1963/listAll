@@ -57,11 +57,8 @@ interface HomeTabScreenProps {
 
 export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
   const navigation = useNavigation<NavigationProp>();
-  const { colors, theme } = useTheme();
+  const { colors } = useTheme();
   const s = createThemedStyles(colors);
-  const logoSource = theme === 'green'
-    ? require('../../assets/listAll_logo_green.png')
-    : require('../../assets/listAll_logo.png');
 
   return (
     <ThemedBackground colors={colors}>
@@ -69,7 +66,7 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
         <ScrollView style={s.guideScrollView} contentContainerStyle={s.homeContent}>
           <View style={s.homeHeader}>
             <View style={[s.logoContainer, { backgroundColor: colors.cardBackground }]}>
-              <Image source={logoSource} style={s.logo} resizeMode="contain" />
+              <Image source={colors.logoAsset} style={s.logo} resizeMode="contain" />
             </View>
             <Text style={[s.homeSubtitle, { color: colors.tertiaryText }]}>Your personal list manager</Text>
           </View>
@@ -81,7 +78,7 @@ export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
                 tab={tab}
                 colors={colors}
                 s={s}
-                iconBgColor={tab.iconBg ? (theme === 'green' && tab.title === 'Todos' ? colors.accentColor : colors[tab.iconBg as keyof typeof colors]) : undefined}
+                iconBgColor={tab.iconBg ? (tab.title === 'Todos' ? colors.todoIconBg : colors[tab.iconBg as keyof typeof colors]) : undefined}
                 iconColor={tab.iconBg ? '#fff' : undefined}
                 onPress={() =>
                   tab.index === -1

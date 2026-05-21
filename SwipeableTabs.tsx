@@ -21,7 +21,7 @@ const TABS = [
 
 export default function SwipeableTabs() {
   const insets = useSafeAreaInsets();
-  const { colors, theme } = useTheme();
+  const { colors } = useTheme();
   const s = createThemedStyles(colors);
   
   const [activeIndex, setActiveIndex] = useState(0);
@@ -72,7 +72,7 @@ export default function SwipeableTabs() {
               style={s.tabBarButton}
               onPress={() => handleTabPress(index, false)}
             >
-              <View style={[s.tabBarIconWrapper, tab.isTodos && { backgroundColor: theme === 'green' ? colors.accentColor : colors.priorityLow }]}>
+              <View style={[s.tabBarIconWrapper, tab.isTodos && { backgroundColor: colors.todoIconBg }]}>
                 <Text style={[s.tabBarIcon, tab.isTodos && { color: '#fff', fontSize: 16 }]}>{tab.icon}</Text>
               </View>
               <Text style={[

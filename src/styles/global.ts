@@ -16,6 +16,8 @@ export interface ThemeColors {
   priorityLow: string;
   deleteColor: string;
   backgroundImage?: string;
+  logoAsset: any;
+  todoIconBg: string;
 }
 
 export const themes: Record<ThemeName, ThemeColors> = {
@@ -35,6 +37,8 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityLow: '#4A7A6A',
     deleteColor: '#AA5A6A',
     backgroundImage: undefined,
+    logoAsset: require('../../assets/listAll_logo.png'),
+    todoIconBg: '#4A7A6A',
   },
   green: {
     pageBackground: '#1A3D1A',
@@ -52,6 +56,8 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityLow: '#5A7A4A',
     deleteColor: '#FF6B6B',
     backgroundImage: 'leafs',
+    logoAsset: require('../../assets/listAll_logo_green.png'),
+    todoIconBg: '#2E5A88',
   },
   light: {
     pageBackground: '#f5f5f5',
@@ -69,6 +75,8 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityLow: '#16a34a',
     deleteColor: '#dc2626',
     backgroundImage: undefined,
+    logoAsset: require('../../assets/listAll_logo.png'),
+    todoIconBg: '#16a34a',
   },
 };
 
