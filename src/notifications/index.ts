@@ -2,7 +2,9 @@ import notifee, {
   AndroidImportance,
   TriggerType,
   TimestampTrigger,
+  AlarmType,
 } from 'react-native-notify-kit';
+import { Platform } from 'react-native';
 
 export interface NotificationInterval {
   label: string;
@@ -88,6 +90,9 @@ export async function scheduleTodoNotifications(
       const trigger: TimestampTrigger = {
         type: TriggerType.TIMESTAMP,
         timestamp: triggerMs,
+        alarmManager: {
+          type: AlarmType.SET_ALARM_CLOCK,
+        },
       };
 
       const id = await notifee.createTriggerNotification(
@@ -125,5 +130,60 @@ export async function cancelTodoNotifications(todoId: number) {
     }
   } catch {
     // Silently fail
+  }
+}
+
+export async function checkMissedNotifications() {
+  if (Platform.OS !== 'android') return;
+
+  try {
+    const existing = await notifee.getTriggerNotifications();
+    const nowMs = Date.now();
+
+    for (const n of existing) {
+      const trigger = n.notification.android?.trigger;
+      if (trigger && trigger.type === TriggerType.TIMESTAMP && trigger.timestamp) {
+        const triggerMs = trigger.timestamp;
+        if (triggerMs <= nowMs) {
+          const body = n.notification.body || '';
+          console.log(`[Notifications] Missed notification: ${body}`);
+
+          await notifee.displayNotification({
+            title: n.notification.title || 'Todo Reminder',
+            body,
+            data: n.notification.data,
+            android: {
+              channelId: 'default',
+              pressAction: { id: 'default' },
+            },
+          });
+
+          await notifee.cancelTriggerNotification(n.notification.id);
+        }
+      }
+    }
+  } catch (e) {
+    console.error('[Notifications] Error checking missed notifications:', e);
+  }
+}
+
+export async function checkBatteryOptimization() {
+  if (Platform.OS !== 'android') return false;
+
+  try {
+    const enabled = await notifee.isBatteryOptimizationEnabled();
+    return enabled;
+  } catch {
+    return false;
+  }
+}
+
+export async function openBatteryOptimizationSettings() {
+  if (Platform.OS !== 'android') return;
+
+  try {
+    await notifee.openBatteryOptimizationSettings();
+  } catch {
+    console.error('[Notifications] Failed to open battery optimization settings');
   }
 }

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { AppState, StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,7 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
 import { PreferencesProvider } from './src/preferences/provider';
-import { initNotifications } from './src/notifications';
+import { initNotifications, checkMissedNotifications } from './src/notifications';
 import SwipeableTabs from './SwipeableTabs';
 import CreateMemoListScreen from './src/screens/CreateMemoListScreen';
 import CreateTodoListScreen from './src/screens/CreateTodoListScreen';
@@ -19,9 +19,22 @@ import GuideScreen from './src/screens/GuideScreen';
 const Stack = createNativeStackNavigator();
 
 function NotificationInitializer() {
+  const appState = useRef(AppState.currentState);
+
   useEffect(() => {
     initNotifications();
+    checkMissedNotifications();
+
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        checkMissedNotifications();
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => subscription.remove();
   }, []);
+
   return null;
 }
 
