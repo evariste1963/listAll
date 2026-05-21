@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -8,12 +8,15 @@ import type { ThemeName } from '../styles/global';
 import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { usePreferences } from '../preferences/provider';
+import { AVAILABLE_INTERVALS, DEFAULT_INTERVALS } from '../notifications';
 
 const THEMES: ThemeName[] = ['dark', 'green', 'light'];
 
 export default function PreferencesTabScreen() {
   const db = useDB();
   const { theme, setTheme, colors } = useTheme();
+  const { notificationIntervals, setNotificationIntervals } = usePreferences();
   const s = createThemedStyles(colors);
 
   const [showAddShop, setShowAddShop] = useState(false);
@@ -103,6 +106,56 @@ export default function PreferencesTabScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+          </View>
+
+          <View style={{ marginBottom: 24 }}>
+            <Text style={[s.sectionTitle, { color: colors.accentColor }]}>Todo Reminders</Text>
+            <Text style={[{ fontSize: 13, color: colors.tertiaryText, marginBottom: 12 }]}>
+              Notify before todos are due (global setting)
+            </Text>
+            <ScrollView style={{ maxHeight: 200 }}>
+              {AVAILABLE_INTERVALS.map((interval) => {
+                const isSelected = notificationIntervals.includes(interval.seconds);
+                return (
+                  <TouchableOpacity
+                    key={interval.seconds}
+                    style={[
+                      {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 12,
+                        borderRadius: 8,
+                        marginBottom: 4,
+                        backgroundColor: colors.cardBackground,
+                      },
+                    ]}
+                    onPress={() => {
+                      const next = isSelected
+                        ? notificationIntervals.filter(i => i !== interval.seconds)
+                        : [...notificationIntervals, interval.seconds].sort((a, b) => a - b);
+                      setNotificationIntervals(next.length > 0 ? next : DEFAULT_INTERVALS);
+                    }}
+                  >
+                    <View style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 4,
+                      borderWidth: 2,
+                      borderColor: isSelected ? colors.accentColor : colors.mutedText,
+                      backgroundColor: isSelected ? colors.accentColor : 'transparent',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 12,
+                    }}>
+                      {isSelected && <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>✓</Text>}
+                    </View>
+                    <Text style={[{ fontSize: 14, color: colors.primaryText }]}>
+                      {interval.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
           </View>
 
           <View style={{ marginBottom: 24 }}>

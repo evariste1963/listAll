@@ -59,6 +59,11 @@ export const defaultShop = sqliteTable('default_shop', {
   order: integer('order').default(0),
 });
 
+export const preference = sqliteTable('preference', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
 // Types
 export type ShoppingList = typeof shoppingList.$inferSelect;
 export type ShopTab = typeof shopTab.$inferSelect;
@@ -68,3 +73,4 @@ export type ShoppingItem = typeof shoppingItem.$inferSelect;
 export type MemoItem = typeof memoItem.$inferSelect;
 export type TodoItem = typeof todoItem.$inferSelect;
 export type DefaultShop = typeof defaultShop.$inferSelect;
+export type Preference = typeof preference.$inferSelect;

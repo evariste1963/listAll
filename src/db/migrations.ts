@@ -54,6 +54,10 @@ export const migrationStatements = [
 	\`name\` text NOT NULL,
 	\`order\` integer DEFAULT 0
 );`,
+  `CREATE TABLE IF NOT EXISTS \`preference\` (
+	\`key\` text PRIMARY KEY NOT NULL,
+	\`value\` text NOT NULL
+);`,
 ];
 
 export default migrationStatements;

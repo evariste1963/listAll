@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -6,6 +6,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
+import { PreferencesProvider } from './src/preferences/provider';
+import { initNotifications } from './src/notifications';
 import SwipeableTabs from './SwipeableTabs';
 import CreateMemoListScreen from './src/screens/CreateMemoListScreen';
 import CreateTodoListScreen from './src/screens/CreateTodoListScreen';
@@ -15,6 +17,13 @@ import TodoDetailScreen from './src/screens/TodoDetailScreen';
 import GuideScreen from './src/screens/GuideScreen';
 
 const Stack = createNativeStackNavigator();
+
+function NotificationInitializer() {
+  useEffect(() => {
+    initNotifications();
+  }, []);
+  return null;
+}
 
 function AppNavigator() {
   const { colors, theme } = useTheme();
@@ -96,7 +105,10 @@ export default function App() {
     <SafeAreaProvider>
       <DBProvider>
         <ThemeProvider>
-          <AppNavigator />
+          <PreferencesProvider>
+            <NotificationInitializer />
+            <AppNavigator />
+          </PreferencesProvider>
         </ThemeProvider>
       </DBProvider>
     </SafeAreaProvider>

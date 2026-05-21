@@ -12,6 +12,8 @@ import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import { eq } from 'drizzle-orm';
 import type { TodoDetailProps } from '../navigation/types';
+import { usePreferences } from '../preferences/provider';
+import { scheduleTodoNotifications, cancelTodoNotifications } from '../notifications';
 
 type Priority = 'low' | 'medium' | 'high' | null;
 
@@ -30,6 +32,7 @@ export default function TodoDetailScreen() {
   const route = useRoute<TodoDetailProps['route']>();
   const db = useDB();
   const { colors } = useTheme();
+  const { notificationIntervals } = usePreferences();
   const s = createThemedStyles(colors);
   const { listId } = route.params;
 
@@ -84,14 +87,20 @@ export default function TodoDetailScreen() {
     if (!newItemText.trim()) return;
 
     const maxOrder = items.length;
-    await db.insert(schema.todoItem).values({
+    const dueDateTimestamp = newDueDate ? newDueDate.getTime() : null;
+    const result = await db.insert(schema.todoItem).values({
       listId,
       title: newItemText.trim(),
       isDone: false,
-      dueDate: newDueDate ? newDueDate.getTime() : null,
+      dueDate: dueDateTimestamp,
       priority: newPriority,
       order: maxOrder + 1,
     }).run();
+
+    const insertedId = result.lastInsertRowId as number;
+    if (dueDateTimestamp && insertedId) {
+      scheduleTodoNotifications(insertedId, newItemText.trim(), dueDateTimestamp, notificationIntervals).catch(() => {});
+    }
 
     setNewItemText('');
     setNewDueDate(null);
@@ -100,10 +109,19 @@ export default function TodoDetailScreen() {
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
+    const newDone = !currentDone;
     await db.update(schema.todoItem)
-      .set({ isDone: !currentDone })
+      .set({ isDone: newDone })
       .where(eq(schema.todoItem.id, itemId))
       .run();
+    if (newDone) {
+      cancelTodoNotifications(itemId).catch(() => {});
+    } else {
+      const item = items.find(i => i.id === itemId);
+      if (item?.dueDate) {
+        scheduleTodoNotifications(itemId, item.title, item.dueDate, notificationIntervals).catch(() => {});
+      }
+    }
   };
 
   const handleDeleteItem = (itemId: number) => {
@@ -116,6 +134,7 @@ export default function TodoDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
+            cancelTodoNotifications(itemId).catch(() => {});
             await db.delete(schema.todoItem).where(eq(schema.todoItem.id, itemId)).run();
           },
         },
@@ -132,14 +151,20 @@ export default function TodoDetailScreen() {
 
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
+      const newDueDateTimestamp = editDueDate ? editDueDate.getTime() : null;
       await db.update(schema.todoItem)
         .set({
           title: editItemText.trim(),
           priority: editPriority,
-          dueDate: editDueDate ? editDueDate.getTime() : null
+          dueDate: newDueDateTimestamp
         })
         .where(eq(schema.todoItem.id, editItemId))
         .run();
+      if (newDueDateTimestamp) {
+        scheduleTodoNotifications(editItemId, editItemText.trim(), newDueDateTimestamp, notificationIntervals).catch(() => {});
+      } else {
+        cancelTodoNotifications(editItemId).catch(() => {});
+      }
     }
     setEditItemId(null);
     setEditItemText('');
