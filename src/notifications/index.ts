@@ -4,7 +4,7 @@ import notifee, {
   TimestampTrigger,
   AlarmType,
 } from 'react-native-notify-kit';
-import { Platform } from 'react-native';
+import { Platform, PermissionsAndroid } from 'react-native';
 
 export interface NotificationInterval {
   label: string;
@@ -41,6 +41,19 @@ export async function initNotifications() {
   });
 
   await notifee.requestPermission();
+
+  if (Platform.OS === 'android' && Platform.Version >= 31) {
+    try {
+      const granted = await PermissionsAndroid.request(
+        'android.permission.SCHEDULE_EXACT_ALARM' as any,
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        console.warn('[Notifications] SCHEDULE_EXACT_ALARM not granted');
+      }
+    } catch (e) {
+      console.error('[Notifications] Error requesting exact alarm permission:', e);
+    }
+  }
 }
 
 export async function scheduleTodoNotifications(
@@ -54,7 +67,7 @@ export async function scheduleTodoNotifications(
     const todoIdStr = String(todoId);
     for (const n of existing) {
       const dataTodoId = n.notification.data?.todoId;
-      if (String(dataTodoId) === todoIdStr) {
+      if (String(dataTodoId) === todoIdStr && n.notification.id) {
         await notifee.cancelTriggerNotification(n.notification.id);
       }
     }
@@ -91,7 +104,7 @@ export async function scheduleTodoNotifications(
         type: TriggerType.TIMESTAMP,
         timestamp: triggerMs,
         alarmManager: {
-          type: AlarmType.SET_ALARM_CLOCK,
+          type: AlarmType.SET_EXACT_AND_ALLOW_WHILE_IDLE,
         },
       };
 
@@ -124,66 +137,11 @@ export async function cancelTodoNotifications(todoId: number) {
     const todoIdStr = String(todoId);
     for (const n of existing) {
       const dataTodoId = n.notification.data?.todoId;
-      if (String(dataTodoId) === todoIdStr) {
+      if (String(dataTodoId) === todoIdStr && n.notification.id) {
         await notifee.cancelTriggerNotification(n.notification.id);
       }
     }
   } catch {
     // Silently fail
-  }
-}
-
-export async function checkMissedNotifications() {
-  if (Platform.OS !== 'android') return;
-
-  try {
-    const existing = await notifee.getTriggerNotifications();
-    const nowMs = Date.now();
-
-    for (const n of existing) {
-      const trigger = n.notification.android?.trigger;
-      if (trigger && trigger.type === TriggerType.TIMESTAMP && trigger.timestamp) {
-        const triggerMs = trigger.timestamp;
-        if (triggerMs <= nowMs) {
-          const body = n.notification.body || '';
-          console.log(`[Notifications] Missed notification: ${body}`);
-
-          await notifee.displayNotification({
-            title: n.notification.title || 'Todo Reminder',
-            body,
-            data: n.notification.data,
-            android: {
-              channelId: 'default',
-              pressAction: { id: 'default' },
-            },
-          });
-
-          await notifee.cancelTriggerNotification(n.notification.id);
-        }
-      }
-    }
-  } catch (e) {
-    console.error('[Notifications] Error checking missed notifications:', e);
-  }
-}
-
-export async function checkBatteryOptimization() {
-  if (Platform.OS !== 'android') return false;
-
-  try {
-    const enabled = await notifee.isBatteryOptimizationEnabled();
-    return enabled;
-  } catch {
-    return false;
-  }
-}
-
-export async function openBatteryOptimizationSettings() {
-  if (Platform.OS !== 'android') return;
-
-  try {
-    await notifee.openBatteryOptimizationSettings();
-  } catch {
-    console.error('[Notifications] Failed to open battery optimization settings');
   }
 }
