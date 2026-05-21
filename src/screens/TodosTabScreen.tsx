@@ -22,6 +22,7 @@ interface TodoWithCount {
   remainingHigh: number;
   remainingMedium: number;
   remainingLow: number;
+  remainingOverdue: number;
 }
 
 interface TodosTabScreenProps {
@@ -40,6 +41,8 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
 
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
     for (const list of lists) {
       const items = await db.select().from(schema.todoItem)
         .where(eq(schema.todoItem.listId, list.id))
@@ -50,6 +53,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
       const remainingHigh = remainingItems.filter(i => i.priority === 'high').length;
       const remainingMedium = remainingItems.filter(i => i.priority === 'medium').length;
       const remainingLow = remainingItems.filter(i => i.priority === 'low').length;
+      const remainingOverdue = remainingItems.filter(i => i.dueDate && new Date(i.dueDate) < endOfToday).length;
       withCounts.push({
         ...list,
         totalItems: items.length,
@@ -57,6 +61,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
         remainingHigh,
         remainingMedium,
         remainingLow,
+        remainingOverdue,
       });
     }
     setTodos(withCounts);
@@ -155,6 +160,12 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
                     {item.remainingItems} remaining
                   </Text>
                   <View style={s.priorityRow}>
+                    {item.remainingOverdue > 0 && (
+                      <View style={[s.overdueBadge, { backgroundColor: colors.priorityOverdue }]}>
+                        <Text style={s.overdueIcon}>⚠️</Text>
+                        <Text style={s.overdueText}>{item.remainingOverdue}</Text>
+                      </View>
+                    )}
                     {item.remainingHigh > 0 && (
                       <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('high') }]}>
                         <Text style={s.priorityText}>{item.remainingHigh}</Text>

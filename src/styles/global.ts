@@ -14,6 +14,7 @@ export interface ThemeColors {
   priorityHigh: string;
   priorityMedium: string;
   priorityLow: string;
+  priorityOverdue: string;
   deleteColor: string;
   backgroundImage?: string;
   logoAsset: any;
@@ -35,6 +36,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityHigh: '#8B4A5A',
     priorityMedium: '#8B7A4A',
     priorityLow: '#4A7A6A',
+    priorityOverdue: '#AA3A3A',
     deleteColor: '#AA5A6A',
     backgroundImage: undefined,
     logoAsset: require('../../assets/listAll_logo.png'),
@@ -54,6 +56,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityHigh: '#8B3A3A',
     priorityMedium: '#8B6A3A',
     priorityLow: '#5A7A4A',
+    priorityOverdue: '#AA2A2A',
     deleteColor: '#FF6B6B',
     backgroundImage: 'leafs',
     logoAsset: require('../../assets/listAll_logo_green.png'),
@@ -73,6 +76,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     priorityHigh: '#dc2626',
     priorityMedium: '#d97706',
     priorityLow: '#16a34a',
+    priorityOverdue: '#B91C1C',
     deleteColor: '#dc2626',
     backgroundImage: undefined,
     logoAsset: require('../../assets/listAll_logo.png'),
@@ -442,6 +446,22 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   priorityOptionText: {
     textTransform: 'capitalize' as const,
+  },
+  overdueBadge: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.xs,
+  },
+  overdueIcon: {
+    fontSize: fontSize.sm,
+  },
+  overdueText: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.bold,
+    color: '#fff',
   },
   circleBadge: {
     width: 40,
