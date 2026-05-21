@@ -195,3 +195,6 @@ The release build is configured with a default keystore. For production:
    keytool -genkeypair -v -storetype PKCS12 -keystore myapp.keystore -alias myapp -keyalg RSA -keysize 2048 -validity 10000
    ```
 2. Update `android/app/build.gradle` with your keystore details
+
+### check current scheduled notifications
+adb shell dumpsys alarm | grep "Alarm{.*listAll}" | grep -oP 'origWhen \K[0-9]+' | while read ts; do python3 -c "import datetime; dt=datetime.datetime.fromtimestamp($ts/1000, tz=datetime.timezone.utc); print(dt.strftime('%Y-%m-%d %H:%M UTC'))"; done | sort | uniq -c
