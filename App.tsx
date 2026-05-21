@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import notifee, { EventType } from 'react-native-notify-kit';
 
 import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
@@ -22,18 +21,6 @@ const Stack = createNativeStackNavigator();
 function NotificationInitializer() {
   useEffect(() => {
     initNotifications();
-
-    notifee.onForegroundEvent(({ type, detail }) => {
-      if (type === EventType.TRIGGER_NOTIFICATION_CREATED && detail.notification) {
-        notifee.displayNotification(detail.notification);
-      }
-    });
-
-    notifee.onBackgroundEvent(async ({ type, detail }) => {
-      if (type === EventType.TRIGGER_NOTIFICATION_CREATED && detail.notification) {
-        await notifee.displayNotification(detail.notification);
-      }
-    });
   }, []);
   return null;
 }
