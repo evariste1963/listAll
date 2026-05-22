@@ -185,11 +185,6 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
                       )}
                     </View>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[{ fontSize: 12, color: colors.mutedText }]}>
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </Text>
-                </View>
               </TouchableOpacity>
             )}
           />
