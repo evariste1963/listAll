@@ -41,8 +41,8 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
 
   const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
     const withCounts: TodoWithCount[] = [];
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
     for (const list of lists) {
       const items = await db.select().from(schema.todoItem)
         .where(eq(schema.todoItem.listId, list.id))
@@ -53,7 +53,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
       const remainingHigh = remainingItems.filter(i => i.priority === 'high').length;
       const remainingMedium = remainingItems.filter(i => i.priority === 'medium').length;
       const remainingLow = remainingItems.filter(i => i.priority === 'low').length;
-      const remainingOverdue = remainingItems.filter(i => i.dueDate && new Date(i.dueDate) < endOfToday).length;
+      const remainingOverdue = remainingItems.filter(i => i.dueDate && new Date(i.dueDate) < startOfToday).length;
       withCounts.push({
         ...list,
         totalItems: items.length,
@@ -166,21 +166,23 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
                         <Text style={s.overdueText}>{item.remainingOverdue}</Text>
                       </View>
                     )}
-                    {item.remainingHigh > 0 && (
-                      <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('high') }]}>
-                        <Text style={s.priorityText}>{item.remainingHigh}</Text>
-                      </View>
-                    )}
-                    {item.remainingMedium > 0 && (
-                      <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('medium') }]}>
-                        <Text style={s.priorityText}>{item.remainingMedium}</Text>
-                      </View>
-                    )}
-                    {item.remainingLow > 0 && (
-                      <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('low') }]}>
-                        <Text style={s.priorityText}>{item.remainingLow}</Text>
-                      </View>
-                    )}
+                    <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+                      {item.remainingHigh > 0 && (
+                        <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('high') }]}>
+                          <Text style={s.priorityText}>{item.remainingHigh}</Text>
+                        </View>
+                      )}
+                      {item.remainingMedium > 0 && (
+                        <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('medium') }]}>
+                          <Text style={s.priorityText}>{item.remainingMedium}</Text>
+                        </View>
+                      )}
+                      {item.remainingLow > 0 && (
+                        <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('low') }]}>
+                          <Text style={s.priorityText}>{item.remainingLow}</Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
