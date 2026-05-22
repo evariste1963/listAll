@@ -6,7 +6,7 @@ export type RootStackParamList = {
   MainTabs: undefined;
   ShoppingDetail: { listId: number; activeTabId?: number; showAddShop?: boolean };
   MemoDetail: { listId: number };
-  TodoDetail: { listId: number };
+  TodoDetail: { listId: number; filter?: 'overdue' };
   CreateShoppingList: undefined;
   CreateMemoList: undefined;
   CreateTodoList: undefined;

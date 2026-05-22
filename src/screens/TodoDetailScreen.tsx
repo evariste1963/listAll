@@ -34,7 +34,7 @@ export default function TodoDetailScreen() {
   const { colors } = useTheme();
   const { notificationIntervals } = usePreferences();
   const s = createThemedStyles(colors);
-  const { listId } = route.params;
+  const { listId, filter } = route.params;
 
   const [newItemText, setNewItemText] = useState('');
   const [editTitle, setEditTitle] = useState(false);
@@ -68,20 +68,32 @@ export default function TodoDetailScreen() {
 
   const list = listResult.data?.[0] ?? null;
 
+  const startOfToday = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  }, []);
+
   const items = useMemo<TodoItemType[]>(() => {
     if (!itemsResult.data) return [];
-    return itemsResult.data.map((item: any) => ({
+    let result = itemsResult.data.map((item: any) => ({
       ...item,
       dueDateFormatted: item.dueDate
         ? new Date(item.dueDate).toLocaleDateString()
         : undefined
-    })).sort((a, b) => {
+    }));
+    if (filter === 'overdue') {
+      result = result.filter(item =>
+        item.dueDate && item.dueDate < startOfToday && !item.isDone
+      );
+    }
+    return result.sort((a, b) => {
       if (!a.dueDate && !b.dueDate) return 0;
       if (!a.dueDate) return 1;
       if (!b.dueDate) return -1;
       return a.dueDate - b.dueDate;
     });
-  }, [itemsResult.data]);
+  }, [itemsResult.data, filter, startOfToday]);
 
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;

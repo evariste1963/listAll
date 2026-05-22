@@ -182,12 +182,15 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
                       </View>
                     </View>
                     {item.remainingOverdue > 0 && (
-                      <View style={{ justifyContent: 'center' }}>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('TodoDetail', { listId: item.id, filter: 'overdue' })}
+                        style={{ justifyContent: 'center' }}
+                      >
                         <View style={[s.overdueBadge, { backgroundColor: colors.priorityOverdue }]}>
                           <Text style={s.overdueIcon}>⚠️</Text>
                           <Text style={s.overdueText}>{item.remainingOverdue}</Text>
                         </View>
-                      </View>
+                      </TouchableOpacity>
                     )}
                   </View>
                 </View>
