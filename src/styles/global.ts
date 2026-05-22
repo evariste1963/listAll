@@ -426,6 +426,7 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     flexDirection: 'row' as const,
     gap: 8,
     marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
   priorityBadge: {
     paddingHorizontal: spacing.sm,
