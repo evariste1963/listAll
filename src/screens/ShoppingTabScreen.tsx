@@ -325,6 +325,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           data={displayShops}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={s.list}
+          style={{ flex: 1 }}
           renderItem={({ item }) => {
             const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
             return (

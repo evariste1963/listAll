@@ -121,6 +121,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
             data={memos}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={s.list}
+            style={{ flex: 1 }}
             renderItem={({ item }) => (
               <TouchableOpacity 
                 style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}

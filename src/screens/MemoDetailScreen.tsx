@@ -159,6 +159,7 @@ export default function MemoDetailScreen() {
         <FlatList
           data={items}
           keyExtractor={(item) => item.id.toString()}
+          style={{ flex: 1 }}
           renderItem={({ item }) => (
             <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
               <TouchableOpacity

@@ -361,6 +361,7 @@ export default function ShoppingDetailScreen() {
             <FlatList
               data={activeShop.items || []}
               keyExtractor={(item) => item.id.toString()}
+              style={{ flex: 1 }}
               renderItem={({ item }) => (
                 <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
                   <TouchableOpacity

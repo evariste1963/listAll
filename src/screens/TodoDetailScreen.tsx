@@ -252,6 +252,7 @@ export default function TodoDetailScreen() {
         <FlatList
           data={items}
           keyExtractor={(item) => item.id.toString()}
+          style={{ flex: 1 }}
           renderItem={({ item }) => (
             <View style={[s.itemRowStart, { borderBottomColor: colors.cardBackground }]}>
               <TouchableOpacity
