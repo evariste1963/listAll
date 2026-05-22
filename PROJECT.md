@@ -231,5 +231,23 @@ adb install -r android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
 - Adds ABI splits block for arm64-v8a
 - Disables unused GIF/WebP image format support
 
+## Moving android/ to Another Machine
 
+You can copy the `android/` directory to another PC with the same project source and get a functionally identical build. Some caveats:
+
+**What works:**
+- `android/` is a self-contained Gradle project with all build configs, manifests, and dependencies baked in by the config plugin during `expo prebuild`
+- Same `./gradlew assembleRelease` with same source input → practically same APK output
+
+**Gotchas:**
+- **local.properties**: Machine-specific SDK/NDK paths. Delete before copying if it exists. `ANDROID_HOME` env var handles this.
+- **.gradle/cache**: Downloaded artifacts with machine-specific paths. Delete `android/.gradle/` before copying — it will redownload on first build.
+- **Java version**: Must match (JDK 17+). Different versions can cause build failures or different bytecode.
+- **Android SDK/NDK**: Target PC needs compileSdk 36, NDK 27.1.12297006 (matching `android/app/build.gradle` and `android/gradle.properties`).
+
+**Recommended procedure:**
+1. Delete `android/.gradle/` before copying
+2. Delete `android/local.properties` if present
+3. On target PC, set `ANDROID_HOME` and `JAVA_HOME` to correct paths
+4. Run `cd android && ./gradlew assembleRelease` — missing dependencies download automatically
 
