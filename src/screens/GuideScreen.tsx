@@ -96,7 +96,7 @@ export default function GuideScreen() {
           <BulletItem color={colors.primaryText} s={s} text="All data persists in local SQLite, survives restarts" />
 
           <Text style={[s.guideBullet, { color: colors.mutedText, textAlign: 'center', marginTop: 32 }]}>
-            coded by this.me
+            developed by this.me
           </Text>
         </ScrollView>
       </SafeAreaView>
