@@ -424,6 +424,7 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   priorityRow: {
     flexDirection: 'row' as const,
+    gap: 8,
     marginTop: spacing.xs,
   },
   priorityBadge: {
