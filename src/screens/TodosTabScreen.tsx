@@ -156,34 +156,40 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
               >
                 <View style={s.shopInfo}>
                   <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
-                  <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
-                    {item.remainingItems} remaining
-                  </Text>
-                    <View style={s.priorityRow}>
-                      <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
-                        {item.remainingHigh > 0 && (
-                          <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('high') }]}>
-                            <Text style={s.priorityText}>{item.remainingHigh}</Text>
-                          </View>
-                        )}
-                        {item.remainingMedium > 0 && (
-                          <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('medium') }]}>
-                            <Text style={s.priorityText}>{item.remainingMedium}</Text>
-                          </View>
-                        )}
-                        {item.remainingLow > 0 && (
-                          <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('low') }]}>
-                            <Text style={s.priorityText}>{item.remainingLow}</Text>
-                          </View>
-                        )}
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
+                        {item.remainingItems} remaining
+                      </Text>
+                      <View style={s.priorityRow}>
+                        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+                          {item.remainingHigh > 0 && (
+                            <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('high') }]}>
+                              <Text style={s.priorityText}>{item.remainingHigh}</Text>
+                            </View>
+                          )}
+                          {item.remainingMedium > 0 && (
+                            <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('medium') }]}>
+                              <Text style={s.priorityText}>{item.remainingMedium}</Text>
+                            </View>
+                          )}
+                          {item.remainingLow > 0 && (
+                            <View style={[s.priorityBadge, { backgroundColor: getPriorityColor('low') }]}>
+                              <Text style={s.priorityText}>{item.remainingLow}</Text>
+                            </View>
+                          )}
+                        </View>
                       </View>
-                      {item.remainingOverdue > 0 && (
-                        <View style={[s.overdueBadge, { backgroundColor: colors.priorityOverdue, marginLeft: 'auto' }]}>
+                    </View>
+                    {item.remainingOverdue > 0 && (
+                      <View style={{ justifyContent: 'center' }}>
+                        <View style={[s.overdueBadge, { backgroundColor: colors.priorityOverdue }]}>
                           <Text style={s.overdueIcon}>⚠️</Text>
                           <Text style={s.overdueText}>{item.remainingOverdue}</Text>
                         </View>
-                      )}
-                    </View>
+                      </View>
+                    )}
+                  </View>
                 </View>
               </TouchableOpacity>
             )}
