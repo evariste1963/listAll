@@ -73,7 +73,7 @@ export default function PreferencesTabScreen() {
           <Text style={[s.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
         </View>
 
-        <View style={{ flex: 1, padding: 16 }}>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
           <View style={s.sectionTitle && { marginBottom: 24 }}>
             <Text style={[s.sectionTitle, { color: colors.accentColor }]}>About</Text>
             <Text style={[s.appName, { color: colors.primaryText }]}>listAll</Text>
@@ -195,7 +195,7 @@ export default function PreferencesTabScreen() {
               • All data is stored locally
             </Text>
           </View>
-        </View>
+        </ScrollView>
 
         <Modal visible={showAddShop} transparent animationType="fade">
           <View style={s.modalOverlay}>
