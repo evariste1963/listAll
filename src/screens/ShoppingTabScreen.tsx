@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -88,22 +88,23 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   }, []);
 
   useEffect(() => {
-    if (!shopList || shops.length === 0) {
+    if (!shopList) {
       loadDefaultShops();
     } else if (shopList) {
       syncDefaultsToList();
     }
   }, [defaultShopsResult?.data, shopList]);
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
       if (shopList) {
         loadShops(shopList.id);
       } else {
         loadDefaultShops();
       }
-    }, [shopList])
-  );
+    });
+    return unsubscribe;
+  }, [navigation, shopList]);
 
   const loadDefaultShops = async () => {
     const defaults = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
@@ -241,6 +242,11 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   };
 
   const handleAddFirstShop = async () => {
+    if (shopList) {
+      navigation.navigate('ShoppingDetail', { listId: shopList.id, showAddShop: true });
+      return;
+    }
+
     const createdList = await db.insert(schema.shoppingList)
       .values({ 
         title: 'Shopping List', 
