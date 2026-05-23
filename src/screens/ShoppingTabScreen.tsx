@@ -29,7 +29,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
-  
+
   const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
   const [shops, setShops] = useState<ShopSummary[]>([]);
 
@@ -62,19 +62,19 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       .where(eq(schema.shopTab.listId, listId))
       .orderBy(schema.shopTab.order)
       .all();
-    
+
     if (!shopTabsResult || shopTabsResult.length === 0) {
       loadDefaultShops();
       return;
     }
-    
+
     const shopTabs = shopTabsResult;
     const summaries: ShopSummary[] = [];
     for (const shop of shopTabs) {
       const itemsResult = await db.select().from(schema.shoppingItem)
         .where(eq(schema.shoppingItem.shopTabId, shop.id))
         .all();
-      
+
       const items = itemsResult || [];
       const remaining = items.filter(i => !i.isDone).length;
       summaries.push({
@@ -124,8 +124,8 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     }
 
     const createdList = await db.insert(schema.shoppingList)
-      .values({ 
-        title: 'Shopping List', 
+      .values({
+        title: 'Shopping List',
         isActive: true,
       })
       .returning()
@@ -133,7 +133,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
 
     if (createdList) {
       const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-      
+
       for (let i = 0; i < defaultShops.length; i++) {
         await db.insert(schema.shopTab).values({
           listId: createdList.id,
@@ -151,10 +151,10 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       navigation.navigate('ShoppingDetail', { listId: shopList.id, activeTabId: shopId });
       return;
     }
-    
+
     const createdList = await db.insert(schema.shoppingList)
-      .values({ 
-        title: 'Shopping List', 
+      .values({
+        title: 'Shopping List',
         isActive: true,
       })
       .returning()
@@ -162,10 +162,10 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
 
     if (createdList) {
       setShopList(createdList);
-      
+
       const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
       let order = 1;
-      
+
       for (const shop of defaultShops) {
         await db.insert(schema.shopTab).values({
           listId: createdList.id,
@@ -173,16 +173,16 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           order: order++,
         }).run();
       }
-      
+
       await loadShops(createdList.id);
-      
+
       const tabs = await db.select().from(schema.shopTab)
         .where(eq(schema.shopTab.listId, createdList.id))
         .orderBy(schema.shopTab.order)
         .all();
-      
+
       const matchingShop = tabs.find(t => t.name === shopName);
-      
+
       navigation.navigate('ShoppingDetail', { listId: createdList.id, activeTabId: matchingShop?.id });
     }
   };
@@ -219,11 +219,11 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
 
   const syncDefaultsToList = async () => {
     if (!shopList) return;
-    
+
     const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
     const existingShops = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).all();
     const existingShopNames = existingShops.map(s => s.name.toLowerCase());
-    
+
     let addedCount = 0;
     for (let i = 0; i < defaultShops.length; i++) {
       if (!existingShopNames.includes(defaultShops[i].name.toLowerCase())) {
@@ -235,7 +235,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
         addedCount++;
       }
     }
-    
+
     if (addedCount > 0) {
       loadShops(shopList.id);
     }
@@ -248,8 +248,8 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     }
 
     const createdList = await db.insert(schema.shoppingList)
-      .values({ 
-        title: 'Shopping List', 
+      .values({
+        title: 'Shopping List',
         isActive: true,
       })
       .returning()
@@ -274,7 +274,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
             <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
               <Text style={s.homeButton}>🏠</Text>
             </TouchableOpacity>
-            <Text style={[s.headerTitleSm, { color: colors.primaryText }]}>Summary</Text>
+            <Text style={[s.headerTitleSm, { color: colors.primaryText }]}>Shops</Text>
             <View style={{ width: 40 }} />
           </View>
           <View style={s.emptyState}>
@@ -323,7 +323,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
             <Text style={s.homeButton}>🏠</Text>
           </TouchableOpacity>
-          <Text style={[s.headerTitle, { color: colors.primaryText }]}>Summary</Text>
+          <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shops</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -335,41 +335,42 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           renderItem={({ item }) => {
             const inDefaults = defaultShops.some(d => d.name.toLowerCase() === item.name.toLowerCase());
             return (
-            <TouchableOpacity 
-              style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
-              onPress={() => handleOpenShop(item.id, item.name)}
-            >
-              <View style={s.shopInfo}>
-                <Text style={[s.shopName, { color: colors.primaryText }]}>{item.name}</Text>
-                <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
-                  {item.remainingItems} of {item.totalItems} items remaining
-                </Text>
-              </View>
-              <View style={s.shopActions}>
-                <TouchableOpacity 
-                  style={[s.defaultButton, { backgroundColor: colors.inputBackground }]}
-                  onPress={() => {
-                    if (inDefaults) {
-                      removeFromDefaults(item.name);
-                    } else {
-                      addToDefaults(item.name);
-                    }
-                  }}
-                >
-                  <Text style={[s.defaultButtonText, { color: colors.accentColor }]}>{inDefaults ? '−' : '+'}</Text>
-                </TouchableOpacity>
-                <View style={[
-                  s.circleBadge,
-                  { backgroundColor: item.remainingItems === 0 ? colors.completedColor : colors.accentColor }
-                ]}>
-                  <Text style={s.circleBadgeText}>
-                    {item.remainingItems === 0 ? '✓' : item.remainingItems}
+              <TouchableOpacity
+                style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
+                onPress={() => handleOpenShop(item.id, item.name)}
+              >
+                <View style={s.shopInfo}>
+                  <Text style={[s.shopName, { color: colors.primaryText }]}>{item.name}</Text>
+                  <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
+                    {item.remainingItems} of {item.totalItems} items remaining
                   </Text>
                 </View>
-              </View>
-            </TouchableOpacity>
-            )}}
-          />
+                <View style={s.shopActions}>
+                  <TouchableOpacity
+                    style={[s.defaultButton, { backgroundColor: colors.inputBackground }]}
+                    onPress={() => {
+                      if (inDefaults) {
+                        removeFromDefaults(item.name);
+                      } else {
+                        addToDefaults(item.name);
+                      }
+                    }}
+                  >
+                    <Text style={[s.defaultButtonText, { color: colors.accentColor }]}>{inDefaults ? '−' : '+'}</Text>
+                  </TouchableOpacity>
+                  <View style={[
+                    s.circleBadge,
+                    { backgroundColor: item.remainingItems === 0 ? colors.completedColor : colors.accentColor }
+                  ]}>
+                    <Text style={s.circleBadgeText}>
+                      {item.remainingItems === 0 ? '✓' : item.remainingItems}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )
+          }}
+        />
       </SafeAreaView>
     </ThemedBackground>
   );
