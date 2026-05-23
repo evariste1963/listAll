@@ -76,19 +76,26 @@ function AppNavigator() {
           name="ShoppingDetail"
           component={ShoppingDetailScreen}
           options={{
-            headerTitle: '',
+            headerTitle: 'All Shops',
+            headerTitleAlign: 'left',
             gestureEnabled: true,
           }}
         />
         <Stack.Screen
           name="MemoDetail"
           component={MemoDetailScreen}
-          options={{ title: 'Memo' }}
+          options={{
+            title: 'All Memos',
+            headerTitleAlign: 'left',
+          }}
         />
         <Stack.Screen
           name="TodoDetail"
           component={TodoDetailScreen}
-          options={{ title: 'Todo List' }}
+          options={{
+            title: 'All Todos',
+            headerTitleAlign: 'left',
+          }}
         />
         <Stack.Screen
           name="Guide"
