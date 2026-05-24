@@ -8,20 +8,19 @@ import { Platform, PermissionsAndroid } from 'react-native';
 
 export interface NotificationInterval {
   label: string;
-  seconds: number;
+  days: number;
 }
 
 export const AVAILABLE_INTERVALS: NotificationInterval[] = [
-  { label: 'At due time', seconds: 0 },
-  { label: '1 day before', seconds: -86400 },
-  { label: '2 days before', seconds: -172800 },
-  { label: '1 week before', seconds: -604800 },
+  { label: 'On due date', days: 0 },
+  { label: '1 day before', days: -1 },
+  { label: '2 days before', days: -2 },
+  { label: '1 week before', days: -7 },
 ];
 
-export const DEFAULT_INTERVALS: number[] = [0, -86400, -172800, -604800];
+export const DEFAULT_INTERVALS: number[] = [0, -1, -2, -7];
 
-function getDueMessage(secondsUntil: number): string {
-  const daysUntil = Math.round(secondsUntil / 86400);
+function getDueMessage(daysUntil: number): string {
   if (daysUntil <= 0) return 'is due now';
   if (daysUntil === 1) return 'is due tomorrow';
   if (daysUntil < 7) return `is due in ${daysUntil} days`;
@@ -54,13 +53,29 @@ export async function initNotifications() {
       console.error('[Notifications] Error requesting exact alarm permission:', e);
     }
   }
+
+  // Fire any scheduled notifications whose trigger time has passed (missed triggers)
+  try {
+    const triggers = await notifee.getTriggerNotifications();
+    for (const t of triggers) {
+      if (t.trigger.type === TriggerType.TIMESTAMP && t.trigger.timestamp <= Date.now()) {
+        console.log(`[Notifications] Firing missed trigger: "${t.notification.title}"`);
+        await notifee.displayNotification(t.notification);
+        if (t.notification.id) {
+          await notifee.cancelTriggerNotification(t.notification.id);
+        }
+      }
+    }
+  } catch {
+    // Silently fail - missed triggers will be handled next app launch
+  }
 }
 
 export async function scheduleTodoNotifications(
   todoId: number,
   title: string,
   dueDateTimestamp: number,
-  intervalSeconds: number[]
+  intervalDays: number[]
 ): Promise<string[]> {
   try {
     const existing = await notifee.getTriggerNotifications();
@@ -73,11 +88,13 @@ export async function scheduleTodoNotifications(
     }
 
     const ids: string[] = [];
-    const dueDateMs = dueDateTimestamp;
+    const dueDate = new Date(dueDateTimestamp);
+    dueDate.setHours(0, 0, 0, 0);
+    const midnightMs = dueDate.getTime();
     const nowMs = Date.now();
 
-    for (const offset of intervalSeconds) {
-      const triggerMs = dueDateMs + offset * 1000;
+    for (const offset of intervalDays) {
+      const triggerMs = midnightMs + offset * 86400000;
       if (triggerMs <= nowMs) {
         if (offset === 0) {
           console.log(`[Notifications] Displaying immediate "${title}" is due now`);
@@ -95,16 +112,16 @@ export async function scheduleTodoNotifications(
         continue;
       }
 
-      const secondsUntil = Math.round((triggerMs - nowMs) / 1000);
-      const body = `"${title}" ${getDueMessage(secondsUntil)}`;
+      const daysUntil = -offset;
+      const body = `"${title}" ${getDueMessage(daysUntil)}`;
 
-      console.log(`[Notifications] Scheduling "${body}" in ${secondsUntil}s`);
+      console.log(`[Notifications] Scheduling "${body}"`);
 
       const trigger: TimestampTrigger = {
         type: TriggerType.TIMESTAMP,
         timestamp: triggerMs,
         alarmManager: {
-          type: AlarmType.SET_EXACT_AND_ALLOW_WHILE_IDLE,
+          type: AlarmType.SET_ALARM_CLOCK,
         },
       };
 

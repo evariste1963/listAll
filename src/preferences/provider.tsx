@@ -34,7 +34,19 @@ export function PreferencesProvider({ children }: PreferencesProviderProps) {
         if (result) {
           const parsed = JSON.parse(result.value);
           if (Array.isArray(parsed)) {
-            setNotificationIntervalsState(parsed);
+            const isOldSeconds = parsed.some((v: number) => Math.abs(v) > 100);
+            if (isOldSeconds) {
+              await db.insert(schema.preference)
+                .values({ key: 'notificationIntervals', value: JSON.stringify(DEFAULT_INTERVALS) })
+                .onConflictDoUpdate({
+                  target: schema.preference.key,
+                  set: { value: JSON.stringify(DEFAULT_INTERVALS) },
+                })
+                .run();
+              setNotificationIntervalsState(DEFAULT_INTERVALS);
+            } else {
+              setNotificationIntervalsState(parsed);
+            }
           }
         }
       } catch {

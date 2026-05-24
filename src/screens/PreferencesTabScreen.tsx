@@ -115,10 +115,10 @@ export default function PreferencesTabScreen() {
             </Text>
             <ScrollView style={{ maxHeight: 200 }}>
               {AVAILABLE_INTERVALS.map((interval) => {
-                const isSelected = notificationIntervals.includes(interval.seconds);
+                const isSelected = notificationIntervals.includes(interval.days);
                 return (
                   <TouchableOpacity
-                    key={interval.seconds}
+                    key={interval.days}
                     style={[
                       {
                         flexDirection: 'row',
@@ -131,8 +131,8 @@ export default function PreferencesTabScreen() {
                     ]}
                     onPress={() => {
                       const next = isSelected
-                        ? notificationIntervals.filter(i => i !== interval.seconds)
-                        : [...notificationIntervals, interval.seconds].sort((a, b) => a - b);
+                        ? notificationIntervals.filter(i => i !== interval.days)
+                        : [...notificationIntervals, interval.days].sort((a, b) => a - b);
                       setNotificationIntervals(next.length > 0 ? next : DEFAULT_INTERVALS);
                     }}
                   >
