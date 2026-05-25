@@ -47,8 +47,9 @@ export default function GuideScreen() {
 
           <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 4 }}>
             <Image source={colors.logoAsset} style={{ width: 120, height: 120 }} resizeMode="contain" />
-            <Text style={{ fontSize: 13, color: colors.tertiaryText, letterSpacing: 0.3 }}>Version 1.0.0</Text>
-            <Text style={[s.guideIntro, { textAlign: 'center', marginTop: 4 }]}>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.primaryText, marginTop: 4 }}>Guide</Text>
+            <Text style={{ fontSize: 12, color: colors.tertiaryText, letterSpacing: 0.3, marginTop: 2 }}>Version 1.0.0</Text>
+            <Text style={[s.guideIntro, { textAlign: 'center', marginTop: 4, color: colors.secondaryText }]}>
               Your personal list manager for shopping, memos, and todos.{'\n'}All data stays on your device.
             </Text>
           </View>
