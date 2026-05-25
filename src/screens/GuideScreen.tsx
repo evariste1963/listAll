@@ -1,19 +1,39 @@
 import React from 'react';
-import { Text, ScrollView } from 'react-native';
+import { Text, ScrollView, View, Image, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 
-function SectionTitle({ children, color, s }: { children: string; color: string; s: ReturnType<typeof createThemedStyles> }) {
-  return <Text style={[s.guideSectionTitle, { color }]}>{children}</Text>;
+function SectionHeader({ title, color }: { title: string; color: string }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 24, marginBottom: 10 }}>
+      <View style={{ flex: 1, height: 1, backgroundColor: color, opacity: 0.3 }} />
+      <Text style={{ fontSize: 15, fontWeight: '600', color, marginHorizontal: 12, letterSpacing: 0.5 }}>
+        {title.toUpperCase()}
+      </Text>
+      <View style={{ flex: 1, height: 1, backgroundColor: color, opacity: 0.3 }} />
+    </View>
+  );
 }
 
-function BulletItem({ text, color, s }: { text: string; color: string; s: ReturnType<typeof createThemedStyles> }) {
-  return <Text style={[s.guideBullet, { color }]}>{'•  '}{text}</Text>;
-}
-
-function SubBulletItem({ text, color, s }: { text: string; color: string; s: ReturnType<typeof createThemedStyles> }) {
-  return <Text style={[s.guideBullet, { color, marginLeft: 16 }]}>{'  ◦ '}{text}</Text>;
+function FeatureCard({ icon, title, desc, colors }: { icon: string; title: string; desc: string; colors: any }) {
+  return (
+    <View style={{
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      marginBottom: 6,
+      backgroundColor: colors.cardBackground,
+      borderRadius: 10,
+    }}>
+      <Text style={{ fontSize: 18, marginRight: 12, marginTop: 1 }}>{icon}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primaryText, marginBottom: 2 }}>{title}</Text>
+        <Text style={{ fontSize: 13, lineHeight: 18, color: colors.secondaryText }}>{desc}</Text>
+      </View>
+    </View>
+  );
 }
 
 export default function GuideScreen() {
@@ -24,80 +44,95 @@ export default function GuideScreen() {
     <ThemedBackground colors={colors}>
       <SafeAreaView style={s.guideContainer} edges={['left', 'right', 'bottom']}>
         <ScrollView style={s.guideScrollView} contentContainerStyle={s.guideContent}>
-          <Text style={[s.guideMainTitle, { color: colors.primaryText }]}>listAll</Text>
-          <Text style={[s.guideIntro, { color: colors.secondaryText }]}>
-            Personal list manager: Shopping, Memos, Todos. All data stored locally on your device.
-          </Text>
 
-          <SectionTitle color={colors.accentColor} s={s}>Home Dashboard</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="5 navigation cards: Shopping, Memos, Todos, Preferences, Guide" />
-          <BulletItem color={colors.primaryText} s={s} text="Logo + subtitle header, theme-adaptive logo" />
-          <BulletItem color={colors.primaryText} s={s} text="Tap any card to jump to that section" />
+          <View style={{ alignItems: 'center', paddingTop: 16, paddingBottom: 8 }}>
+            <Image source={colors.logoAsset} style={{ width: 80, height: 80 }} resizeMode="contain" />
+            <Text style={[s.guideMainTitle, { color: colors.primaryText, marginBottom: 2 }]}>listAll</Text>
+            <Text style={{ fontSize: 13, color: colors.tertiaryText, letterSpacing: 0.3 }}>Version 1.0.0</Text>
+            <Text style={[s.guideIntro, { textAlign: 'center', marginTop: 8 }]}>
+              Your personal list manager for shopping, memos, and todos.{'\n'}All data stays on your device.
+            </Text>
+          </View>
 
-          <SectionTitle color={colors.accentColor} s={s}>Shopping Lists</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Only one active shopping list at a time" />
-          <BulletItem color={colors.primaryText} s={s} text="Create: Tap +, default shops auto-populate from Settings" />
-          <BulletItem color={colors.primaryText} s={s} text="Delete list: Long-press summary title (blocked if shops have items)" />
-          <BulletItem color={colors.primaryText} s={s} text="Summary view: shop cards with remaining/total counts, done badges" />
-          <BulletItem color={colors.primaryText} s={s} text="Shops: Add via + Add, long-press to delete (validated)" />
-          <BulletItem color={colors.primaryText} s={s} text="Duplicate shop/items: Case-insensitive blocked" />
-          <BulletItem color={colors.primaryText} s={s} text="Items: Add, toggle O/✓, tap to rename, ✕ to delete" />
-          <BulletItem color={colors.primaryText} s={s} text="Delete completed: 🗑️ button (appears when items done)" />
-          <BulletItem color={colors.primaryText} s={s} text="Summary bar: shop item counts across all tabs" />
-          <BulletItem color={colors.primaryText} s={s} text="Default shop sync: +/− on shop card adds/removes from defaults" />
-          <BulletItem color={colors.primaryText} s={s} text="Deep links: activeTabId and showAddShop route params" />
+          <SectionHeader title="Getting Started" color={colors.accentColor} />
 
-          <SectionTitle color={colors.accentColor} s={s}>Memos</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Create from + button, duplicate title blocked" />
-          <BulletItem color={colors.primaryText} s={s} text="Add lines via text input + Enter" />
-          <BulletItem color={colors.primaryText} s={s} text="Toggle O/✓, edit title inline, tap text to rename" />
-          <BulletItem color={colors.primaryText} s={s} text="Delete long-press card (blocked if has items), ✕ on lines" />
-          <BulletItem color={colors.primaryText} s={s} text="Card view shows title, remaining count, creation date" />
+          <FeatureCard icon="🏠" title="Home Dashboard" desc="Navigation hub with cards for Shopping, Memos, Todos, Preferences, and this Guide." colors={colors} />
+          <FeatureCard icon="🛒" title="Shopping" desc="Create one active shopping list with multiple shop tabs. Auto-populate from default shops in Settings. Track remaining items per shop." colors={colors} />
+          <FeatureCard icon="📝" title="Memos" desc="Create multiple memo lists with checkable or plain notes. Inline editing for titles and items." colors={colors} />
+          <FeatureCard icon="✓" title="Todos" desc="Full task management with due dates, priority levels (Low/Med/High), auto-sort by date, and local notification reminders." colors={colors} />
+          <FeatureCard icon="⚙️" title="Preferences" desc="Three themes (Dark, Green, Light). Configure notification intervals. Manage default shops." colors={colors} />
+          <FeatureCard icon="📖" title="Guide" desc="This page — a reference for all app features and behavior." colors={colors} />
 
-          <SectionTitle color={colors.accentColor} s={s}>Todos</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Create from + button, duplicate title blocked" />
-          <BulletItem color={colors.primaryText} s={s} text="Add tasks with text + Enter" />
-          <BulletItem color={colors.primaryText} s={s} text="Due dates: calendar picker (today to 5 years)" />
-          <BulletItem color={colors.primaryText} s={s} text="Priority: cycle None → Low → Medium → High" />
-          <BulletItem color={colors.primaryText} s={s} text="Auto-sort: due dates first (earliest first), undated last" />
-          <BulletItem color={colors.primaryText} s={s} text="Toggle O/✓, edit title inline, tap task to edit text/priority/date" />
-          <BulletItem color={colors.primaryText} s={s} text="Delete long-press card (blocked if has items), ✕ on tasks" />
-          <BulletItem color={colors.primaryText} s={s} text="Priority badges on cards: red=high, yellow=medium, green=low" />
-          <BulletItem color={colors.primaryText} s={s} text="Overdue badge: ⚠️ count for past-due undone tasks" />
-          <BulletItem color={colors.primaryText} s={s} text="Tap overdue badge: opens filtered view showing only overdue items" />
-          <BulletItem color={colors.primaryText} s={s} text="Overdue = due date before start of today, task not done" />
+          <SectionHeader title="Shopping" color={colors.accentColor} />
 
-          <SectionTitle color={colors.accentColor} s={s}>Notifications</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Local notifications for todos with due dates" />
-          <BulletItem color={colors.primaryText} s={s} text="4 configurable intervals: at due, 1 day, 2 days, 1 week before" />
-          <BulletItem color={colors.primaryText} s={s} text="Dynamic messages: due now / tomorrow / in X days / in X weeks" />
-          <BulletItem color={colors.primaryText} s={s} text="Auto-cancelled on done, delete, or due date change" />
-          <BulletItem color={colors.primaryText} s={s} text="Permissions: requested once on Android 13+" />
+          <FeatureCard icon="➕" title="Create a List" desc="Tap + on the Shopping tab. Default shops from Settings are added automatically." colors={colors} />
+          <FeatureCard icon="🏪" title="Shop Tabs" desc="Add shops inside a list. Each shop has its own item list. Tap a shop tab to switch." colors={colors} />
+          <FeatureCard icon="🗑️" title="Delete a Shop" desc="Long-press a shop tab. Blocked if the shop has items or is a default shop." colors={colors} />
+          <FeatureCard icon="📋" title="Items" desc="Add items, toggle done with O/✓, tap to rename, ✕ to delete. Delete completed items in bulk." colors={colors} />
+          <FeatureCard icon="⭐" title="Default Shops" desc="Configure in Settings. Tap +/− on a shop card in the summary to add/remove from defaults. New defaults sync to your active list." colors={colors} />
+          <FeatureCard icon="🚫" title="Duplicate Prevention" desc="Shop names and item names are checked case-insensitively. Duplicates are blocked." colors={colors} />
 
-          <SectionTitle color={colors.accentColor} s={s}>Settings (Prefs)</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Theme: Dark, Green (leafy background), Light" />
-          <BulletItem color={colors.primaryText} s={s} text="Todo reminders: enable/disable each interval (can't deselect all)" />
-          <BulletItem color={colors.primaryText} s={s} text="Default shops: add/remove shops that auto-populate new lists" />
-          <BulletItem color={colors.primaryText} s={s} text="New defaults sync to active shopping list automatically" />
+          <SectionHeader title="Todos" color={colors.accentColor} />
 
-          <SectionTitle color={colors.accentColor} s={s}>Navigation</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Bottom tabs: Home, Shopping, Memos, Todos, Prefs" />
-          <BulletItem color={colors.primaryText} s={s} text="Swipe horizontally or tap tabs to switch" />
-          <BulletItem color={colors.primaryText} s={s} text="🏠 header button returns to Home" />
-          <BulletItem color={colors.primaryText} s={s} text="Swipe back or tap back button on detail screens" />
+          <FeatureCard icon="📅" title="Due Dates" desc="Optional date picker when adding or editing a task. Range: today to 5 years out." colors={colors} />
+          <FeatureCard icon="🚩" title="Priority" desc="Cycle through None → Low → Medium → High. Color-coded badges on the list view." colors={colors} />
+          <FeatureCard icon="🔔" title="Notifications" desc="4 configurable intervals: at due date, 1 day before, 2 days before, 1 week before. Messages adapt (due now/tomorrow/in X days/in X weeks). Notifications auto-cancel when toggled done or deleted." colors={colors} />
+          <FeatureCard icon="⚠️" title="Overdue Detection" desc="Lists show an overdue badge with count. Tap it to filter and view only overdue items." colors={colors} />
+          <FeatureCard icon="↕️" title="Auto-Sort" desc="Tasks with due dates appear first (earliest first), undated tasks last." colors={colors} />
 
-          <SectionTitle color={colors.accentColor} s={s}>Edge Cases</SectionTitle>
-          <BulletItem color={colors.primaryText} s={s} text="Delete blocked if list/shop has items" />
-          <BulletItem color={colors.primaryText} s={s} text="Duplicate names blocked (case-insensitive) everywhere" />
-          <BulletItem color={colors.primaryText} s={s} text="Empty states shown per list type" />
-          <BulletItem color={colors.primaryText} s={s} text="Buttons disabled when input empty or data loading" />
-          <BulletItem color={colors.primaryText} s={s} text="DB auto-vacuumed on background" />
-          <BulletItem color={colors.primaryText} s={s} text="Notification errors caught silently (never block UI)" />
-          <BulletItem color={colors.primaryText} s={s} text="All data persists in local SQLite, survives restarts" />
+          <SectionHeader title="Memos" color={colors.accentColor} />
 
-          <Text style={[s.guideBullet, { color: colors.mutedText, textAlign: 'center', marginTop: 32 }]}>
-            developed by this.me
-          </Text>
+          <FeatureCard icon="📝" title="Notes" desc="Add text lines to any memo. Each line can be toggled as a checklist item." colors={colors} />
+          <FeatureCard icon="✏️" title="Inline Editing" desc="Tap the memo title to rename. Tap any note text to edit it." colors={colors} />
+
+          <SectionHeader title="Navigation" color={colors.accentColor} />
+
+          <FeatureCard icon="👆" title="Tabs & Swipe" desc="Bottom tab bar switches between sections. Swipe horizontally or tap a tab." colors={colors} />
+          <FeatureCard icon="🏠" title="Home Button" desc="The 🏠 button in any section header returns you to the Home dashboard." colors={colors} />
+          <FeatureCard icon="↩️" title="Gestures" desc="Swipe from the screen edge to go back. Long-press cards to delete (with confirmation). Tap titles to rename." colors={colors} />
+
+          <SectionHeader title="Security & Privacy" color={colors.accentColor} />
+
+          <FeatureCard icon="🔒" title="Local Storage" desc="All data is stored in a local SQLite database on your device. No data is transmitted to any server." colors={colors} />
+          <FeatureCard icon="📡" title="No Network" desc="listAll operates fully offline. No internet permission, no analytics, no tracking, no account required." colors={colors} />
+          <FeatureCard icon="🗑️" title="Data Cleanup" desc="Deleted items are fully removed from the database. The database is auto-vacuumed in the background to reclaim space." colors={colors} />
+          <FeatureCard icon="📄" title="Security Policy" desc="See the full security statement for details on data handling, permissions, and vulnerability reporting." colors={colors} />
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://github.com/evariste1963/listAll/blob/main/SECURITY.md')}
+            style={{ alignSelf: 'center', marginTop: 4 }}
+          >
+            <Text style={{ fontSize: 13, color: colors.accentColor, textDecorationLine: 'underline' }}>
+              github.com/evariste1963/listAll/blob/main/SECURITY.md
+            </Text>
+          </TouchableOpacity>
+
+          <SectionHeader title="Database" color={colors.accentColor} />
+
+          <FeatureCard icon="💾" title="SQLite" desc="Uses expo-sqlite with Drizzle ORM. Configured with WAL mode for performance and auto_vacuum for space management." colors={colors} />
+          <FeatureCard icon="📁" title="File" desc="Database file: listAll.db. Android backup is disabled (allowBackup=false)." colors={colors} />
+
+          <SectionHeader title="Edge Cases" color={colors.accentColor} />
+
+          <FeatureCard icon="🛡️" title="Delete Protection" desc="Cannot delete a list or shop that still has items. Must delete all items first." colors={colors} />
+          <FeatureCard icon="📭" title="Empty States" desc="Every section shows a helpful empty state when no data exists, with a call to action." colors={colors} />
+          <FeatureCard icon="⏳" title="Loading States" desc="Database initialization shows status. Buttons disabled while data is loading or input is empty." colors={colors} />
+          <FeatureCard icon="🔁" title="Data Persistence" desc="All data persists across app restarts. UI refreshes automatically when you navigate back." colors={colors} />
+
+          <View style={{
+            marginTop: 32,
+            paddingTop: 16,
+            borderTopWidth: 1,
+            borderTopColor: colors.dividerColor,
+            alignItems: 'center',
+          }}>
+            <Text style={{ fontSize: 12, color: colors.mutedText, marginBottom: 4 }}>
+              developed by this.me
+            </Text>
+            <Text style={{ fontSize: 11, color: colors.mutedText }}>
+              © {new Date().getFullYear()} — MIT License
+            </Text>
+          </View>
+
         </ScrollView>
       </SafeAreaView>
     </ThemedBackground>
