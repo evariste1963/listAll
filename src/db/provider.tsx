@@ -7,6 +7,11 @@ import * as schema from './schema';
 import migrationStatements from './migrations';
 
 const expoDb = openDatabaseSync('listAll.db', { enableChangeListener: true });
+
+expoDb.execSync('PRAGMA journal_mode = WAL');
+expoDb.execSync('PRAGMA foreign_keys = ON');
+expoDb.execSync('PRAGMA auto_vacuum = INCREMENTAL');
+
 const db = drizzle(expoDb, { schema });
 
 const DBContext = createContext<typeof db>(db);
@@ -45,6 +50,7 @@ export function DBProvider({ children }: DBProviderProps) {
         const now = Date.now();
         if (!lastBackgroundTime || now - lastBackgroundTime > 5000) {
           lastBackgroundTime = now;
+          expoDb.execAsync('PRAGMA incremental_vacuum(100)').catch(() => {});
           expoDb.execAsync('VACUUM').catch(() => {});
         }
       }
