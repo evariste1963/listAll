@@ -10,6 +10,7 @@ import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { usePreferences } from '../preferences/provider';
 import { AVAILABLE_INTERVALS, DEFAULT_INTERVALS } from '../notifications';
+import { APP_VERSION } from '../config';
 
 const THEMES: ThemeName[] = ['dark', 'green', 'light'];
 
@@ -77,7 +78,7 @@ export default function PreferencesTabScreen() {
           <View style={s.sectionTitle && { marginBottom: 24 }}>
             <Text style={[s.sectionTitle, { color: colors.accentColor }]}>About</Text>
             <Text style={[s.appName, { color: colors.primaryText }]}>listAll</Text>
-            <Text style={[s.version, { color: colors.tertiaryText }]}>Version 1.0.0</Text>
+            <Text style={[s.version, { color: colors.tertiaryText }]}>Version {APP_VERSION}</Text>
             <Text style={[s.description, { color: colors.secondaryText }]}>
               A scalable list app for Shopping Lists, Memos, and Todos.
             </Text>
