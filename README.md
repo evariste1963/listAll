@@ -1,236 +1,150 @@
-# listAll — User Guide
+# listAll
 
-listAll is a personal list manager with three list types: Shopping, Memos, and Todos. All data is stored locally on your device in a SQLite database.
+A personal list manager for Android with Shopping Lists, Memos, and Todos. Built with Expo (React Native) and SQLite.
 
----
+## Tech Stack
 
-## App Startup
+- **Framework**: Expo SDK 55 (React Native)
+- **Language**: TypeScript
+- **Database**: expo-sqlite + Drizzle ORM
+- **Navigation**: React Navigation (Native Stack + swipeable tabs)
+- **Notifications**: react-native-notify-kit (Android AlarmManager)
 
-- App initializes in this order: `DBProvider` → `ThemeProvider` → `PreferencesProvider` → `NotificationInitializer` → Navigation
-- Database is auto-created and migrated on first launch
-- When app goes to background, database is auto-vacuumed (debounced 5s) to reclaim space
-- Status bar style (light/dark) adjusts to current theme
+## Features
 
----
+### Shopping Lists
 
-## Home Dashboard
+- **Single active list** at a time — creating a new one starts fresh
+- **Multi-shop tabs** within a list (e.g., Walmart, Target)
+- **Default shops** configured in Settings auto-populate new lists
+- **Duplicate detection** (case-insensitive) for shops and items
+- Per-shop remaining item counts, summary bar across all shops
+- Inline rename for shops and items
+- Delete completed items in bulk
 
-The Home tab is your navigation hub with 5 cards:
+### Memos
 
-| Card | Action |
-|------|--------|
-| 🛒 Shopping | Switches to Shopping tab |
-| 📝 Memos | Switches to Memos tab |
-| ✓ Todos | Switches to Todos tab |
-| ⚙️ Preferences | Switches to Prefs tab |
-| 📖 Guide | Opens this guide as a separate screen |
+- Create multiple memo lists
+- Notes with optional checkable mode
+- Inline title editing
+- Remaining count, creation date display
 
-The header shows the app logo (adapts to theme) and "Your personal list manager" subtitle.
+### Todos
 
----
-
-## Shopping Lists
-
-### List Management
-- **Only one active shopping list at a time** — create a new one to start fresh
-- **Create**: Tap + on the Shopping tab (if no active list) or tap + from the summary view. Default shops from Settings auto-populate the new list
-- **Summary view**: Shows all shops with remaining/total counts and circle badges (✓ if fully done)
-- **Delete list**: Long-press the summary title (blocked if any shop has items)
-
-### Shops
-- **Add shop**: Tap + Add in the shop tabs row inside a list, or use `showAddShop` from summary
-- **Duplicate detection**: Adding a shop with the same name (case-insensitive) is blocked
-- **Delete shop**: Long-press a shop tab
-  - Blocked if shop has items ("Delete all items first")
-  - Blocked if shop is a default shop ("Remove from defaults first")
-- **Default shops**: Shops configured in Settings auto-populate new lists. New defaults sync into your active list when added in Settings
-  - Tapping +/- on a summary shop card adds/removes it from defaults (with confirmation alert)
-
-### Items
-- **Add**: Select a shop tab, type your item, press + or Enter
-- **Duplicate detection**: Case-insensitive duplicate check within the current shop
-- **Toggle**: Tap O to mark pending, ✓ to mark done
-- **Delete completed**: Tap 🗑️ trash icon (appears only when at least one item is done)
-- **Delete individual**: Tap ✕ button on any item
-- **Edit**: Tap any item text to open inline rename modal
-- **Summary bar**: Shows "X of Y items remaining" across all shops
-- **Shop badges**: Each tab shows its remaining item count
-
-### Deep Linking
-- Opening a list with `activeTabId` param navigates directly to that shop tab
-- Opening with `showAddShop: true` immediately opens the Add Shop modal
-
----
-
-## Memos
-
-### List Management
-- **Create**: Tap + on the Memos tab, enter a title
-- **Duplicate detection**: Case-insensitive title check (blocked)
-- **Delete**: Long-press a memo card (blocked if it has items)
-- **Card view**: Shows title, remaining count, and creation date
-
-### Items (Notes)
-- **Add**: Type and press Enter
-- **Toggle**: Tap O / ✓ to mark complete
-- **Inline title editing**: Tap the memo title to rename it
-- **Edit notes**: Tap any note text to rename it
-- **Delete**: Tap ✕ button on any note
-- **Empty state**: "No notes yet"
-
----
-
-## Todos
-
-### List Management
-- **Create**: Tap + on the Todos tab, enter a title
-- **Duplicate detection**: Case-insensitive title check (blocked)
-- **Delete**: Long-press a todo card (blocked if it has items)
-- **Card view**: Shows title, remaining count, priority badges, and overdue badge
-
-### Tasks
-- **Add**: Type your task, press + or Enter
-- **Due dates**: Tap the calendar button to pick an optional due date (today to 5 years out)
-- **Priority**: Tap the flag icon to cycle: None → Low → Medium → High
-- **Auto-sort**: Items with due dates appear first (earliest first), undated items last
-- **Toggle**: Tap O / ✓ to mark tasks complete
-- **Inline title editing**: Tap the todo list title to rename it
-- **Edit tasks**: Tap any task to open a modal — change text, priority, and due date simultaneously
-- **Delete**: Tap ✕ button on any task
-
-### Card Priority Badges
-Each todo card on the main list shows remaining counts by priority:
-- **Red** badge = High priority
-- **Yellow/Amber** badge = Medium priority
-- **Green** badge = Low priority
-- Only shown if count > 0 for that priority level
-
-### Overdue Detection
-- **Overdue badge**: ⚠️ icon with count, shown on todo cards when items are past due
-- Overdue = due date is before the start of today (midnight), task is not done
-- **Tappable**: Tap the overdue badge to open the list filtered to show only overdue items
-  - The detail screen receives `filter: 'overdue'` and hides all non-overdue items
-  - Filtered items are still sorted earliest-first by due date
+- Create multiple todo lists
+- **Due dates**: Optional date picker (today to 5 years out)
+- **Priority levels**: Low, Medium, High (color-coded badges)
+- **Auto-sort**: Task with earliest due dates first, undated last
+- **Overdue detection**: ⚠️ badge with count on todo list cards
+- **Overdue filter**: Tap the badge to view only overdue items
+- **Notifications**: Local reminders at configurable intervals
+- Task count by priority level displayed on list cards
 
 ### Notifications
-Local notifications are scheduled when you create or edit a task with a due date. See the Notifications section below.
 
----
+Scheduled when you create or edit a todo with a due date. Configurable intervals:
 
-## Notifications
+| Interval | When it fires |
+|----------|---------------|
+| On due date | At midnight on the due date |
+| 1 day before | 1 day before due date |
+| 2 days before | 2 days before due date |
+| 1 week before | 7 days before due date |
 
-### Setup
-- Notifications use `expo-notifications` with the `notifee` API
-- Android notification channel created: "Todo Reminders" (HIGH importance, vibration, blue light)
-- On Android 13+, `SCHEDULE_EXACT_ALARM` permission is requested for precise timing
+Notification messages are dynamic based on remaining time:
+- "is due now" — due date is today or past
+- "is due tomorrow" — 1 day remaining
+- "is due in X days" — 2–6 days remaining
+- "is due in 1 week" — 7–13 days remaining
+- "is due in X weeks" — 14+ days remaining
 
-### Scheduling
-When you add or edit a todo with a due date, notifications are scheduled at configurable intervals:
+Notifications auto-cancel when:
+- Task is marked done
+- Task is deleted
+- Due date is changed or removed
 
-| Interval | Offset |
-|----------|--------|
-| At due time | 0s |
-| 1 day before | -86400s |
-| 2 days before | -172800s |
-| 1 week before | -604800s |
+On Android 13+, `SCHEDULE_EXACT_ALARM` permission is requested for precise timing.
 
-Each notification includes dynamic messaging based on how far away the due date is:
-- "is due now" (≤ 0 seconds away)
-- "is due tomorrow" (~1 day)
-- "is due in X days" (2–6 days)
-- "is due in 1 week" (7–13 days)
-- "is due in X weeks" (14+ days)
+### Themes
 
-### Cancellation
-Notifications are automatically cancelled when:
-- Toggling a task to done
-- Deleting a task
-- Editing a task's due date (old notifications cancelled, new ones scheduled)
-- Saving an edit with no due date
+Three themes available in Preferences:
+- **Dark** (#000 background, blue accent) — default
+- **Green** (#1A3D1A background, leafy wallpaper, blue accent)
+- **Light** (#f5f5f5 background, red accent)
 
-### Permission
-Android notification permission is requested once on first install.
+### Navigation
 
----
+- Horizontal swipeable tabs between Home, Shopping, Memos, Todos, Prefs
+- Tap tabs or swipe to switch
+- Home button in headers returns to dashboard
 
-## Settings (Prefs Tab)
+## Data
 
-Five sections:
+- All data stored locally in SQLite (`listAll.db`)
+- Data persists across restarts
+- UI refreshes automatically on focus
+- Database auto-vacuumed on background (debounced)
 
-### About
-App name and version (1.0.0).
+## Getting Started
 
-### Theme
-Three themes:
-- **Dark** — black background (#000), blue accent (#2E5A88)
-- **Green** — dark green (#1A3D1A), leafy background image, blue accent
-- **Light** — light gray (#f5f5f5), red accent (#dc2626)
+```bash
+# Install dependencies
+npm install
 
-The logo adapts: green theme uses `listAll_logo_green.png`, others use the standard logo.
+# Start Metro bundler
+npx expo start
 
-### Todo Reminders
-Checkboxes to enable/disable each of the 4 notification intervals.
-- **Cannot deselect all**: if you uncheck every box, defaults are restored automatically
+# Run on Android
+npx expo run:android
 
-### Default Shops
-Manage shops that auto-populate when creating a new shopping list.
-- **Add**: Tap +, enter a name
-- **Delete**: Long-press or tap ✕
-- New defaults sync to your active shopping list immediately
+# Run on iOS
+npx expo run:ios
+```
 
-### Info
-Quick reference: multi-shop tabs, inline title editing, due dates & priorities, local storage.
+### Build APK
 
----
+```bash
+npx expo prebuild --clean
+cd android
+./gradlew assembleRelease
+# Output: app/build/outputs/apk/release/app-arm64-v8a-release.apk
+```
 
-## Navigation
+Install via ADB:
 
-- **Bottom tab bar**: Switch between Home, Shopping, Memos, Todos, and Prefs
-- **Tab tap**: Instant switch (no scroll animation)
-- **Swipe**: Horizontal swipe between tabs
-- **Home button**: 🏠 in any header returns to Home
-- **Back**: Swipe from screen edge or tap back button
-- **Guide**: 📖 Home card or bottom-sheet link
+```bash
+adb install -r android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
+```
 
----
+## Project Structure
 
-## Tips & Edge Cases
-
-### Gestures
-- **Tap any card** → opens detail (shopping list, memo, todo)
-- **Long-press card** → delete (with protection if it has items)
-- **Long-press shop tab** → delete shop (with validation)
-- **Tap title text** → inline rename on memo/todo detail screens
-- **Tap item text** → inline edit modal on all detail screens
-- **Tap overdue badge** → filtered view of only overdue todos
-
-### Delete Protection
-- Can't delete a shopping list shop if it has items
-- Can't delete a default shop from inside a shopping list
-- Can't delete a memo/todo list if it has items
-
-### Empty States
-- **Shopping (no list)**: "No Active Shopping List" with create prompt
-- **Shopping (no shops)**: "Add your first shop"
-- **Memos (no lists)**: 📝 icon + "No Memos Yet"
-- **Todos (no lists)**: ✓ icon + create button
-- **All detail screens**: "No items yet" / "No notes yet" / "No todos yet"
-
-### Loading
-- **DB initializing**: "Setting up database..."
-- **DB error**: "Migration error: {message}"
-- **List detail loading**: "Loading..."
-
-### Buttons
-- Buttons with empty text input are disabled (50% opacity)
-- Create/Add buttons are disabled while a list is still loading
-
-### Data
-- All data stored in local SQLite database (`listAll.db`)
-- Database auto-vacuumed on background to keep size small
-- Data persists across app restarts
-- UI refreshes automatically when you return to a tab (focus-effect)
-
-### Notifications Behavior
-- If a notification's trigger time is already in the past and offset is 0 (at-due-time), it fires immediately
-- Notification schedule errors are caught silently (console.error) — they never block the UI
+```
+listAll/
+├── App.tsx                    # Entry point, providers, navigation
+├── SwipeableTabs.tsx          # Bottom tab bar with horizontal swipe
+├── src/
+│   ├── db/                    # SQLite schema, migrations, provider
+│   │   ├── schema.ts          # Drizzle table definitions
+│   │   ├── index.ts           # Database initialization
+│   │   ├── provider.tsx       # React context provider
+│   │   └── migrations.ts      # Schema migrations
+│   ├── screens/               # All screen components
+│   │   ├── HomeTabScreen.tsx
+│   │   ├── ShoppingTabScreen.tsx
+│   │   ├── ShoppingDetailScreen.tsx
+│   │   ├── MemosTabScreen.tsx
+│   │   ├── MemoDetailScreen.tsx
+│   │   ├── TodosTabScreen.tsx
+│   │   ├── TodoDetailScreen.tsx
+│   │   ├── PreferencesTabScreen.tsx
+│   │   ├── GuideScreen.tsx
+│   │   ├── CreateMemoListScreen.tsx
+│   │   └── CreateTodoListScreen.tsx
+│   ├── notifications/         # Local notification scheduling
+│   ├── preferences/           # User preferences provider
+│   ├── styles/                # Themes and shared styles
+│   └── navigation/            # Navigation type definitions
+├── assets/                    # Images, icons, fonts
+├── plugins/                   # Expo config plugins
+└── app.json                   # Expo configuration
+```
