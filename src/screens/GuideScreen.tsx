@@ -45,11 +45,10 @@ export default function GuideScreen() {
       <SafeAreaView style={s.guideContainer} edges={['left', 'right', 'bottom']}>
         <ScrollView style={s.guideScrollView} contentContainerStyle={s.guideContent}>
 
-          <View style={{ alignItems: 'center', paddingTop: 16, paddingBottom: 8 }}>
-            <Image source={colors.logoAsset} style={{ width: 80, height: 80 }} resizeMode="contain" />
-            <Text style={[s.guideMainTitle, { color: colors.primaryText, marginBottom: 2 }]}>listAll</Text>
+          <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 4 }}>
+            <Image source={colors.logoAsset} style={{ width: 120, height: 120 }} resizeMode="contain" />
             <Text style={{ fontSize: 13, color: colors.tertiaryText, letterSpacing: 0.3 }}>Version 1.0.0</Text>
-            <Text style={[s.guideIntro, { textAlign: 'center', marginTop: 8 }]}>
+            <Text style={[s.guideIntro, { textAlign: 'center', marginTop: 4 }]}>
               Your personal list manager for shopping, memos, and todos.{'\n'}All data stays on your device.
             </Text>
           </View>
