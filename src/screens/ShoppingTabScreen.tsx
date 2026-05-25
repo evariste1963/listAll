@@ -149,12 +149,19 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const handleDeleteList = () => {
     if (!shopList) return;
 
-    const hasItems = shops.some(s => s.totalItems > 0);
+    const totalItems = shops.reduce((sum, s) => sum + s.totalItems, 0);
+    if (totalItems > 0) {
+      Alert.alert(
+        'Cannot Delete Shopping List',
+        `Delete all items from all shops first.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     Alert.alert(
       'Delete Shopping List',
-      hasItems
-        ? `Delete the entire shopping list and all ${shops.reduce((sum, s) => sum + s.totalItems, 0)} items across ${shops.length} shop(s)?`
-        : 'Delete this shopping list?',
+      'Delete this shopping list?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -162,9 +169,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           style: 'destructive',
           onPress: async () => {
             const shopIds = shops.map(s => s.id);
-            for (const shopId of shopIds) {
-              await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.shopTabId, shopId)).run();
-            }
             for (const shopId of shopIds) {
               await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shopId)).run();
             }
