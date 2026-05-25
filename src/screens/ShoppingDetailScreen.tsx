@@ -238,6 +238,7 @@ export default function ShoppingDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
+            await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.shopTabId, shopId)).run();
             await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shopId)).run();
             if (activeTabId === shopId) {
               setActiveTabId(shops.find(s => s.id !== shopId)?.id || null);

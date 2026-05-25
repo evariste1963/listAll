@@ -146,6 +146,37 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     }
   };
 
+  const handleDeleteList = () => {
+    if (!shopList) return;
+
+    const hasItems = shops.some(s => s.totalItems > 0);
+    Alert.alert(
+      'Delete Shopping List',
+      hasItems
+        ? `Delete the entire shopping list and all ${shops.reduce((sum, s) => sum + s.totalItems, 0)} items across ${shops.length} shop(s)?`
+        : 'Delete this shopping list?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const shopIds = shops.map(s => s.id);
+            for (const shopId of shopIds) {
+              await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.shopTabId, shopId)).run();
+            }
+            for (const shopId of shopIds) {
+              await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shopId)).run();
+            }
+            await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, shopList.id)).run();
+            setShopList(null);
+            setShops([]);
+          },
+        },
+      ]
+    );
+  };
+
   const handleOpenShop = async (shopId: number, shopName: string) => {
     if (shopList) {
       navigation.navigate('ShoppingDetail', { listId: shopList.id, activeTabId: shopId });
@@ -323,7 +354,9 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           <TouchableOpacity onPress={() => onTabChange?.(0, false)}>
             <Text style={s.homeButton}>🏠</Text>
           </TouchableOpacity>
-          <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shops</Text>
+          <TouchableOpacity onLongPress={handleDeleteList}>
+            <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shops</Text>
+          </TouchableOpacity>
           <View style={{ width: 40 }} />
         </View>
 
