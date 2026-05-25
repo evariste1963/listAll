@@ -17,7 +17,7 @@ function SectionHeader({ title, color }: { title: string; color: string }) {
   );
 }
 
-function FeatureCard({ icon, title, desc, colors }: { icon: string; title: string; desc: string; colors: any }) {
+function FeatureCard({ icon, title, desc, colors, iconColor }: { icon: string; title: string; desc: string; colors: any; iconColor?: string }) {
   return (
     <View style={{
       flexDirection: 'row',
@@ -28,7 +28,7 @@ function FeatureCard({ icon, title, desc, colors }: { icon: string; title: strin
       backgroundColor: colors.cardBackground,
       borderRadius: 10,
     }}>
-      <Text style={{ fontSize: 18, marginRight: 12, marginTop: 1 }}>{icon}</Text>
+      <Text style={{ fontSize: 18, marginRight: 12, marginTop: 1, color: iconColor }}>{icon}</Text>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primaryText, marginBottom: 2 }}>{title}</Text>
         <Text style={{ fontSize: 13, lineHeight: 18, color: colors.secondaryText }}>{desc}</Text>
@@ -48,7 +48,7 @@ export default function GuideScreen() {
 
           <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 4 }}>
             <Image source={colors.logoAsset} style={{ width: 120, height: 120 }} resizeMode="contain" />
-            <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.primaryText, marginTop: 4 }}>Guide</Text>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.primaryText, marginTop: 8 }}>Guide</Text>
             <Text style={{ fontSize: 12, color: colors.tertiaryText, letterSpacing: 0.3, marginTop: 2 }}>Version {APP_VERSION}</Text>
           </View>
 
@@ -57,7 +57,7 @@ export default function GuideScreen() {
           <FeatureCard icon="🏠" title="Home Dashboard" desc="Navigation hub with cards for Shopping, Memos, Todos, Preferences, and this Guide." colors={colors} />
           <FeatureCard icon="🛒" title="Shopping" desc="Create one active shopping list with multiple shop tabs. Auto-populate from default shops in Settings. Track remaining items per shop." colors={colors} />
           <FeatureCard icon="📝" title="Memos" desc="Create multiple memo lists with checkable or plain notes. Inline editing for titles and items." colors={colors} />
-          <FeatureCard icon="✓" title="Todos" desc="Full task management with due dates, priority levels (Low/Med/High), auto-sort by date, and local notification reminders." colors={colors} />
+          <FeatureCard icon="✓" title="Todos" desc="Full task management with due dates, priority levels (Low/Med/High), auto-sort by date, and local notification reminders." colors={colors} iconColor={colors.todoIconBg} />
           <FeatureCard icon="⚙️" title="Preferences" desc="Three themes (Dark, Green, Light). Configure notification intervals. Manage default shops." colors={colors} />
           <FeatureCard icon="📖" title="Guide" desc="This page — a reference for all app features and behavior." colors={colors} />
 
@@ -94,14 +94,8 @@ export default function GuideScreen() {
           <FeatureCard icon="🔒" title="Local Storage" desc="All data is stored in a local SQLite database on your device. No data is transmitted to any server." colors={colors} />
           <FeatureCard icon="📡" title="No Network" desc="listAll operates fully offline. No internet permission, no analytics, no tracking, no account required." colors={colors} />
           <FeatureCard icon="🗑️" title="Data Cleanup" desc="Deleted items are fully removed from the database. The database is auto-vacuumed in the background to reclaim space." colors={colors} />
-          <FeatureCard icon="📄" title="Security Policy" desc="See the full security statement for details on data handling, permissions, and vulnerability reporting." colors={colors} />
-          <TouchableOpacity
-            onPress={() => Linking.openURL('https://github.com/evariste1963/listAll/blob/main/SECURITY.md')}
-            style={{ alignSelf: 'center', marginTop: 4 }}
-          >
-            <Text style={{ fontSize: 13, color: colors.accentColor, textDecorationLine: 'underline' }}>
-              github.com/evariste1963/listAll/blob/main/SECURITY.md
-            </Text>
+          <TouchableOpacity onPress={() => Linking.openURL('https://github.com/evariste1963/listAll/blob/main/SECURITY.md')}>
+            <FeatureCard icon="📄" title="Security Policy" desc="Press here to read the full security statement for details on data handling, permissions, and vulnerability reporting." colors={colors} />
           </TouchableOpacity>
 
           <SectionHeader title="Database" color={colors.accentColor} />

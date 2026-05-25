@@ -100,7 +100,7 @@ function AppNavigator() {
         <Stack.Screen
           name="Guide"
           component={GuideScreen}
-          options={{ title: 'Guide' }}
+          options={{ title: 'home' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
