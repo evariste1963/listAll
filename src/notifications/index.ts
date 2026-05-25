@@ -90,11 +90,18 @@ export async function scheduleTodoNotifications(
     const ids: string[] = [];
     const dueDate = new Date(dueDateTimestamp);
     dueDate.setHours(0, 0, 0, 0);
-    const midnightMs = dueDate.getTime();
+    const dueMidnightMs = dueDate.getTime();
     const nowMs = Date.now();
 
+    const now = new Date();
+    const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    nowMidnight.setHours(0, 0, 0, 0);
+    const actualDaysUntilDue = Math.round((dueMidnightMs - nowMidnight.getTime()) / 86400000);
+
+    let immediateFired = false;
+
     for (const offset of intervalDays) {
-      const triggerMs = midnightMs + offset * 86400000;
+      const triggerMs = dueMidnightMs + offset * 86400000;
       if (triggerMs <= nowMs) {
         if (offset === 0) {
           console.log(`[Notifications] Displaying immediate "${title}" is due now`);
@@ -108,6 +115,21 @@ export async function scheduleTodoNotifications(
             },
           });
           ids.push(`immediate-${todoIdStr}`);
+          immediateFired = true;
+        } else if (!immediateFired && actualDaysUntilDue > 0 && -offset >= actualDaysUntilDue) {
+          const body = `"${title}" ${getDueMessage(actualDaysUntilDue)}`;
+          console.log(`[Notifications] Displaying immediate "${body}"`);
+          await notifee.displayNotification({
+            title: 'Todo Reminder',
+            body,
+            data: { todoId: todoIdStr },
+            android: {
+              channelId: 'default',
+              pressAction: { id: 'default' },
+            },
+          });
+          ids.push(`immediate-${todoIdStr}-${offset}`);
+          immediateFired = true;
         }
         continue;
       }
