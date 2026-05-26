@@ -75,7 +75,8 @@ export async function scheduleTodoNotifications(
   todoId: number,
   title: string,
   dueDateTimestamp: number,
-  intervalDays: number[]
+  intervalDays: number[],
+  listName?: string
 ): Promise<string[]> {
   try {
     const existing = await notifee.getTriggerNotifications();
@@ -106,7 +107,7 @@ export async function scheduleTodoNotifications(
         if (offset === 0) {
           console.log(`[Notifications] Displaying immediate "${title}" is due now`);
           await notifee.displayNotification({
-            title: 'Todo Reminder',
+            title: listName ?? 'Todo Reminder',
             body: `"${title}" is due now`,
             data: { todoId: todoIdStr },
             android: {
@@ -120,7 +121,7 @@ export async function scheduleTodoNotifications(
           const body = `"${title}" ${getDueMessage(actualDaysUntilDue)}`;
           console.log(`[Notifications] Displaying immediate "${body}"`);
           await notifee.displayNotification({
-            title: 'Todo Reminder',
+            title: listName ?? 'Todo Reminder',
             body,
             data: { todoId: todoIdStr },
             android: {
@@ -150,7 +151,7 @@ export async function scheduleTodoNotifications(
       const id = await notifee.createTriggerNotification(
         {
           id: `todo-${todoIdStr}-${offset}`,
-          title: 'Todo Reminder',
+          title: listName ?? 'Todo Reminder',
           body,
           data: { todoId: todoIdStr },
           android: {

@@ -111,7 +111,7 @@ export default function TodoDetailScreen() {
 
     const insertedId = result.lastInsertRowId as number;
     if (dueDateTimestamp && insertedId) {
-      scheduleTodoNotifications(insertedId, newItemText.trim(), dueDateTimestamp, notificationIntervals).catch(() => {});
+      scheduleTodoNotifications(insertedId, newItemText.trim(), dueDateTimestamp, notificationIntervals, list?.title).catch(() => {});
     }
 
     setNewItemText('');
@@ -131,7 +131,7 @@ export default function TodoDetailScreen() {
     } else {
       const item = items.find(i => i.id === itemId);
       if (item?.dueDate) {
-        scheduleTodoNotifications(itemId, item.title, item.dueDate, notificationIntervals).catch(() => {});
+        scheduleTodoNotifications(itemId, item.title, item.dueDate, notificationIntervals, list?.title).catch(() => {});
       }
     }
   };
@@ -173,7 +173,7 @@ export default function TodoDetailScreen() {
         .where(eq(schema.todoItem.id, editItemId))
         .run();
       if (newDueDateTimestamp) {
-        scheduleTodoNotifications(editItemId, editItemText.trim(), newDueDateTimestamp, notificationIntervals).catch(() => {});
+        scheduleTodoNotifications(editItemId, editItemText.trim(), newDueDateTimestamp, notificationIntervals, list?.title).catch(() => {});
       } else {
         cancelTodoNotifications(editItemId).catch(() => {});
       }
