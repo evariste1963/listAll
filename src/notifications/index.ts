@@ -83,7 +83,7 @@ export async function initNotifications() {
   await fireMissedTriggers();
 }
 
-async function cancelNotificationsForTodo(todoId: number): Promise<void> {
+export async function cancelTodoNotifications(todoId: number): Promise<void> {
   const existing = await notifee.getTriggerNotifications();
   const todoIdStr = String(todoId);
   for (const n of existing) {
@@ -120,7 +120,7 @@ export async function scheduleTodoNotifications(
   listName?: string
 ): Promise<string[]> {
   try {
-    await cancelNotificationsForTodo(todoId);
+    await cancelTodoNotifications(todoId);
 
     const todoIdStr = String(todoId);
     const ids: string[] = [];
@@ -186,10 +186,3 @@ export async function scheduleTodoNotifications(
   }
 }
 
-export async function cancelTodoNotifications(todoId: number) {
-  try {
-    await cancelNotificationsForTodo(todoId);
-  } catch {
-    // Silently fail
-  }
-}
