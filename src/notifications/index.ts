@@ -20,6 +20,9 @@ export const AVAILABLE_INTERVALS: NotificationInterval[] = [
 
 export const DEFAULT_INTERVALS: number[] = [0, -1, -2, -7];
 
+const MS_IN_DAY = 86_400_000;
+const ANDROID_API_31 = 31;
+
 function getDueMessage(daysUntil: number): string {
   if (daysUntil <= 0) return 'is due now';
   if (daysUntil === 1) return 'is due tomorrow';
@@ -41,7 +44,7 @@ export async function initNotifications() {
 
   await notifee.requestPermission();
 
-  if (Platform.OS === 'android' && Platform.Version >= 31) {
+  if (Platform.OS === 'android' && Platform.Version >= ANDROID_API_31) {
     try {
       const granted = await PermissionsAndroid.request(
         'android.permission.SCHEDULE_EXACT_ALARM' as any,
@@ -97,12 +100,12 @@ export async function scheduleTodoNotifications(
     const now = new Date();
     const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     nowMidnight.setHours(0, 0, 0, 0);
-    const actualDaysUntilDue = Math.round((dueMidnightMs - nowMidnight.getTime()) / 86400000);
+    const actualDaysUntilDue = Math.round((dueMidnightMs - nowMidnight.getTime()) / MS_IN_DAY);
 
     let immediateFired = false;
 
     for (const offset of intervalDays) {
-      const triggerMs = dueMidnightMs + offset * 86400000;
+      const triggerMs = dueMidnightMs + offset * MS_IN_DAY;
       if (triggerMs <= nowMs) {
         if (offset === 0) {
           console.log(`[Notifications] Displaying immediate "${title}" is due now`);
