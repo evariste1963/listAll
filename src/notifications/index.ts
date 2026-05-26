@@ -32,7 +32,7 @@ function getDueMessage(daysUntil: number): string {
   return `is due in ${weeksUntil} weeks`;
 }
 
-export async function initNotifications() {
+async function createDefaultChannel() {
   await notifee.createChannel({
     id: 'default',
     name: 'Todo Reminders',
@@ -41,7 +41,9 @@ export async function initNotifications() {
     lights: true,
     lightColor: '#2E5A88',
   });
+}
 
+async function requestNotificationPermissions() {
   await notifee.requestPermission();
 
   if (Platform.OS === 'android' && Platform.Version >= ANDROID_API_31) {
@@ -56,8 +58,9 @@ export async function initNotifications() {
       console.error('[Notifications] Error requesting exact alarm permission:', e);
     }
   }
+}
 
-  // Fire any scheduled notifications whose trigger time has passed (missed triggers)
+async function fireMissedTriggers() {
   try {
     const triggers = await notifee.getTriggerNotifications();
     for (const t of triggers) {
@@ -74,6 +77,12 @@ export async function initNotifications() {
   }
 }
 
+export async function initNotifications() {
+  await createDefaultChannel();
+  await requestNotificationPermissions();
+  await fireMissedTriggers();
+}
+
 async function cancelNotificationsForTodo(todoId: number): Promise<void> {
   const existing = await notifee.getTriggerNotifications();
   const todoIdStr = String(todoId);
@@ -83,6 +92,24 @@ async function cancelNotificationsForTodo(todoId: number): Promise<void> {
       await notifee.cancelTriggerNotification(n.notification.id);
     }
   }
+}
+
+function buildNotifPayload(
+  todoIdStr: string,
+  body: string,
+  listName?: string,
+  id?: string,
+) {
+  return {
+    ...(id && { id }),
+    title: listName ?? 'Todo Reminder',
+    body,
+    data: { todoId: todoIdStr },
+    android: {
+      channelId: 'default',
+      pressAction: { id: 'default' },
+    },
+  };
 }
 
 export async function scheduleTodoNotifications(
@@ -97,6 +124,7 @@ export async function scheduleTodoNotifications(
 
     const todoIdStr = String(todoId);
     const ids: string[] = [];
+
     const dueDate = new Date(dueDateTimestamp);
     dueDate.setHours(0, 0, 0, 0);
     const dueMidnightMs = dueDate.getTime();
@@ -107,69 +135,48 @@ export async function scheduleTodoNotifications(
     nowMidnight.setHours(0, 0, 0, 0);
     const actualDaysUntilDue = Math.round((dueMidnightMs - nowMidnight.getTime()) / MS_IN_DAY);
 
-    let immediateFired = false;
-
+    // Phase 1: fire immediate notification for the most relevant past offset
     for (const offset of intervalDays) {
       const triggerMs = dueMidnightMs + offset * MS_IN_DAY;
       if (triggerMs <= nowMs) {
         if (offset === 0) {
-          console.log(`[Notifications] Displaying immediate "${title}" is due now`);
-          await notifee.displayNotification({
-            title: listName ?? 'Todo Reminder',
-            body: `"${title}" is due now`,
-            data: { todoId: todoIdStr },
-            android: {
-              channelId: 'default',
-              pressAction: { id: 'default' },
-            },
-          });
+          const body = `"${title}" is due now`;
+          console.log(`[Notifications] Displaying immediate "${body}"`);
+          await notifee.displayNotification(buildNotifPayload(todoIdStr, body, listName));
           ids.push(`immediate-${todoIdStr}`);
-          immediateFired = true;
-        } else if (!immediateFired && actualDaysUntilDue > 0 && -offset >= actualDaysUntilDue) {
+          break;
+        } else if (actualDaysUntilDue > 0 && -offset >= actualDaysUntilDue) {
           const body = `"${title}" ${getDueMessage(actualDaysUntilDue)}`;
           console.log(`[Notifications] Displaying immediate "${body}"`);
-          await notifee.displayNotification({
-            title: listName ?? 'Todo Reminder',
-            body,
-            data: { todoId: todoIdStr },
-            android: {
-              channelId: 'default',
-              pressAction: { id: 'default' },
-            },
-          });
+          await notifee.displayNotification(buildNotifPayload(todoIdStr, body, listName));
           ids.push(`immediate-${todoIdStr}-${offset}`);
-          immediateFired = true;
+          break;
         }
-        continue;
       }
+    }
 
-      const daysUntil = -offset;
-      const body = `"${title}" ${getDueMessage(daysUntil)}`;
+    // Phase 2: schedule future notifications
+    for (const offset of intervalDays) {
+      const triggerMs = dueMidnightMs + offset * MS_IN_DAY;
+      if (triggerMs > nowMs) {
+        const daysUntil = -offset;
+        const body = `"${title}" ${getDueMessage(daysUntil)}`;
+        console.log(`[Notifications] Scheduling "${body}"`);
 
-      console.log(`[Notifications] Scheduling "${body}"`);
-
-      const trigger: TimestampTrigger = {
-        type: TriggerType.TIMESTAMP,
-        timestamp: triggerMs,
-        alarmManager: {
-          type: AlarmType.SET_ALARM_CLOCK,
-        },
-      };
-
-      const id = await notifee.createTriggerNotification(
-        {
-          id: `todo-${todoIdStr}-${offset}`,
-          title: listName ?? 'Todo Reminder',
-          body,
-          data: { todoId: todoIdStr },
-          android: {
-            channelId: 'default',
-            pressAction: { id: 'default' },
+        const trigger: TimestampTrigger = {
+          type: TriggerType.TIMESTAMP,
+          timestamp: triggerMs,
+          alarmManager: {
+            type: AlarmType.SET_ALARM_CLOCK,
           },
-        },
-        trigger,
-      );
-      ids.push(id);
+        };
+
+        const id = await notifee.createTriggerNotification(
+          buildNotifPayload(todoIdStr, body, listName, `todo-${todoIdStr}-${offset}`),
+          trigger,
+        );
+        ids.push(id);
+      }
     }
 
     return ids;
