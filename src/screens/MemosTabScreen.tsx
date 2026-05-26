@@ -8,7 +8,7 @@ import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { eq } from 'drizzle-orm';
+import { itemService, listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -33,15 +33,13 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   
   const [memos, setMemos] = useState<MemoWithCount[]>([]);
 
-  const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
+  const result = useLiveQuery(listService.getAll(db, schema.memoList));
 
-  const loadMemoCounts = async (lists: typeof schema.memoList.$inferSelect[]) => {
+  const loadMemoCounts = async (lists: any[]) => {
     const withCounts: MemoWithCount[] = [];
     for (const list of lists) {
-      const items = await db.select().from(schema.memoItem)
-        .where(eq(schema.memoItem.listId, list.id))
-        .all();
-      const remaining = items.filter(i => !i.isDone).length;
+      const items = await itemService.getAllByParentFlat(db, schema.memoItem, schema.memoItem.listId, list.id);
+      const remaining = items.filter((i: any) => !i.isDone).length;
       withCounts.push({
         ...list,
         totalItems: items.length,
@@ -86,8 +84,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           text: 'Delete', 
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.memoItem).where(eq(schema.memoItem.listId, listId)).run();
-            await db.delete(schema.memoList).where(eq(schema.memoList.id, listId)).run();
+            await listService.cascadeDelete(db, schema.memoList, schema.memoItem, listId, schema.memoItem.listId);
           }
         },
       ]

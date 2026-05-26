@@ -7,6 +7,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
+import { listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateTodoList'>;
@@ -28,12 +29,10 @@ export default function CreateTodoListScreen() {
 
     setLoading(true);
     try {
-      const existing = await db.select()
-        .from(schema.todoList)
-        .all();
+      const existing = await listService.getAllFlat(db, schema.todoList);
 
       const duplicate = existing.find(
-        list => list.title.toLowerCase() === trimmedTitle.toLowerCase()
+        (list: any) => list.title.toLowerCase() === trimmedTitle.toLowerCase()
       );
 
       if (duplicate) {
@@ -42,9 +41,7 @@ export default function CreateTodoListScreen() {
         return;
       }
 
-      const [newList] = await db.insert(schema.todoList)
-        .values({ title: trimmedTitle })
-        .returning();
+      const newList = await listService.create(db, schema.todoList, { title: trimmedTitle });
 
       if (newList) {
         navigation.replace('TodoDetail', { listId: newList.id });

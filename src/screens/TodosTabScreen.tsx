@@ -8,7 +8,7 @@ import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { eq } from 'drizzle-orm';
+import { itemService, listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -37,23 +37,21 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
   
   const [todos, setTodos] = useState<TodoWithCount[]>([]);
 
-  const result = useLiveQuery(db.select().from(schema.todoList).orderBy(schema.todoList.createdAt));
+  const result = useLiveQuery(listService.getAll(db, schema.todoList));
 
-  const loadTodoCounts = async (lists: typeof schema.todoList.$inferSelect[]) => {
+  const loadTodoCounts = async (lists: any[]) => {
     const withCounts: TodoWithCount[] = [];
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
     for (const list of lists) {
-      const items = await db.select().from(schema.todoItem)
-        .where(eq(schema.todoItem.listId, list.id))
-        .all();
+      const items: any[] = await itemService.getAllByParentFlat(db, schema.todoItem, schema.todoItem.listId, list.id);
       
-      const remainingItems = items.filter(i => !i.isDone);
+      const remainingItems = items.filter((i: any) => !i.isDone);
       const remaining = remainingItems.length;
-      const remainingHigh = remainingItems.filter(i => i.priority === 'high').length;
-      const remainingMedium = remainingItems.filter(i => i.priority === 'medium').length;
-      const remainingLow = remainingItems.filter(i => i.priority === 'low').length;
-      const remainingOverdue = remainingItems.filter(i => i.dueDate && new Date(i.dueDate) < startOfToday).length;
+      const remainingHigh = remainingItems.filter((i: any) => i.priority === 'high').length;
+      const remainingMedium = remainingItems.filter((i: any) => i.priority === 'medium').length;
+      const remainingLow = remainingItems.filter((i: any) => i.priority === 'low').length;
+      const remainingOverdue = remainingItems.filter((i: any) => i.dueDate && new Date(i.dueDate) < startOfToday).length;
       withCounts.push({
         ...list,
         totalItems: items.length,
@@ -102,8 +100,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
           text: 'Delete', 
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.todoItem).where(eq(schema.todoItem.listId, listId)).run();
-            await db.delete(schema.todoList).where(eq(schema.todoList.id, listId)).run();
+            await listService.cascadeDelete(db, schema.todoList, schema.todoItem, listId, schema.todoItem.listId);
           }
         },
       ]

@@ -10,7 +10,7 @@ import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { eq } from 'drizzle-orm';
+import { itemService, listService } from '../db/services';
 import type { TodoDetailProps } from '../navigation/types';
 import { usePreferences } from '../preferences/provider';
 import { scheduleTodoNotifications, cancelTodoNotifications } from '../notifications';
@@ -57,13 +57,11 @@ export default function TodoDetailScreen() {
   };
 
   const listResult = useLiveQuery(
-    db.select().from(schema.todoList).where(eq(schema.todoList.id, listId))
+    listService.getById(db, schema.todoList, listId)
   );
 
   const itemsResult = useLiveQuery(
-    db.select().from(schema.todoItem)
-      .where(eq(schema.todoItem.listId, listId))
-      .orderBy(schema.todoItem.order)
+    itemService.getByParentId(db, schema.todoItem, schema.todoItem.listId, listId)
   );
 
   const list = listResult.data?.[0] ?? null;
@@ -83,11 +81,11 @@ export default function TodoDetailScreen() {
         : undefined
     }));
     if (filter === 'overdue') {
-      result = result.filter(item =>
+      result = result.filter((item: any) =>
         item.dueDate && item.dueDate < startOfToday && !item.isDone
       );
     }
-    return result.sort((a, b) => {
+    return result.sort((a: any, b: any) => {
       if (!a.dueDate && !b.dueDate) return 0;
       if (!a.dueDate) return 1;
       if (!b.dueDate) return -1;
@@ -100,16 +98,14 @@ export default function TodoDetailScreen() {
 
     const maxOrder = items.length;
     const dueDateTimestamp = newDueDate ? newDueDate.getTime() : null;
-    const result = await db.insert(schema.todoItem).values({
+    const insertedId = await itemService.create(db, schema.todoItem, {
       listId,
       title: newItemText.trim(),
       isDone: false,
       dueDate: dueDateTimestamp,
       priority: newPriority,
       order: maxOrder + 1,
-    }).run();
-
-    const insertedId = result.lastInsertRowId as number;
+    });
     if (dueDateTimestamp && insertedId) {
       scheduleTodoNotifications(insertedId, newItemText.trim(), dueDateTimestamp, notificationIntervals, list?.title).catch(() => {});
     }
@@ -122,10 +118,7 @@ export default function TodoDetailScreen() {
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
     const newDone = !currentDone;
-    await db.update(schema.todoItem)
-      .set({ isDone: newDone })
-      .where(eq(schema.todoItem.id, itemId))
-      .run();
+    await itemService.update(db, schema.todoItem, itemId, { isDone: newDone });
     if (newDone) {
       cancelTodoNotifications(itemId).catch(() => {});
     } else {
@@ -147,7 +140,7 @@ export default function TodoDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             cancelTodoNotifications(itemId).catch(() => {});
-            await db.delete(schema.todoItem).where(eq(schema.todoItem.id, itemId)).run();
+            await itemService.remove(db, schema.todoItem, itemId);
           },
         },
       ]
@@ -164,14 +157,11 @@ export default function TodoDetailScreen() {
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
       const newDueDateTimestamp = editDueDate ? editDueDate.getTime() : null;
-      await db.update(schema.todoItem)
-        .set({
-          title: editItemText.trim(),
-          priority: editPriority,
-          dueDate: newDueDateTimestamp
-        })
-        .where(eq(schema.todoItem.id, editItemId))
-        .run();
+      await itemService.update(db, schema.todoItem, editItemId, {
+        title: editItemText.trim(),
+        priority: editPriority,
+        dueDate: newDueDateTimestamp
+      });
       if (newDueDateTimestamp) {
         scheduleTodoNotifications(editItemId, editItemText.trim(), newDueDateTimestamp, notificationIntervals, list?.title).catch(() => {});
       } else {
@@ -188,10 +178,7 @@ export default function TodoDetailScreen() {
 
   const handleUpdateTitle = async () => {
     if (title.trim() && list) {
-      await db.update(schema.todoList)
-        .set({ title: title.trim() })
-        .where(eq(schema.todoList.id, listId))
-        .run();
+      await listService.updateTitle(db, schema.todoList, listId, title.trim());
       setEditTitle(false);
     }
   };

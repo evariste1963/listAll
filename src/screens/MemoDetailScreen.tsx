@@ -9,7 +9,7 @@ import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { eq } from 'drizzle-orm';
+import { itemService, listService } from '../db/services';
 import type { MemoDetailProps } from '../navigation/types';
 
 export default function MemoDetailScreen() {
@@ -26,38 +26,33 @@ export default function MemoDetailScreen() {
   const [editItemText, setEditItemText] = useState('');
 
   const listResult = useLiveQuery(
-    db.select().from(schema.memoList).where(eq(schema.memoList.id, listId))
+    listService.getById(db, schema.memoList, listId)
   );
 
   const itemsResult = useLiveQuery(
-    db.select().from(schema.memoItem)
-      .where(eq(schema.memoItem.listId, listId))
-      .orderBy(schema.memoItem.order)
+    itemService.getByParentId(db, schema.memoItem, schema.memoItem.listId, listId)
   );
 
   const list = listResult.data?.[0] ?? null;
-  const items = itemsResult.data ?? [];
+  const items: any[] = itemsResult.data ?? [];
 
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;
 
     const maxOrder = items.length;
-    await db.insert(schema.memoItem).values({
+    await itemService.create(db, schema.memoItem, {
       listId,
       title: newItemText.trim(),
       isDone: false,
       isCheckable: false,
       order: maxOrder + 1,
-    }).run();
+    });
 
     setNewItemText('');
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
-    await db.update(schema.memoItem)
-      .set({ isDone: !currentDone })
-      .where(eq(schema.memoItem.id, itemId))
-      .run();
+    await itemService.toggleDone(db, schema.memoItem, itemId, currentDone);
   };
 
   const handleDeleteItem = (itemId: number) => {
@@ -70,7 +65,7 @@ export default function MemoDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.memoItem).where(eq(schema.memoItem.id, itemId)).run();
+            await itemService.remove(db, schema.memoItem, itemId);
           },
         },
       ]
@@ -84,10 +79,7 @@ export default function MemoDetailScreen() {
 
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
-      await db.update(schema.memoItem)
-        .set({ title: editItemText.trim() })
-        .where(eq(schema.memoItem.id, editItemId))
-        .run();
+      await itemService.update(db, schema.memoItem, editItemId, { title: editItemText.trim() });
     }
     setEditItemId(null);
     setEditItemText('');
@@ -97,10 +89,7 @@ export default function MemoDetailScreen() {
 
   const handleUpdateTitle = async () => {
     if (title.trim() && list) {
-      await db.update(schema.memoList)
-        .set({ title: title.trim() })
-        .where(eq(schema.memoList.id, listId))
-        .run();
+      await listService.updateTitle(db, schema.memoList, listId, title.trim());
       setEditTitle(false);
     }
   };

@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
-import { schema } from '../db/index';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import type { ThemeName } from '../styles/global';
 import { createThemedStyles } from '../styles/global';
-import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { defaultShopService } from '../db/services';
 import { usePreferences } from '../preferences/provider';
 import { AVAILABLE_INTERVALS, DEFAULT_INTERVALS } from '../notifications';
 import { APP_VERSION } from '../config';
@@ -23,10 +22,8 @@ export default function PreferencesTabScreen() {
   const [showAddShop, setShowAddShop] = useState(false);
   const [newShopName, setNewShopName] = useState('');
 
-  const defaultShopsResult = useLiveQuery(
-    db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order)
-  );
-  const defaultShops = defaultShopsResult?.data ?? [];
+  const defaultShopsResult = useLiveQuery(defaultShopService.getAll(db));
+  const defaultShops: any[] = defaultShopsResult?.data ?? [];
 
   const handleAddDefaultShop = async () => {
     if (!newShopName.trim()) return;
@@ -41,11 +38,7 @@ export default function PreferencesTabScreen() {
       return;
     }
 
-    const maxOrder = defaultShops.length;
-    await db.insert(schema.defaultShop).values({
-      name: trimmedName,
-      order: maxOrder + 1,
-    }).run();
+    await defaultShopService.add(db, trimmedName);
     setNewShopName('');
     setShowAddShop(false);
   };
@@ -60,7 +53,7 @@ export default function PreferencesTabScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, shopId)).run();
+            await defaultShopService.remove(db, shopId);
           }
         },
       ]

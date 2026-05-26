@@ -10,7 +10,8 @@ import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
+import { itemService, listService } from '../db/services';
 import type { ShoppingDetailProps } from '../navigation/types';
 
 interface ShopTabType {
@@ -43,7 +44,7 @@ export default function ShoppingDetailScreen() {
   const [editItemText, setEditItemText] = useState('');
 
   const listResult = useLiveQuery(
-    db.select().from(schema.shoppingList).where(eq(schema.shoppingList.id, listId))
+    listService.getById(db, schema.shoppingList, listId)
   );
 
   const shopsResult = useLiveQuery(
@@ -108,12 +109,12 @@ export default function ShoppingDetailScreen() {
     }
 
     const maxOrder = activeShop?.items?.length || 0;
-    await db.insert(schema.shoppingItem).values({
+    await itemService.create(db, schema.shoppingItem, {
       shopTabId: activeTabId,
       title: newItemText.trim(),
       isDone: false,
       order: maxOrder + 1,
-    }).run();
+    });
 
     setNewItemText('');
     if (shopsResult.data) {
@@ -122,10 +123,7 @@ export default function ShoppingDetailScreen() {
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
-    await db.update(schema.shoppingItem)
-      .set({ isDone: !currentDone })
-      .where(eq(schema.shoppingItem.id, itemId))
-      .run();
+    await itemService.toggleDone(db, schema.shoppingItem, itemId, currentDone);
     if (shopsResult.data) {
       loadShopItems(shopsResult.data);
     }
@@ -141,7 +139,7 @@ export default function ShoppingDetailScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            await db.delete(schema.shoppingItem).where(eq(schema.shoppingItem.id, itemId)).run();
+            await itemService.remove(db, schema.shoppingItem, itemId);
             if (shopsResult.data) {
               loadShopItems(shopsResult.data);
             }
@@ -158,10 +156,7 @@ export default function ShoppingDetailScreen() {
 
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
-      await db.update(schema.shoppingItem)
-        .set({ title: editItemText.trim() })
-        .where(eq(schema.shoppingItem.id, editItemId))
-        .run();
+      await itemService.update(db, schema.shoppingItem, editItemId, { title: editItemText.trim() });
     }
     setEditItemId(null);
     setEditItemText('');
@@ -252,7 +247,7 @@ export default function ShoppingDetailScreen() {
     if (!activeShop || !activeShop.items) return;
     const completedIds = activeShop.items.filter(i => i.isDone).map(i => i.id);
     if (completedIds.length === 0) return;
-    await db.delete(schema.shoppingItem).where(inArray(schema.shoppingItem.id, completedIds)).run();
+    await itemService.removeByIds(db, schema.shoppingItem, completedIds);
     if (shopsResult.data) {
       loadShopItems(shopsResult.data);
     }
