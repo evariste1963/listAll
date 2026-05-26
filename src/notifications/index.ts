@@ -74,6 +74,17 @@ export async function initNotifications() {
   }
 }
 
+async function cancelNotificationsForTodo(todoId: number): Promise<void> {
+  const existing = await notifee.getTriggerNotifications();
+  const todoIdStr = String(todoId);
+  for (const n of existing) {
+    const dataTodoId = n.notification.data?.todoId;
+    if (String(dataTodoId) === todoIdStr && n.notification.id) {
+      await notifee.cancelTriggerNotification(n.notification.id);
+    }
+  }
+}
+
 export async function scheduleTodoNotifications(
   todoId: number,
   title: string,
@@ -82,15 +93,9 @@ export async function scheduleTodoNotifications(
   listName?: string
 ): Promise<string[]> {
   try {
-    const existing = await notifee.getTriggerNotifications();
-    const todoIdStr = String(todoId);
-    for (const n of existing) {
-      const dataTodoId = n.notification.data?.todoId;
-      if (String(dataTodoId) === todoIdStr && n.notification.id) {
-        await notifee.cancelTriggerNotification(n.notification.id);
-      }
-    }
+    await cancelNotificationsForTodo(todoId);
 
+    const todoIdStr = String(todoId);
     const ids: string[] = [];
     const dueDate = new Date(dueDateTimestamp);
     dueDate.setHours(0, 0, 0, 0);
@@ -176,14 +181,7 @@ export async function scheduleTodoNotifications(
 
 export async function cancelTodoNotifications(todoId: number) {
   try {
-    const existing = await notifee.getTriggerNotifications();
-    const todoIdStr = String(todoId);
-    for (const n of existing) {
-      const dataTodoId = n.notification.data?.todoId;
-      if (String(dataTodoId) === todoIdStr && n.notification.id) {
-        await notifee.cancelTriggerNotification(n.notification.id);
-      }
-    }
+    await cancelNotificationsForTodo(todoId);
   } catch {
     // Silently fail
   }
