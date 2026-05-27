@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { itemService, listService } from '../db/services';
+import { listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -31,31 +31,21 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
   
-  const [memos, setMemos] = useState<MemoWithCount[]>([]);
+  const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
 
-  const result = useLiveQuery(listService.getAll(db, schema.memoList));
+  const itemsResult = useLiveQuery(db.select().from(schema.memoItem));
 
-  const loadMemoCounts = async (lists: any[]) => {
-    const withCounts: MemoWithCount[] = [];
-    for (const list of lists) {
-      const items = await itemService.getAllByParentFlat(db, schema.memoItem, schema.memoItem.listId, list.id);
-      const remaining = items.filter((i: any) => !i.isDone).length;
-      withCounts.push({
+  const memos = useMemo(() => {
+    if (!result.data || !itemsResult.data) return [];
+    return result.data.map(list => {
+      const listItems = itemsResult.data.filter(i => i.listId === list.id);
+      return {
         ...list,
-        totalItems: items.length,
-        remainingItems: remaining,
-      });
-    }
-    setMemos(withCounts);
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      if (result && result.data) {
-        loadMemoCounts(result.data);
-      }
-    }, [result])
-  );
+        totalItems: listItems.length,
+        remainingItems: listItems.filter(i => !i.isDone).length,
+      };
+    });
+  }, [result.data, itemsResult.data]);
 
   const handleCreate = () => {
     navigation.navigate('CreateMemoList');
