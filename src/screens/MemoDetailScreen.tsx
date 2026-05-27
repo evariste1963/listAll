@@ -10,6 +10,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import { itemService, listService } from '../db/services';
+import ItemRow from '../components/ItemRow';
 import type { MemoDetailProps } from '../navigation/types';
 
 export default function MemoDetailScreen() {
@@ -150,30 +151,14 @@ export default function MemoDetailScreen() {
           keyExtractor={(item) => item.id.toString()}
           style={{ flex: 1 }}
           renderItem={({ item }) => (
-            <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
-              <TouchableOpacity
-                style={s.checkbox}
-                onPress={() => handleToggleItem(item.id, item.isDone)}
-              >
-                <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
-                  {item.isDone ? '✓' : '○'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={s.itemTitle}
-                onPress={() => handleEditItem(item.id, item.title)}
-              >
-                <Text style={[s.itemText, { color: colors.primaryText }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
-                  {item.title}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={s.deleteItem}
-                onPress={() => handleDeleteItem(item.id)}
-              >
-                <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
-              </TouchableOpacity>
-            </View>
+            <ItemRow
+              item={item}
+              onToggle={handleToggleItem}
+              onEdit={handleEditItem}
+              onDelete={handleDeleteItem}
+              colors={colors}
+              s={s}
+            />
           )}
           ListEmptyComponent={
             <Text style={[s.emptyItems, { color: colors.mutedText }]}>No notes yet</Text>

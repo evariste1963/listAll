@@ -11,6 +11,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
 import { itemService, listService } from '../db/services';
+import ItemRow from '../components/ItemRow';
 import type { TodoDetailProps } from '../navigation/types';
 import { usePreferences } from '../preferences/provider';
 import { scheduleTodoNotifications, cancelTodoNotifications } from '../notifications';
@@ -154,6 +155,11 @@ export default function TodoDetailScreen() {
     setEditDueDate(item.dueDate ? new Date(item.dueDate) : null);
   };
 
+  const handleEditFromRow = (id: number, title: string) => {
+    const item = items.find(i => i.id === id);
+    if (item) handleEditItem(item);
+  };
+
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
       const newDueDateTimestamp = editDueDate ? editDueDate.getTime() : null;
@@ -241,23 +247,14 @@ export default function TodoDetailScreen() {
           keyExtractor={(item) => item.id.toString()}
           style={{ flex: 1 }}
           renderItem={({ item }) => (
-            <View style={[s.itemRowStart, { borderBottomColor: colors.cardBackground }]}>
-              <TouchableOpacity
-                style={[s.checkbox, { marginTop: 4 }]}
-                onPress={() => handleToggleItem(item.id, item.isDone)}
-              >
-                <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
-                  {item.isDone ? '✓' : '○'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={s.itemTitle}
-                onPress={() => handleEditItem(item)}
-              >
-                <Text style={[s.itemText, { color: colors.primaryText, marginBottom: 4 }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
-                  {item.title}
-                </Text>
+            <ItemRow
+              item={item}
+              onToggle={handleToggleItem}
+              onEdit={handleEditFromRow}
+              onDelete={handleDeleteItem}
+              colors={colors}
+              s={s}
+              metaSlot={
                 <View style={s.itemMeta}>
                   {item.dueDateFormatted && (
                     <Text style={[s.dueDate, { color: colors.tertiaryText }]}>{item.dueDateFormatted}</Text>
@@ -268,15 +265,8 @@ export default function TodoDetailScreen() {
                     </View>
                   )}
                 </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[s.deleteItem, { marginTop: 4 }]}
-                onPress={() => handleDeleteItem(item.id)}
-              >
-                <Text style={[s.deleteItemText, { color: colors.deleteColor }]}>✕</Text>
-              </TouchableOpacity>
-            </View>
+              }
+            />
           )}
           ListEmptyComponent={
             <Text style={[s.emptyItems, { color: colors.mutedText }]}>No todos yet</Text>
