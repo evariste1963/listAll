@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput,
   Alert, ScrollView, Modal
@@ -28,6 +28,17 @@ export default function ShoppingDetailScreen() {
   const [newShopName, setNewShopName] = useState('');
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
+
+  const addShopRef = useRef<TextInput>(null);
+  const editItemRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (showAddShop) addShopRef.current?.focus();
+  }, [showAddShop]);
+
+  useEffect(() => {
+    if (editItemId !== null) editItemRef.current?.focus();
+  }, [editItemId]);
 
   const listResult = useLiveQuery(
     listService.getById(db, schema.shoppingList, listId)
@@ -339,6 +350,7 @@ export default function ShoppingDetailScreen() {
             <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
               <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add New Shop</Text>
               <TextInput
+                ref={addShopRef}
                 style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
                 placeholder="Shop name (e.g., Walmart)"
                 placeholderTextColor={colors.mutedText}
@@ -370,6 +382,7 @@ export default function ShoppingDetailScreen() {
             <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
               <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Item</Text>
               <TextInput
+                ref={editItemRef}
                 style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
                 placeholder="Item name"
                 placeholderTextColor={colors.mutedText}

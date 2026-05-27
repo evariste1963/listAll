@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal
 } from 'react-native';
@@ -25,6 +25,12 @@ export default function MemoDetailScreen() {
   const [title, setTitle] = useState('');
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
+
+  const editInputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (editItemId !== null) editInputRef.current?.focus();
+  }, [editItemId]);
 
   const listResult = useLiveQuery(
     listService.getById(db, schema.memoList, listId)
@@ -170,6 +176,7 @@ export default function MemoDetailScreen() {
             <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
               <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Note</Text>
               <TextInput
+                ref={editInputRef}
                 style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
                 placeholder="Note text"
                 placeholderTextColor={colors.mutedText}

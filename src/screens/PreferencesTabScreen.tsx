@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
@@ -21,6 +21,12 @@ export default function PreferencesTabScreen() {
 
   const [showAddShop, setShowAddShop] = useState(false);
   const [newShopName, setNewShopName] = useState('');
+
+  const addShopRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (showAddShop) addShopRef.current?.focus();
+  }, [showAddShop]);
 
   const defaultShopsResult = useLiveQuery(defaultShopService.getAll(db));
   const defaultShops: any[] = defaultShopsResult?.data ?? [];
@@ -196,6 +202,7 @@ export default function PreferencesTabScreen() {
             <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
               <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Default Shop</Text>
               <TextInput
+                ref={addShopRef}
                 style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
                 placeholder="Shop name (e.g., Tesco)"
                 placeholderTextColor={colors.mutedText}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Platform
 } from 'react-native';
@@ -49,6 +49,17 @@ export default function TodoDetailScreen() {
   const [editDueDate, setEditDueDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerDate, setPickerDate] = useState<Date | null>(null);
+
+  const addInputRef = useRef<TextInput>(null);
+  const editInputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (showAddModal) addInputRef.current?.focus();
+  }, [showAddModal]);
+
+  useEffect(() => {
+    if (editItemId !== null) editInputRef.current?.focus();
+  }, [editItemId]);
 
   const openDatePicker = () => {
     const startDate = new Date();
@@ -279,11 +290,13 @@ export default function TodoDetailScreen() {
               <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Todo</Text>
 
               <TextInput
+                ref={addInputRef}
                 style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
                 placeholder="What needs to be done?"
                 placeholderTextColor={colors.mutedText}
                 value={newItemText}
                 onChangeText={setNewItemText}
+                autoFocus
               />
 
               <Text style={[s.modalLabel, { color: colors.secondaryText }]}>Priority</Text>
@@ -374,6 +387,7 @@ export default function TodoDetailScreen() {
             <View style={[s.modalContentWide, { backgroundColor: colors.cardBackground }]}>
               <Text style={[s.modalTitle, { color: colors.primaryText }]}>Edit Todo</Text>
               <TextInput
+                ref={editInputRef}
                 style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
                 placeholder="Todo text"
                 placeholderTextColor={colors.mutedText}
