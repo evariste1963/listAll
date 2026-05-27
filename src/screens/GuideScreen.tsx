@@ -17,7 +17,7 @@ function SectionHeader({ title, color }: { title: string; color: string }) {
   );
 }
 
-function FeatureCard({ icon, title, desc, colors, iconColor }: { icon: string; title: string; desc: string; colors: any; iconColor?: string }) {
+function FeatureCard({ icon, title, desc, colors, iconColor, titleColor, descColor }: { icon: string; title: string; desc: string; colors: any; iconColor?: string; titleColor?: string; descColor?: string }) {
   return (
     <View style={{
       flexDirection: 'row',
@@ -30,8 +30,8 @@ function FeatureCard({ icon, title, desc, colors, iconColor }: { icon: string; t
     }}>
       <Text style={{ fontSize: 18, marginRight: 12, marginTop: 1, color: iconColor }}>{icon}</Text>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primaryText, marginBottom: 2 }}>{title}</Text>
-        <Text style={{ fontSize: 13, lineHeight: 18, color: colors.secondaryText }}>{desc}</Text>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: titleColor || colors.primaryText, marginBottom: 2 }}>{title}</Text>
+        <Text style={{ fontSize: 13, lineHeight: 18, color: descColor || colors.secondaryText }}>{desc}</Text>
       </View>
     </View>
   );
@@ -95,7 +95,7 @@ export default function GuideScreen() {
           <FeatureCard icon="📡" title="No Network" desc="listAll operates fully offline. No internet permission, no analytics, no tracking, no account required." colors={colors} />
           <FeatureCard icon="🗑️" title="Data Cleanup" desc="Deleted items are fully removed from the database. The database is auto-vacuumed in the background to reclaim space." colors={colors} />
           <TouchableOpacity onPress={() => Linking.openURL('https://github.com/evariste1963/listAll/blob/main/SECURITY.md')}>
-            <FeatureCard icon="📄" title="Security Policy" desc="Press here to read the full security statement for details on data handling, permissions, and vulnerability reporting." colors={colors} />
+            <FeatureCard icon="📄" title="Security Policy" desc="Press here to read the full security statement for details on data handling, permissions, and vulnerability reporting." colors={colors} titleColor={colors.priorityMedium} descColor={colors.priorityMedium} />
           </TouchableOpacity>
 
           <SectionHeader title="Database" color={colors.accentColor} />
