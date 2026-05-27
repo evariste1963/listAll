@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -13,13 +13,6 @@ import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface ShopSummary {
-  id: number;
-  name: string;
-  totalItems: number;
-  remainingItems: number;
-}
-
 interface ShoppingTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
 }
@@ -30,9 +23,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
 
-  const [shopList, setShopList] = useState<typeof schema.shoppingList.$inferSelect | null>(null);
-  const [shops, setShops] = useState<ShopSummary[]>([]);
-
   const result = useLiveQuery(
     db.select().from(schema.shoppingList).where(eq(schema.shoppingList.isActive, true))
   );
@@ -41,84 +31,36 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order)
   );
 
-  useEffect(() => {
-    if (result && result.data) {
-      const data = result.data;
-      if (data.length > 0) {
-        setShopList(data[0]);
-        loadShops(data[0].id);
-      } else {
-        setShopList(null);
-        loadDefaultShops();
-      }
-    } else {
-      setShopList(null);
-      loadDefaultShops();
-    }
-  }, [result?.data]);
+  const shopTabsResult = useLiveQuery(
+    db.select().from(schema.shopTab).orderBy(schema.shopTab.order)
+  );
 
-  const loadShops = useCallback(async (listId: number) => {
-    const shopTabsResult = await db.select().from(schema.shopTab)
-      .where(eq(schema.shopTab.listId, listId))
-      .orderBy(schema.shopTab.order)
-      .all();
+  const itemsResult = useLiveQuery(
+    db.select().from(schema.shoppingItem)
+  );
 
-    if (!shopTabsResult || shopTabsResult.length === 0) {
-      loadDefaultShops();
-      return;
-    }
+  const activeList = result.data?.[0] ?? null;
 
-    const shopTabs = shopTabsResult;
-    const summaries: ShopSummary[] = [];
-    for (const shop of shopTabs) {
-      const itemsResult = await db.select().from(schema.shoppingItem)
-        .where(eq(schema.shoppingItem.shopTabId, shop.id))
-        .all();
-
-      const items = itemsResult || [];
-      const remaining = items.filter(i => !i.isDone).length;
-      summaries.push({
+  const shops = useMemo(() => {
+    if (!activeList) return [];
+    const tabs = shopTabsResult.data?.filter(t => t.listId === activeList.id) ?? [];
+    return tabs.map(shop => {
+      const shopItems = (itemsResult.data ?? []).filter(i => i.shopTabId === shop.id);
+      return {
         id: shop.id,
         name: shop.name,
-        totalItems: items.length,
-        remainingItems: remaining,
-      });
-    }
-    setShops(summaries);
-  }, []);
-
-  useEffect(() => {
-    if (!shopList) {
-      loadDefaultShops();
-    } else if (shopList) {
-      syncDefaultsToList();
-    }
-  }, [defaultShopsResult?.data, shopList]);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (shopList) {
-        loadShops(shopList.id);
-      } else {
-        loadDefaultShops();
-      }
+        totalItems: shopItems.length,
+        remainingItems: shopItems.filter(i => !i.isDone).length,
+      };
     });
-    return unsubscribe;
-  }, [navigation, shopList]);
+  }, [activeList, shopTabsResult.data, itemsResult.data]);
 
-  const loadDefaultShops = async () => {
-    const defaults = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-    const summaries: ShopSummary[] = defaults.map(shop => ({
-      id: shop.id,
-      name: shop.name,
-      totalItems: 0,
-      remainingItems: 0,
-    }));
-    setShops(summaries);
-  };
+  useEffect(() => {
+    if (activeList) syncDefaultsToList();
+  }, [activeList?.id, defaultShopsResult?.data]);
 
   const handleCreateList = async () => {
-    if (shopList) {
+    if (activeList) {
       Alert.alert('Shopping List Active', 'You already have an active shopping list. Close it first?');
       return;
     }
@@ -147,7 +89,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   };
 
   const handleDeleteList = () => {
-    if (!shopList) return;
+    if (!activeList) return;
 
     const totalItems = shops.reduce((sum, s) => sum + s.totalItems, 0);
     if (totalItems > 0) {
@@ -172,9 +114,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
             for (const shopId of shopIds) {
               await db.delete(schema.shopTab).where(eq(schema.shopTab.id, shopId)).run();
             }
-            await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, shopList.id)).run();
-            setShopList(null);
-            setShops([]);
+            await db.delete(schema.shoppingList).where(eq(schema.shoppingList.id, activeList.id)).run();
           },
         },
       ]
@@ -182,8 +122,8 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   };
 
   const handleOpenShop = async (shopId: number, shopName: string) => {
-    if (shopList) {
-      navigation.navigate('ShoppingDetail', { listId: shopList.id, activeTabId: shopId });
+    if (activeList) {
+      navigation.navigate('ShoppingDetail', { listId: activeList.id, activeTabId: shopId });
       return;
     }
 
@@ -196,8 +136,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       .then(r => r[0]);
 
     if (createdList) {
-      setShopList(createdList);
-
       const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
       let order = 1;
 
@@ -208,8 +146,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           order: order++,
         }).run();
       }
-
-      await loadShops(createdList.id);
 
       const tabs = await db.select().from(schema.shopTab)
         .where(eq(schema.shopTab.listId, createdList.id))
@@ -231,11 +167,6 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       order: defaultShops.length + 1,
     }).run();
     Alert.alert('Done', `"${shopName}" added to default shops`);
-    if (shopList) {
-      loadShops(shopList.id);
-    } else {
-      loadDefaultShops();
-    }
   };
 
   const removeFromDefaults = async (shopName: string) => {
@@ -244,41 +175,30 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     if (exists) {
       await db.delete(schema.defaultShop).where(eq(schema.defaultShop.id, exists.id)).run();
       Alert.alert('Done', `"${shopName}" removed from default shops`);
-      if (shopList) {
-        loadShops(shopList.id);
-      } else {
-        loadDefaultShops();
-      }
     }
   };
 
   const syncDefaultsToList = async () => {
-    if (!shopList) return;
+    if (!activeList) return;
 
     const defaultShops = await db.select().from(schema.defaultShop).orderBy(schema.defaultShop.order).all();
-    const existingShops = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, shopList.id)).all();
+    const existingShops = await db.select().from(schema.shopTab).where(eq(schema.shopTab.listId, activeList.id)).all();
     const existingShopNames = existingShops.map(s => s.name.toLowerCase());
 
-    let addedCount = 0;
     for (let i = 0; i < defaultShops.length; i++) {
       if (!existingShopNames.includes(defaultShops[i].name.toLowerCase())) {
         await db.insert(schema.shopTab).values({
-          listId: shopList.id,
+          listId: activeList.id,
           name: defaultShops[i].name,
-          order: existingShops.length + addedCount + 1,
+          order: existingShops.length + 1,
         }).run();
-        addedCount++;
       }
-    }
-
-    if (addedCount > 0) {
-      loadShops(shopList.id);
     }
   };
 
   const handleAddFirstShop = async () => {
-    if (shopList) {
-      navigation.navigate('ShoppingDetail', { listId: shopList.id, showAddShop: true });
+    if (activeList) {
+      navigation.navigate('ShoppingDetail', { listId: activeList.id, showAddShop: true });
       return;
     }
 
@@ -291,13 +211,12 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
       .then(r => r[0]);
 
     if (createdList) {
-      setShopList(createdList);
       navigation.navigate('ShoppingDetail', { listId: createdList.id, showAddShop: true });
     }
   };
 
   const defaults = defaultShopsResult?.data || [];
-  const hasNoShops = (defaults.length === 0 && shops.length === 0);
+  const hasNoShops = defaults.length === 0 && shops.length === 0;
 
   const headerStyle = { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor };
 
@@ -324,7 +243,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     );
   }
 
-  if (!shopList) {
+  if (!activeList) {
     return (
       <ThemedBackground colors={colors}>
         <SafeAreaView style={s.container}>
@@ -349,7 +268,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
   }
 
   const defaultShops = defaultShopsResult?.data || [];
-  const displayShops = shopList ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
+  const displayShops = shops.length > 0 ? shops : defaultShops.map(shop => ({ id: shop.id, name: shop.name, totalItems: 0, remainingItems: 0 }));
 
   return (
     <ThemedBackground colors={colors}>
