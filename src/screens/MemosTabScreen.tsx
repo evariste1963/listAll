@@ -13,14 +13,6 @@ import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface MemoWithCount {
-  id: number;
-  title: string;
-  createdAt: Date;
-  totalItems: number;
-  remainingItems: number;
-}
-
 interface MemosTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
 }
