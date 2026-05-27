@@ -1,29 +1,17 @@
-import React, { useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import { createThemedStyles } from '../styles/global';
-import { itemService, listService } from '../db/services';
+import { listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface TodoWithCount {
-  id: number;
-  title: string;
-  createdAt: Date;
-  totalItems: number;
-  remainingItems: number;
-  remainingHigh: number;
-  remainingMedium: number;
-  remainingLow: number;
-  remainingOverdue: number;
-}
 
 interface TodosTabScreenProps {
   onTabChange?: (index: number, animated?: boolean) => void;
@@ -35,43 +23,28 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
   
-  const [todos, setTodos] = useState<TodoWithCount[]>([]);
+  const result = useLiveQuery(db.select().from(schema.todoList).orderBy(schema.todoList.createdAt));
 
-  const result = useLiveQuery(listService.getAll(db, schema.todoList));
+  const itemsResult = useLiveQuery(db.select().from(schema.todoItem));
 
-  const loadTodoCounts = async (lists: any[]) => {
-    const withCounts: TodoWithCount[] = [];
+  const todos = useMemo(() => {
+    if (!result.data || !itemsResult.data) return [];
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
-    for (const list of lists) {
-      const items: any[] = await itemService.getAllByParentFlat(db, schema.todoItem, schema.todoItem.listId, list.id);
-      
-      const remainingItems = items.filter((i: any) => !i.isDone);
-      const remaining = remainingItems.length;
-      const remainingHigh = remainingItems.filter((i: any) => i.priority === 'high').length;
-      const remainingMedium = remainingItems.filter((i: any) => i.priority === 'medium').length;
-      const remainingLow = remainingItems.filter((i: any) => i.priority === 'low').length;
-      const remainingOverdue = remainingItems.filter((i: any) => i.dueDate && new Date(i.dueDate) < startOfToday).length;
-      withCounts.push({
+    return result.data.map(list => {
+      const listItems = itemsResult.data.filter(i => i.listId === list.id);
+      const remaining = listItems.filter(i => !i.isDone);
+      return {
         ...list,
-        totalItems: items.length,
-        remainingItems: remaining,
-        remainingHigh,
-        remainingMedium,
-        remainingLow,
-        remainingOverdue,
-      });
-    }
-    setTodos(withCounts);
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      if (result && result.data) {
-        loadTodoCounts(result.data);
-      }
-    }, [result])
-  );
+        totalItems: listItems.length,
+        remainingItems: remaining.length,
+        remainingHigh: remaining.filter(i => i.priority === 'high').length,
+        remainingMedium: remaining.filter(i => i.priority === 'medium').length,
+        remainingLow: remaining.filter(i => i.priority === 'low').length,
+        remainingOverdue: remaining.filter(i => i.dueDate && new Date(i.dueDate) < startOfToday).length,
+      };
+    });
+  }, [result.data, itemsResult.data]);
 
   const handleCreate = () => {
     navigation.navigate('CreateTodoList');
