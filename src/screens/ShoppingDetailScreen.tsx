@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput,
   Alert, ScrollView, Modal
@@ -14,20 +14,6 @@ import { eq } from 'drizzle-orm';
 import { itemService, listService } from '../db/services';
 import type { ShoppingDetailProps } from '../navigation/types';
 
-interface ShopTabType {
-  id: number;
-  listId: number;
-  name: string;
-  order: number | null;
-  items: {
-    id: number;
-    shopTabId: number;
-    title: string;
-    isDone: boolean | null;
-    order: number | null;
-  }[];
-}
-
 export default function ShoppingDetailScreen() {
   const route = useRoute<ShoppingDetailProps['route']>();
   const db = useDB();
@@ -35,7 +21,6 @@ export default function ShoppingDetailScreen() {
   const s = createThemedStyles(colors);
   const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
 
-  const [shops, setShops] = useState<ShopTabType[]>([]);
   const [activeTabId, setActiveTabId] = useState<number | null>(initialActiveTabId || null);
   const [newItemText, setNewItemText] = useState('');
   const [showAddShop, setShowAddShop] = useState(initialShowAddShop || false);
@@ -53,36 +38,33 @@ export default function ShoppingDetailScreen() {
       .orderBy(schema.shopTab.order)
   );
 
+  const itemsResult = useLiveQuery(
+    db.select().from(schema.shoppingItem).orderBy(schema.shoppingItem.order)
+  );
+
   const list = listResult.data?.[0] ?? null;
 
-  useEffect(() => {
-    if (shopsResult && shopsResult.data) {
-      loadShopItems(shopsResult.data);
-    }
-  }, [shopsResult?.data]);
+  const shops = useMemo(() => {
+    if (!shopsResult.data) return [];
+    return shopsResult.data.map(shop => ({
+      ...shop,
+      items: (itemsResult.data ?? []).filter(i => i.shopTabId === shop.id),
+    }));
+  }, [shopsResult.data, itemsResult.data]);
 
-  const loadShopItems = async (shopTabs: typeof schema.shopTab.$inferSelect[]) => {
-    const withItems: ShopTabType[] = [];
-    for (const shop of shopTabs) {
-      const items = await db.select()
-        .from(schema.shoppingItem)
-        .where(eq(schema.shoppingItem.shopTabId, shop.id))
-        .orderBy(schema.shoppingItem.order)
-        .all();
-      withItems.push({ ...shop, items: items || [] });
-    }
-    setShops(withItems);
-    if (withItems.length > 0) {
-      if (initialActiveTabId && !activeTabId) {
-        const selectedShop = withItems.find(s => s.id === initialActiveTabId);
-        setActiveTabId(selectedShop ? initialActiveTabId : withItems[0].id);
-      } else if (!activeTabId) {
-        setActiveTabId(withItems[0].id);
+  useEffect(() => {
+    if (shops.length > 0) {
+      if (activeTabId === null || !shops.some(s => s.id === activeTabId)) {
+        setActiveTabId(
+          initialActiveTabId && shops.find(s => s.id === initialActiveTabId)
+            ? initialActiveTabId
+            : shops[0].id
+        );
       }
     } else {
       setActiveTabId(null);
     }
-  };
+  }, [shops]);
 
   const activeShop = shops.find(s => s.id === activeTabId);
   const totalItems = shops.reduce((sum, s) => sum + (s.items?.length || 0), 0);
@@ -93,12 +75,7 @@ export default function ShoppingDetailScreen() {
 
     const newItemLower = newItemText.trim().toLowerCase();
 
-    const existingItems = await db.select()
-      .from(schema.shoppingItem)
-      .where(eq(schema.shoppingItem.shopTabId, activeTabId))
-      .all();
-
-    const existingItem = existingItems.find(
+    const existingItem = activeShop?.items?.find(
       item => item.title.toLowerCase() === newItemLower
     );
 
@@ -117,16 +94,10 @@ export default function ShoppingDetailScreen() {
     });
 
     setNewItemText('');
-    if (shopsResult.data) {
-      loadShopItems(shopsResult.data);
-    }
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
     await itemService.toggleDone(db, schema.shoppingItem, itemId, currentDone);
-    if (shopsResult.data) {
-      loadShopItems(shopsResult.data);
-    }
   };
 
   const handleDeleteItem = (itemId: number) => {
@@ -140,9 +111,6 @@ export default function ShoppingDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             await itemService.remove(db, schema.shoppingItem, itemId);
-            if (shopsResult.data) {
-              loadShopItems(shopsResult.data);
-            }
           },
         },
       ]
@@ -160,9 +128,6 @@ export default function ShoppingDetailScreen() {
     }
     setEditItemId(null);
     setEditItemText('');
-    if (shopsResult.data) {
-      loadShopItems(shopsResult.data);
-    }
   };
 
   const handleAddShop = async () => {
@@ -196,9 +161,6 @@ export default function ShoppingDetailScreen() {
     setShowAddShop(false);
     if (newShopId) {
       setActiveTabId(newShopId);
-    }
-    if (shopsResult.data) {
-      loadShopItems(shopsResult.data);
     }
   };
 
@@ -248,9 +210,6 @@ export default function ShoppingDetailScreen() {
     const completedIds = activeShop.items.filter(i => i.isDone).map(i => i.id);
     if (completedIds.length === 0) return;
     await itemService.removeByIds(db, schema.shoppingItem, completedIds);
-    if (shopsResult.data) {
-      loadShopItems(shopsResult.data);
-    }
   };
 
   if (!list) {
