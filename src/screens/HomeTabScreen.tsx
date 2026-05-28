@@ -45,7 +45,7 @@ function NavigationCard({ tab, onPress, iconBgColor, iconColor, colors, s }: Nav
       </View>
       <View style={s.cardText}>
         <Text style={[s.cardTitle, { color: colors.primaryText }]}>{tab.title}</Text>
-        <Text style={[s.cardDesc, { color: colors.tertiaryText }]}>{tab.desc}</Text>
+        <Text style={[s.cardDesc, { color: colors.secondaryText }]}>{tab.desc}</Text>
       </View>
     </TouchableOpacity>
   );
