@@ -148,7 +148,7 @@ export default function MemoDetailScreen() {
             onPress={handleAddItem}
             disabled={!newItemText.trim()}
           >
-            <Text style={s.addIconButtonText}>+</Text>
+            <Text style={[s.addIconButtonText, { color: colors.accentText }]}>+</Text>
           </TouchableOpacity>
         </View>
 
@@ -196,7 +196,7 @@ export default function MemoDetailScreen() {
                   onPress={handleSaveEdit}
                   disabled={!editItemText.trim()}
                 >
-                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Save</Text>
                 </TouchableOpacity>
               </View>
             </View>

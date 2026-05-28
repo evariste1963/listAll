@@ -92,7 +92,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a memo to remember things</Text>
             <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
-              <Text style={[s.createButtonText, { color: colors.primaryText }]}>+ Create Memo</Text>
+              <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Memo</Text>
             </TouchableOpacity>
           </View>
         ) : (

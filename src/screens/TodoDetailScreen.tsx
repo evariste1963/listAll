@@ -375,7 +375,7 @@ export default function TodoDetailScreen() {
                   onPress={handleAddItem}
                   disabled={!newItemText.trim()}
                 >
-                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Add</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -467,7 +467,7 @@ export default function TodoDetailScreen() {
                   onPress={handleSaveEdit}
                   disabled={!editItemText.trim()}
                 >
-                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Save</Text>
                 </TouchableOpacity>
               </View>
             </View>

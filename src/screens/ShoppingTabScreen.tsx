@@ -235,7 +235,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No shops yet</Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Add a shop to start your shopping list</Text>
             <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleAddFirstShop}>
-              <Text style={[s.createButtonText, { color: colors.primaryText }]}>+ Add Shop</Text>
+              <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Add Shop</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -259,7 +259,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Active Shopping List</Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a new shopping list to get started</Text>
             <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreateList}>
-              <Text style={s.createButtonText}>+ Create Shopping List</Text>
+              <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Shopping List</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -318,7 +318,7 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
                     s.circleBadge,
                     { backgroundColor: item.remainingItems === 0 ? colors.completedColor : colors.accentColor }
                   ]}>
-                    <Text style={s.circleBadgeText}>
+                    <Text style={[s.circleBadgeText, { color: colors.accentText }]}>
                       {item.remainingItems === 0 ? '✓' : item.remainingItems}
                     </Text>
                   </View>

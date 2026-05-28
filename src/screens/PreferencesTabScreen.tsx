@@ -99,7 +99,7 @@ export default function PreferencesTabScreen() {
                   <Text style={[
                     s.themeOptionText,
                     { color: colors.secondaryText },
-                    theme === t && { color: colors.primaryText, fontWeight: '600' }
+                    theme === t && { color: colors.accentText, fontWeight: '600' }
                   ]}>
                     {t.charAt(0).toUpperCase() + t.slice(1)}
                   </Text>
@@ -222,7 +222,7 @@ export default function PreferencesTabScreen() {
                   onPress={handleAddDefaultShop}
                   disabled={!newShopName.trim()}
                 >
-                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Add</Text>
                 </TouchableOpacity>
               </View>
             </View>

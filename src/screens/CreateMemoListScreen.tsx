@@ -77,7 +77,7 @@ export default function CreateMemoListScreen() {
           onPress={handleCreate}
           disabled={!title.trim() || loading}
         >
-          <Text style={[s.createScreenButtonText, { color: colors.primaryText }]}>
+          <Text style={[s.createScreenButtonText, { color: colors.accentText }]}>
             {loading ? 'Creating...' : 'Create Memo'}
           </Text>
         </TouchableOpacity>

@@ -268,11 +268,11 @@ export default function ShoppingDetailScreen() {
                 <Text style={[
                   s.tabText,
                   { color: colors.secondaryText },
-                  activeTabId === shop.id && { color: colors.primaryText, fontWeight: '600' }
+                  activeTabId === shop.id && { color: colors.accentText, fontWeight: '600' }
                 ]}>
                   {shop.name}
                 </Text>
-                <Text style={[s.tabCount, { color: colors.secondaryText }]}>
+                <Text style={[s.tabCount, { color: colors.secondaryText }, activeTabId === shop.id && { color: colors.accentText }]}>
                   {shop.items?.filter(i => !i.isDone).length || 0}
                 </Text>
               </TouchableOpacity>
@@ -293,7 +293,7 @@ export default function ShoppingDetailScreen() {
               style={[s.addShopButton, { backgroundColor: colors.accentColor }]}
               onPress={() => setShowAddShop(true)}
             >
-              <Text style={[s.addShopButtonText, { color: colors.primaryText }]}>+ Add Shop</Text>
+              <Text style={[s.addShopButtonText, { color: colors.accentText }]}>+ Add Shop</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -314,7 +314,7 @@ export default function ShoppingDetailScreen() {
                 onPress={handleAddItem}
                 disabled={!newItemText.trim()}
               >
-                <Text style={s.addIconButtonText}>+</Text>
+                <Text style={[s.addIconButtonText, { color: colors.accentText }]}>+</Text>
               </TouchableOpacity>
             </View>
 
@@ -370,7 +370,7 @@ export default function ShoppingDetailScreen() {
                   onPress={handleAddShop}
                   disabled={!newShopName.trim()}
                 >
-                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Add</Text>
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Add</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -402,7 +402,7 @@ export default function ShoppingDetailScreen() {
                   onPress={handleSaveEdit}
                   disabled={!editItemText.trim()}
                 >
-                  <Text style={[s.modalButtonTextPrimary, { color: colors.primaryText }]}>Save</Text>
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Save</Text>
                 </TouchableOpacity>
               </View>
             </View>
