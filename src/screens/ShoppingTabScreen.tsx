@@ -59,6 +59,10 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
     if (activeList) syncDefaultsToList();
   }, [activeList?.id, defaultShopsResult?.data]);
 
+  const handleCreate = () => {
+    handleAddFirstShop();
+  };
+
   const handleCreateList = async () => {
     if (activeList) {
       Alert.alert('Shopping List Active', 'You already have an active shopping list. Close it first?');
@@ -229,7 +233,9 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
               <Text style={s.homeButton}>🏠</Text>
             </TouchableOpacity>
             <Text style={[s.headerTitleSm, { color: colors.primaryText }]}>Shops</Text>
-            <View style={{ width: 40 }} />
+            <TouchableOpacity onPress={handleCreate}>
+              <Text style={[s.addButton, { color: colors.accentColor }]}>+</Text>
+            </TouchableOpacity>
           </View>
           <View style={s.emptyState}>
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No shops yet</Text>
@@ -252,7 +258,9 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
               <Text style={s.homeButton}>🏠</Text>
             </TouchableOpacity>
             <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shopping</Text>
-            <View style={{ width: 40 }} />
+            <TouchableOpacity onPress={handleCreate}>
+              <Text style={[s.addButton, { color: colors.accentColor }]}>+</Text>
+            </TouchableOpacity>
           </View>
           <View style={s.emptyState}>
             <Text style={s.emptyIcon}>🛒</Text>
@@ -280,7 +288,9 @@ export default function ShoppingTabScreen({ onTabChange }: ShoppingTabScreenProp
           <TouchableOpacity onLongPress={handleDeleteList}>
             <Text style={[s.headerTitle, { color: colors.primaryText }]}>Shops</Text>
           </TouchableOpacity>
-          <View style={{ width: 40 }} />
+          <TouchableOpacity onPress={handleCreate}>
+            <Text style={[s.addButton, { color: colors.accentColor }]}>+</Text>
+          </TouchableOpacity>
         </View>
 
         <FlatList
