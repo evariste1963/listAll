@@ -62,6 +62,7 @@ export const migrationStatements = [
 
 export const alterStatements = [
   `ALTER TABLE \`memo_list\` ADD COLUMN \`is_pinned\` integer DEFAULT false;`,
+  `ALTER TABLE \`memo_list\` ADD COLUMN \`is_archived\` integer DEFAULT false;`,
 ];
 
 export default migrationStatements;

@@ -24,6 +24,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   const s = createThemedStyles(colors);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
 
   const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
 
@@ -34,6 +35,10 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
 
     let lists = result.data;
     const allItems = itemsResult.data;
+
+    if (!showArchived) {
+      lists = lists.filter(l => !l.isArchived);
+    }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -63,7 +68,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     });
 
     return mapped;
-  }, [result.data, itemsResult.data, searchQuery]);
+  }, [result.data, itemsResult.data, searchQuery, showArchived]);
 
   const handleCreate = () => {
     navigation.navigate('CreateMemoList');
@@ -75,6 +80,33 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
 
   const handleTogglePin = async (listId: number, isPinned: boolean | null) => {
     await listService.togglePin(db, schema.memoList, listId, isPinned);
+  };
+
+  const handleToggleArchive = async (listId: number, isArchived: boolean | null) => {
+    await listService.toggleArchive(db, schema.memoList, listId, isArchived);
+  };
+
+  const handleLongPress = (listId: number, title: string, itemCount: number, isArchived: boolean | null) => {
+    const buttons: { text: string; style?: 'cancel' | 'destructive'; onPress?: () => void }[] = [];
+
+    buttons.push({
+      text: isArchived ? 'Unarchive' : 'Archive',
+      onPress: () => handleToggleArchive(listId, isArchived),
+    });
+
+    if (itemCount === 0) {
+      buttons.push({
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await listService.cascadeDelete(db, schema.memoList, schema.memoItem, listId, schema.memoItem.listId);
+        },
+      });
+    }
+
+    buttons.push({ text: 'Cancel', style: 'cancel' });
+
+    Alert.alert(title, undefined, buttons);
   };
 
   const handleDelete = (listId: number, title: string, itemCount: number) => {
@@ -103,6 +135,8 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     );
   };
 
+  const hasArchived = result.data?.some(l => l.isArchived) ?? false;
+
   return (
     <ThemedBackground colors={colors}>
       <SafeAreaView style={s.container}>
@@ -126,16 +160,27 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           />
         </View>
 
+        {hasArchived && (
+          <TouchableOpacity
+            style={{ paddingVertical: 8, paddingHorizontal: 16, alignItems: 'center' }}
+            onPress={() => setShowArchived(!showArchived)}
+          >
+            <Text style={{ fontSize: 13, color: colors.accentColor }}>
+              {showArchived ? 'Show Active' : `Show Archived (${result.data?.filter(l => l.isArchived).length})`}
+            </Text>
+          </TouchableOpacity>
+        )}
+
         {memos.length === 0 ? (
           <View style={s.emptyState}>
             <Text style={s.emptyIcon}>📝</Text>
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>
-              {searchQuery.trim() ? 'No Results' : 'No Memos Yet'}
+              {searchQuery.trim() ? 'No Results' : showArchived ? 'No Archived Memos' : 'No Memos Yet'}
             </Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>
-              {searchQuery.trim() ? 'Try a different search' : 'Create a memo to remember things'}
+              {searchQuery.trim() ? 'Try a different search' : showArchived ? 'Archive a memo to see it here' : 'Create a memo to remember things'}
             </Text>
-            {!searchQuery.trim() && (
+            {!searchQuery.trim() && !showArchived && (
               <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
                 <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Memo</Text>
               </TouchableOpacity>
@@ -149,15 +194,18 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
             style={{ flex: 1 }}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
+                style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground, opacity: item.isArchived ? 0.55 : 1 }]}
                 onPress={() => handleOpen(item.id)}
-                onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
+                onLongPress={() => handleLongPress(item.id, item.title, item.totalItems, item.isArchived)}
               >
                 <View style={s.shopInfo}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
                     {item.isPinned && (
                       <Text style={{ fontSize: 14, marginLeft: 6 }}>📌</Text>
+                    )}
+                    {item.isArchived && (
+                      <Text style={{ fontSize: 14, marginLeft: 6, color: colors.mutedText }}>archived</Text>
                     )}
                   </View>
                   <Text style={[s.shopItems, { color: colors.tertiaryText }]}>

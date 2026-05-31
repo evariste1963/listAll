@@ -1,7 +1,8 @@
 import React, { ReactNode } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import type { ThemeColors, ThemedStyles } from '../styles/global';
-import { spacing } from '../styles/global';
+import { spacing, fontSize } from '../styles/global';
 
 interface ItemRowProps {
   item: {
@@ -19,9 +20,33 @@ interface ItemRowProps {
   colors: ThemeColors;
   s: ThemedStyles;
   metaSlot?: ReactNode;
+  renderMarkdown?: boolean;
 }
 
-export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, onMoveDown, onEdit, onDelete, colors, s, metaSlot }: ItemRowProps) {
+const markdownStyles = {
+  body: { fontSize: fontSize.base, lineHeight: 22 },
+  text: { fontSize: fontSize.base, lineHeight: 22 },
+  heading1: { fontSize: 22, lineHeight: 28 },
+  heading2: { fontSize: 20, lineHeight: 26 },
+  heading3: { fontSize: 18, lineHeight: 24 },
+  link: { textDecorationLine: 'underline' as const },
+  inlineCode: { fontSize: fontSize.base, lineHeight: 22 },
+  blockquote: { fontSize: fontSize.base, lineHeight: 22 },
+  code_inline: { fontSize: fontSize.base, lineHeight: 22 },
+  fence: { fontSize: fontSize.base, lineHeight: 22 },
+  hr: { marginVertical: 4 },
+  bullet_list: { marginVertical: 0 },
+  ordered_list: { marginVertical: 0 },
+  list_item: { marginVertical: 0 },
+};
+
+export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, onMoveDown, onEdit, onDelete, colors, s, metaSlot, renderMarkdown }: ItemRowProps) {
+  const titleStyle = [
+    renderMarkdown ? null : s.itemText,
+    { color: colors.primaryText, marginBottom: spacing.xs },
+    item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' as const },
+  ];
+
   return (
     <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
       <TouchableOpacity
@@ -45,9 +70,19 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
         style={s.itemTitle}
         onPress={() => onEdit(item.id, item.title)}
       >
-        <Text style={[s.itemText, { color: colors.primaryText, marginBottom: spacing.xs }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
-          {item.title}
-        </Text>
+        {renderMarkdown ? (
+          <Markdown style={{
+            ...markdownStyles,
+            body: { ...markdownStyles.body, ...titleStyle.filter(Boolean).reduce((a, b) => ({ ...a, ...b }), {}) },
+            text: { ...markdownStyles.text, ...titleStyle.filter(Boolean).reduce((a, b) => ({ ...a, ...b }), {}) },
+          }}>
+            {item.title}
+          </Markdown>
+        ) : (
+          <Text style={titleStyle}>
+            {item.title}
+          </Text>
+        )}
         {metaSlot}
       </TouchableOpacity>
 

@@ -198,6 +198,7 @@ export default function MemoDetailScreen() {
               onDelete={handleDeleteItem}
               colors={colors}
               s={s}
+              renderMarkdown
             />
           )}
           ListEmptyComponent={
