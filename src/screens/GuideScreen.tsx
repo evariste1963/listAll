@@ -80,7 +80,7 @@ export default function GuideScreen() {
 
           <SectionHeader title="Memos" color={colors.accentColor} />
 
-          <FeatureCard icon="📝" title="Notes" desc="Add text lines to any memo. Each line can be toggled as a checklist item." colors={colors} />
+          <FeatureCard icon="📝" title="Notes" desc="Add text lines to any memo. Lines start as plain text — tap the ☐ icon to turn one into a checklist item, or use the edit modal." colors={colors} />
           <FeatureCard icon="✏️" title="Inline Editing" desc="Tap the memo title to rename. Tap any note text to edit it." colors={colors} />
 
           <SectionHeader title="Navigation" color={colors.accentColor} />

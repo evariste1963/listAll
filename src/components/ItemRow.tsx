@@ -8,8 +8,10 @@ interface ItemRowProps {
     id: number;
     title: string;
     isDone: boolean | null;
+    isCheckable?: boolean | null;
   };
   onToggle: (id: number, isDone: boolean | null) => void;
+  onToggleCheckable?: (id: number, isCheckable: boolean | null) => void;
   onEdit: (id: number, title: string) => void;
   onDelete: (id: number) => void;
   colors: ThemeColors;
@@ -17,16 +19,24 @@ interface ItemRowProps {
   metaSlot?: ReactNode;
 }
 
-export default function ItemRow({ item, onToggle, onEdit, onDelete, colors, s, metaSlot }: ItemRowProps) {
+export default function ItemRow({ item, onToggle, onToggleCheckable, onEdit, onDelete, colors, s, metaSlot }: ItemRowProps) {
   return (
     <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
       <TouchableOpacity
         style={s.checkbox}
-        onPress={() => onToggle(item.id, item.isDone)}
+        onPress={() => {
+          if (item.isCheckable !== false) {
+            onToggle(item.id, item.isDone);
+          } else if (onToggleCheckable) {
+            onToggleCheckable(item.id, false);
+          }
+        }}
       >
-        <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
-          {item.isDone ? '✓' : '○'}
-        </Text>
+        {item.isCheckable !== false ? (
+          <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
+            {item.isDone ? '✓' : '○'}
+          </Text>
+        ) : null}
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -38,6 +48,17 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete, colors, s, m
         </Text>
         {metaSlot}
       </TouchableOpacity>
+
+      {onToggleCheckable && (
+        <TouchableOpacity
+          style={s.toggleModeButton}
+          onPress={() => onToggleCheckable(item.id, item.isCheckable ?? false)}
+        >
+          <Text style={[s.toggleModeIcon, { color: colors.secondaryText }]}>
+            {item.isCheckable !== false ? '☑' : '☐'}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={s.deleteItem}

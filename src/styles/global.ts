@@ -374,6 +374,12 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   deleteItemText: {
     fontSize: 18,
   },
+  toggleModeButton: {
+    padding: spacing.sm,
+  },
+  toggleModeIcon: {
+    fontSize: 16,
+  },
   countText: {
     fontSize: fontSize.md,
   },

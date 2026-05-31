@@ -25,6 +25,7 @@ export default function MemoDetailScreen() {
   const [title, setTitle] = useState('');
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
+  const [editItemCheckable, setEditItemCheckable] = useState(false);
 
   const editInputRef = useRef<TextInput>(null);
 
@@ -51,7 +52,6 @@ export default function MemoDetailScreen() {
       listId,
       title: newItemText.trim(),
       isDone: false,
-      isCheckable: false,
       order: maxOrder + 1,
     });
 
@@ -60,6 +60,10 @@ export default function MemoDetailScreen() {
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
     await itemService.toggleDone(db, schema.memoItem, itemId, currentDone);
+  };
+
+  const handleToggleCheckable = async (itemId: number, currentCheckable: boolean | null) => {
+    await itemService.toggleCheckable(db, schema.memoItem, itemId, currentCheckable);
   };
 
   const handleDeleteItem = (itemId: number) => {
@@ -80,13 +84,20 @@ export default function MemoDetailScreen() {
   };
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
+    const item = items.find(i => i.id === itemId);
     setEditItemId(itemId);
     setEditItemText(currentTitle);
+    setEditItemCheckable(item?.isCheckable ?? false);
   };
 
   const handleSaveEdit = async () => {
     if (editItemId && editItemText.trim()) {
-      await itemService.update(db, schema.memoItem, editItemId, { title: editItemText.trim() });
+      const item = items.find(i => i.id === editItemId);
+      const updates: any = { title: editItemText.trim() };
+      if (item && item.isCheckable !== editItemCheckable) {
+        updates.isCheckable = editItemCheckable;
+      }
+      await itemService.update(db, schema.memoItem, editItemId, updates);
     }
     setEditItemId(null);
     setEditItemText('');
@@ -160,6 +171,7 @@ export default function MemoDetailScreen() {
             <ItemRow
               item={item}
               onToggle={handleToggleItem}
+              onToggleCheckable={handleToggleCheckable}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
               colors={colors}
@@ -184,6 +196,16 @@ export default function MemoDetailScreen() {
                 onChangeText={setEditItemText}
                 autoFocus
               />
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}
+                onPress={() => setEditItemCheckable(!editItemCheckable)}
+              >
+                <Text style={{ fontSize: 18, marginRight: 10, color: colors.secondaryText }}>
+                  {editItemCheckable ? '☑' : '☐'}
+                </Text>
+                <Text style={{ fontSize: 15, color: colors.primaryText }}>Checklist item</Text>
+              </TouchableOpacity>
+
               <View style={s.modalButtons}>
                 <TouchableOpacity
                   style={s.modalButton}

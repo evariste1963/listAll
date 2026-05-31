@@ -25,6 +25,10 @@ export async function toggleDone(db: any, table: any, id: number, currentDone: b
   await db.update(table).set({ isDone: !currentDone }).where(eq(table.id, id)).run();
 }
 
+export async function toggleCheckable(db: any, table: any, id: number, currentCheckable: boolean | null): Promise<void> {
+  await db.update(table).set({ isCheckable: !currentCheckable }).where(eq(table.id, id)).run();
+}
+
 export async function remove(db: any, table: any, id: number): Promise<void> {
   await db.delete(table).where(eq(table.id, id)).run();
 }
