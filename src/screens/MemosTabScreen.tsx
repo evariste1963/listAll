@@ -237,9 +237,6 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
                 <View style={s.shopInfo}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
-                    {item.isPinned && (
-                      <Text style={{ fontSize: 14, marginLeft: 6 }}>📌</Text>
-                    )}
                     {item.isArchived && (
                       <Text style={{ fontSize: 14, marginLeft: 6, color: colors.mutedText }}>archived</Text>
                     )}
@@ -249,11 +246,11 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
                   </Text>
                 </View>
                 <TouchableOpacity
-                  style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+                  style={{ paddingHorizontal: 8, paddingVertical: 4, opacity: item.isPinned ? 1 : 0.35 }}
                   onPress={() => handleTogglePin(item.id, item.isPinned)}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  <Text style={{ fontSize: 16, color: item.isPinned ? colors.primaryText : colors.mutedText }}>
+                  <Text style={{ fontSize: 16 }}>
                     📌
                   </Text>
                 </TouchableOpacity>
