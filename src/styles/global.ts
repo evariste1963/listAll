@@ -391,6 +391,33 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   toggleModeIcon: {
     fontSize: 16,
   },
+  tagInput: {
+    flex: 1,
+    fontSize: fontSize.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+  },
+  tagChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+    marginRight: 4,
+    marginBottom: 2,
+  },
+  tagChipText: {
+    fontSize: fontSize.xs,
+  },
+  tagFilterChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+    marginRight: spacing.sm,
+  },
+  tagFilterChipText: {
+    fontSize: fontSize.sm,
+  },
   moveButtons: {
     flexDirection: 'row' as const,
     marginRight: spacing.xs,

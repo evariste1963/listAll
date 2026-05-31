@@ -26,6 +26,8 @@ export default function MemoDetailScreen() {
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
   const [editItemCheckable, setEditItemCheckable] = useState(false);
+  const [editTags, setEditTags] = useState(false);
+  const [tagsInput, setTagsInput] = useState('');
 
   const editInputRef = useRef<TextInput>(null);
 
@@ -123,6 +125,32 @@ export default function MemoDetailScreen() {
     setEditItemText('');
   };
 
+  const handleUpdateTags = async () => {
+    if (list) {
+      await listService.updateTags(db, schema.memoList, listId, tagsInput.trim());
+      setEditTags(false);
+    }
+  };
+
+  const handleDeleteCompleted = () => {
+    const done = items.filter(i => i.isDone);
+    if (done.length === 0) return;
+    Alert.alert(
+      'Delete Completed',
+      `Delete ${done.length} completed item${done.length > 1 ? 's' : ''}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await itemService.removeDoneByParent(db, schema.memoItem, schema.memoItem.listId, listId);
+          },
+        },
+      ]
+    );
+  };
+
   const startEditing = () => { setTitle(list.title); setEditTitle(true); };
 
   const handleUpdateTitle = async () => {
@@ -148,21 +176,61 @@ export default function MemoDetailScreen() {
     <ThemedBackground colors={colors}>
       <SafeAreaView style={s.container}>
         <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
-          {editTitle ? (
-            <TextInput
-              style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
-              value={title}
-              onChangeText={setTitle}
-              onBlur={handleUpdateTitle}
-              onSubmitEditing={handleUpdateTitle}
-              autoFocus
-            />
-          ) : (
-            <TouchableOpacity style={{ flex: 1 }} onPress={startEditing}>
-              <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
-            </TouchableOpacity>
-          )}
-          <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {editTitle ? (
+              <TextInput
+                style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+                value={title}
+                onChangeText={setTitle}
+                onBlur={handleUpdateTitle}
+                onSubmitEditing={handleUpdateTitle}
+                autoFocus
+              />
+            ) : (
+              <TouchableOpacity style={{ flex: 1 }} onPress={startEditing}>
+                <Text style={[s.headerTitle, { color: colors.primaryText }]}>{list.title}</Text>
+              </TouchableOpacity>
+            )}
+            <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+            {editTags ? (
+              <TextInput
+                style={[s.tagInput, { backgroundColor: colors.inputBackground, color: colors.primaryText, borderColor: colors.dividerColor }]}
+                value={tagsInput}
+                onChangeText={setTagsInput}
+                onBlur={handleUpdateTags}
+                onSubmitEditing={handleUpdateTags}
+                placeholder="tag1, tag2, tag3"
+                placeholderTextColor={colors.mutedText}
+                autoFocus
+              />
+            ) : (
+              <TouchableOpacity
+                style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}
+                onPress={() => { setTagsInput(list.tags ?? ''); setEditTags(true); }}
+              >
+                {(list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string, i: number) => (
+                  <View key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30' }]}>
+                    <Text style={[s.tagChipText, { color: colors.accentColor }]}>{tag}</Text>
+                  </View>
+                ))}
+                <Text style={{ fontSize: 12, color: colors.mutedText, marginLeft: 4 }}>
+                  {(list.tags ?? '').trim() ? '' : '+ add tags'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {items.some(i => i.isDone) && (
+              <TouchableOpacity
+                style={{ paddingLeft: 8 }}
+                onPress={handleDeleteCompleted}
+              >
+                <Text style={{ fontSize: 13, color: colors.deleteColor }}>Delete done</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <View style={s.inputRow}>

@@ -25,6 +25,10 @@ export async function togglePin(db: any, table: any, id: number, currentPinned: 
   await db.update(table).set({ isPinned: !currentPinned }).where(eq(table.id, id)).run();
 }
 
+export async function updateTags(db: any, table: any, id: number, tags: string): Promise<void> {
+  await db.update(table).set({ tags }).where(eq(table.id, id)).run();
+}
+
 export async function updateTitle(db: any, table: any, id: number, title: string): Promise<void> {
   await db.update(table).set({ title }).where(eq(table.id, id)).run();
 }

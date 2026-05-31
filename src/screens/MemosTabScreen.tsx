@@ -25,10 +25,22 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
 
   const itemsResult = useLiveQuery(db.select().from(schema.memoItem));
+
+  const allTags = useMemo(() => {
+    if (!result.data) return [];
+    const tagSet = new Set<string>();
+    for (const list of result.data) {
+      if (list.tags) {
+        list.tags.split(',').map(t => t.trim()).filter(Boolean).forEach(t => tagSet.add(t));
+      }
+    }
+    return Array.from(tagSet).sort();
+  }, [result.data]);
 
   const memos = useMemo(() => {
     if (!result.data || !itemsResult.data) return [];
@@ -38,6 +50,10 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
 
     if (!showArchived) {
       lists = lists.filter(l => !l.isArchived);
+    }
+
+    if (selectedTag) {
+      lists = lists.filter(l => (l.tags ?? '').split(',').map(t => t.trim()).includes(selectedTag));
     }
 
     if (searchQuery.trim()) {
@@ -68,7 +84,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     });
 
     return mapped;
-  }, [result.data, itemsResult.data, searchQuery, showArchived]);
+  }, [result.data, itemsResult.data, searchQuery, showArchived, selectedTag]);
 
   const handleCreate = () => {
     navigation.navigate('CreateMemoList');
@@ -160,9 +176,29 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           />
         </View>
 
+        {allTags.length > 0 && (
+          <View style={{ paddingVertical: 6, paddingHorizontal: 16, flexDirection: 'row', flexWrap: 'wrap' }}>
+            <TouchableOpacity
+              style={[s.tagFilterChip, { backgroundColor: !selectedTag ? colors.accentColor : colors.cardBackground }]}
+              onPress={() => setSelectedTag(null)}
+            >
+              <Text style={[s.tagFilterChipText, { color: !selectedTag ? colors.accentText : colors.secondaryText }]}>All</Text>
+            </TouchableOpacity>
+            {allTags.map(tag => (
+              <TouchableOpacity
+                key={tag}
+                style={[s.tagFilterChip, { backgroundColor: selectedTag === tag ? colors.accentColor : colors.cardBackground }]}
+                onPress={() => setSelectedTag(selectedTag === tag ? null : tag)}
+              >
+                <Text style={[s.tagFilterChipText, { color: selectedTag === tag ? colors.accentText : colors.secondaryText }]}>{tag}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         {hasArchived && (
           <TouchableOpacity
-            style={{ paddingVertical: 8, paddingHorizontal: 16, alignItems: 'center' }}
+            style={{ paddingVertical: 6, paddingHorizontal: 16, alignItems: 'center' }}
             onPress={() => setShowArchived(!showArchived)}
           >
             <Text style={{ fontSize: 13, color: colors.accentColor }}>

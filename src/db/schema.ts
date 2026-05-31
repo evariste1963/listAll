@@ -19,6 +19,7 @@ export const memoList = sqliteTable('memo_list', {
   title: text('title').notNull(),
   isPinned: integer('is_pinned', { mode: 'boolean' }).default(false),
   isArchived: integer('is_archived', { mode: 'boolean' }).default(false),
+  tags: text('tags'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 

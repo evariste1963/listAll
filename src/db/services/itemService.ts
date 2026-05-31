@@ -33,6 +33,14 @@ export async function toggleCheckable(db: any, table: any, id: number, currentCh
   await db.update(table).set({ isCheckable: !currentCheckable }).where(eq(table.id, id)).run();
 }
 
+export async function removeDoneByParent(db: any, table: any, fkColumn: any, parentId: number): Promise<void> {
+  const items = await getAllByParentFlat(db, table, fkColumn, parentId);
+  const doneIds = items.filter(i => i.isDone).map(i => i.id);
+  if (doneIds.length > 0) {
+    await removeByIds(db, table, doneIds);
+  }
+}
+
 export async function remove(db: any, table: any, id: number): Promise<void> {
   await db.delete(table).where(eq(table.id, id)).run();
 }

@@ -56,7 +56,7 @@ export default function GuideScreen() {
 
           <FeatureCard icon="🏠" title="Home Dashboard" desc="Navigation hub with cards for Shopping, Memos, Todos, Preferences, and this Guide." colors={colors} />
           <FeatureCard icon="🛒" title="Shopping" desc="Create one active shopping list with multiple shop tabs. Auto-populate from default shops in Settings. Track remaining items per shop." colors={colors} />
-          <FeatureCard icon="📝" title="Memos" desc="Create multiple memo lists with Markdown notes, checkable items, search, pin, archive, and reorder. Inline editing for titles and items." colors={colors} />
+          <FeatureCard icon="📝" title="Memos" desc="Create multiple memo lists with Markdown notes, checkable items, search, tags, pin, archive, and reorder. Inline editing and bulk delete completed." colors={colors} />
           <FeatureCard icon="✓" title="Todos" desc="Full task management with due dates, priority levels (Low/Med/High), auto-sort by date, and local notification reminders." colors={colors} iconColor={colors.todoIconBg} />
           <FeatureCard icon="⚙️" title="Preferences" desc="Three themes (Dark, Green, Light). Configure notification intervals. Manage default shops." colors={colors} />
           <FeatureCard icon="📖" title="Guide" desc="This page — a reference for all app features and behavior." colors={colors} />
@@ -82,10 +82,12 @@ export default function GuideScreen() {
 
           <FeatureCard icon="📝" title="Notes" desc="Add text lines to any memo. Lines support Markdown — use **bold**, *italic*, `code`, [links](), and more. Tap the ☐ icon to turn one into a checklist item." colors={colors} />
           <FeatureCard icon="🔍" title="Search" desc="Search across all memo titles and note content from the Memos tab." colors={colors} />
+          <FeatureCard icon="🏷️" title="Tags" desc="Add comma-separated tags to any memo. Filter by tag using the chip bar at the top of the Memos tab." colors={colors} />
           <FeatureCard icon="📌" title="Pin" desc="Tap the pin icon on any memo to keep it at the top of the list." colors={colors} />
           <FeatureCard icon="📦" title="Archive" desc="Long-press a memo to archive it. Archived memos are hidden but not deleted — toggle 'Show Archived' to view them." colors={colors} />
           <FeatureCard icon="↕️" title="Reorder" desc="Use the ▲/▼ buttons on any note to reorder it within a memo." colors={colors} />
           <FeatureCard icon="✏️" title="Inline Editing" desc="Tap the memo title to rename. Tap any note text to edit it." colors={colors} />
+          <FeatureCard icon="🗑️" title="Bulk Delete" desc="Tap 'Delete done' in the memo header to remove all completed items at once." colors={colors} />
 
           <SectionHeader title="Navigation" color={colors.accentColor} />
 
