@@ -8,7 +8,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
+import { createThemedStyles, spacing } from '../styles/global';
 import { itemService, listService } from '../db/services';
 import ItemRow from '../components/ItemRow';
 import type { MemoDetailProps } from '../navigation/types';
@@ -175,11 +175,11 @@ export default function MemoDetailScreen() {
   return (
     <ThemedBackground colors={colors}>
       <SafeAreaView style={s.container}>
-        <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+        <View style={{ backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.dividerColor, padding: spacing.lg }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {editTitle ? (
               <TextInput
-                style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+                style={[s.titleInput, { backgroundColor: colors.inputBackground, color: colors.primaryText, flex: 1 }]}
                 value={title}
                 onChangeText={setTitle}
                 onBlur={handleUpdateTitle}
@@ -192,36 +192,6 @@ export default function MemoDetailScreen() {
               </TouchableOpacity>
             )}
             <Text style={[s.countText, { color: colors.secondaryText }]}>{remainingCount} remaining</Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            {editTags ? (
-              <TextInput
-                style={[s.tagInput, { backgroundColor: colors.inputBackground, color: colors.primaryText, borderColor: colors.dividerColor }]}
-                value={tagsInput}
-                onChangeText={setTagsInput}
-                onBlur={handleUpdateTags}
-                onSubmitEditing={handleUpdateTags}
-                placeholder="tag1, tag2, tag3"
-                placeholderTextColor={colors.mutedText}
-                autoFocus
-              />
-            ) : (
-              <TouchableOpacity
-                style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}
-                onPress={() => { setTagsInput(list.tags ?? ''); setEditTags(true); }}
-              >
-                {(list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string, i: number) => (
-                  <View key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30' }]}>
-                    <Text style={[s.tagChipText, { color: colors.accentColor }]}>{tag}</Text>
-                  </View>
-                ))}
-                <Text style={{ fontSize: 12, color: colors.mutedText, marginLeft: 4 }}>
-                  {(list.tags ?? '').trim() ? '' : '+ add tags'}
-                </Text>
-              </TouchableOpacity>
-            )}
-
             {items.some(i => i.isDone) && (
               <TouchableOpacity
                 style={{ paddingLeft: 8 }}
@@ -231,6 +201,33 @@ export default function MemoDetailScreen() {
               </TouchableOpacity>
             )}
           </View>
+
+          {editTags ? (
+            <TextInput
+              style={[s.tagInput, { backgroundColor: colors.inputBackground, color: colors.primaryText, borderColor: colors.dividerColor, marginTop: 8 }]}
+              value={tagsInput}
+              onChangeText={setTagsInput}
+              onBlur={handleUpdateTags}
+              onSubmitEditing={handleUpdateTags}
+              placeholder="tag1, tag2, tag3"
+              placeholderTextColor={colors.mutedText}
+              autoFocus
+            />
+          ) : (
+            <TouchableOpacity
+              style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', paddingTop: 8 }}
+              onPress={() => { setTagsInput(list.tags ?? ''); setEditTags(true); }}
+            >
+              {(list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string, i: number) => (
+                <View key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30' }]}>
+                  <Text style={[s.tagChipText, { color: colors.accentColor }]}>{tag}</Text>
+                </View>
+              ))}
+              <Text style={{ fontSize: 14, color: colors.mutedText, marginLeft: 4 }}>
+                {(list.tags ?? '').trim() ? '' : '+ add tags'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={s.inputRow}>

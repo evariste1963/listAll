@@ -398,6 +398,7 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     paddingHorizontal: spacing.sm,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
+    minHeight: 36,
   },
   tagChip: {
     paddingHorizontal: spacing.sm,

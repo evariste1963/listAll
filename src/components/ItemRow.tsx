@@ -54,8 +54,6 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
         onPress={() => {
           if (item.isCheckable !== false) {
             onToggle(item.id, item.isDone);
-          } else if (onToggleCheckable) {
-            onToggleCheckable(item.id, false);
           }
         }}
       >
