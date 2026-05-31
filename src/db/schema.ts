@@ -17,6 +17,7 @@ export const shopTab = sqliteTable('shop_tab', {
 export const memoList = sqliteTable('memo_list', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   title: text('title').notNull(),
+  isPinned: integer('is_pinned', { mode: 'boolean' }).default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 

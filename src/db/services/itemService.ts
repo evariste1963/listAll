@@ -1,4 +1,8 @@
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, like } from 'drizzle-orm';
+
+export function searchByTitle(db: any, table: any, query: string) {
+  return db.select().from(table).where(like(table.title, `%${query}%`)).orderBy(table.order);
+}
 
 export function getByParentId(db: any, table: any, fkColumn: any, parentId: number) {
   return db.select().from(table).where(eq(fkColumn, parentId)).orderBy(table.order);

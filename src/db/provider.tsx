@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { openDatabaseSync } from 'expo-sqlite';
 
 import * as schema from './schema';
-import migrationStatements from './migrations';
+import migrationStatements, { alterStatements } from './migrations';
 
 const expoDb = openDatabaseSync('listAll.db', { enableChangeListener: true });
 
@@ -33,6 +33,13 @@ export function DBProvider({ children }: DBProviderProps) {
       try {
         for (const stmt of migrationStatements) {
           await expoDb.execAsync(stmt);
+        }
+        for (const stmt of alterStatements) {
+          try {
+            await expoDb.execAsync(stmt);
+          } catch {
+            // column may already exist
+          }
         }
         setReady(true);
       } catch (e) {

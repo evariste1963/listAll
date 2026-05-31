@@ -218,6 +218,17 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     borderWidth: 1,
     fontSize: fontSize.base,
   },
+  searchBar: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+  },
+  searchInput: {
+    fontSize: fontSize.base,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+  },
   inputRow: {
     flexDirection: 'row' as const,
     padding: spacing.lg,
@@ -379,6 +390,16 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   toggleModeIcon: {
     fontSize: 16,
+  },
+  moveButtons: {
+    flexDirection: 'row' as const,
+    marginRight: spacing.xs,
+  },
+  moveButton: {
+    padding: spacing.xs,
+  },
+  moveButtonText: {
+    fontSize: 12,
   },
   countText: {
     fontSize: fontSize.md,

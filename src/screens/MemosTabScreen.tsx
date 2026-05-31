@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,22 +22,48 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
-  
+
+  const [searchQuery, setSearchQuery] = useState('');
+
   const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
 
   const itemsResult = useLiveQuery(db.select().from(schema.memoItem));
 
   const memos = useMemo(() => {
     if (!result.data || !itemsResult.data) return [];
-    return result.data.map(list => {
-      const listItems = itemsResult.data.filter(i => i.listId === list.id);
+
+    let lists = result.data;
+    const allItems = itemsResult.data;
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchingItemListIds = new Set(
+        allItems.filter(i => i.title.toLowerCase().includes(q)).map(i => i.listId)
+      );
+      const matchingListIds = new Set(
+        lists.filter(l => l.title.toLowerCase().includes(q)).map(l => l.id)
+      );
+      const activeIds = new Set([...matchingItemListIds, ...matchingListIds]);
+      lists = lists.filter(l => activeIds.has(l.id));
+    }
+
+    const mapped = lists.map(list => {
+      const listItems = allItems.filter(i => i.listId === list.id);
       return {
         ...list,
         totalItems: listItems.length,
         remainingItems: listItems.filter(i => !i.isDone).length,
       };
     });
-  }, [result.data, itemsResult.data]);
+
+    mapped.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return mapped;
+  }, [result.data, itemsResult.data, searchQuery]);
 
   const handleCreate = () => {
     navigation.navigate('CreateMemoList');
@@ -45,6 +71,10 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
 
   const handleOpen = (listId: number) => {
     navigation.navigate('MemoDetail', { listId });
+  };
+
+  const handleTogglePin = async (listId: number, isPinned: boolean | null) => {
+    await listService.togglePin(db, schema.memoList, listId, isPinned);
   };
 
   const handleDelete = (listId: number, title: string, itemCount: number) => {
@@ -62,8 +92,8 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
       `Delete "${title}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             await listService.cascadeDelete(db, schema.memoList, schema.memoItem, listId, schema.memoItem.listId);
@@ -86,14 +116,30 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           </TouchableOpacity>
         </View>
 
+        <View style={[s.searchBar, { backgroundColor: colors.inputBackground, borderColor: colors.dividerColor }]}>
+          <TextInput
+            style={[s.searchInput, { color: colors.primaryText }]}
+            placeholder="Search memos..."
+            placeholderTextColor={colors.mutedText}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
         {memos.length === 0 ? (
           <View style={s.emptyState}>
             <Text style={s.emptyIcon}>📝</Text>
-            <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Memos Yet</Text>
-            <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a memo to remember things</Text>
-            <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
-              <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Memo</Text>
-            </TouchableOpacity>
+            <Text style={[s.emptyTitle, { color: colors.primaryText }]}>
+              {searchQuery.trim() ? 'No Results' : 'No Memos Yet'}
+            </Text>
+            <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>
+              {searchQuery.trim() ? 'Try a different search' : 'Create a memo to remember things'}
+            </Text>
+            {!searchQuery.trim() && (
+              <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
+                <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Memo</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           <FlatList
@@ -102,22 +148,31 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
             contentContainerStyle={s.list}
             style={{ flex: 1 }}
             renderItem={({ item }) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
                 onPress={() => handleOpen(item.id)}
                 onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
               >
                 <View style={s.shopInfo}>
-                  <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[s.cardTitle, { color: colors.primaryText }]}>{item.title}</Text>
+                    {item.isPinned && (
+                      <Text style={{ fontSize: 14, marginLeft: 6 }}>📌</Text>
+                    )}
+                  </View>
                   <Text style={[s.shopItems, { color: colors.tertiaryText }]}>
                     {item.remainingItems} remaining
                   </Text>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[{ fontSize: 12, color: colors.mutedText }]}>
-                    {new Date(item.createdAt).toLocaleDateString()}
+                <TouchableOpacity
+                  style={{ paddingHorizontal: 8, paddingVertical: 4 }}
+                  onPress={() => handleTogglePin(item.id, item.isPinned)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={{ fontSize: 16, color: item.isPinned ? colors.primaryText : colors.mutedText }}>
+                    📌
                   </Text>
-                </View>
+                </TouchableOpacity>
               </TouchableOpacity>
             )}
           />

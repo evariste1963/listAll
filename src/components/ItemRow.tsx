@@ -12,6 +12,8 @@ interface ItemRowProps {
   };
   onToggle: (id: number, isDone: boolean | null) => void;
   onToggleCheckable?: (id: number, isCheckable: boolean | null) => void;
+  onMoveUp?: (id: number) => void;
+  onMoveDown?: (id: number) => void;
   onEdit: (id: number, title: string) => void;
   onDelete: (id: number) => void;
   colors: ThemeColors;
@@ -19,7 +21,7 @@ interface ItemRowProps {
   metaSlot?: ReactNode;
 }
 
-export default function ItemRow({ item, onToggle, onToggleCheckable, onEdit, onDelete, colors, s, metaSlot }: ItemRowProps) {
+export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, onMoveDown, onEdit, onDelete, colors, s, metaSlot }: ItemRowProps) {
   return (
     <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
       <TouchableOpacity
@@ -48,6 +50,17 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onEdit, onD
         </Text>
         {metaSlot}
       </TouchableOpacity>
+
+      {onMoveUp && onMoveDown && (
+        <View style={s.moveButtons}>
+          <TouchableOpacity style={s.moveButton} onPress={() => onMoveUp(item.id)}>
+            <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▲</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={s.moveButton} onPress={() => onMoveDown(item.id)}>
+            <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▼</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {onToggleCheckable && (
         <TouchableOpacity

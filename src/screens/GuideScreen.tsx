@@ -56,7 +56,7 @@ export default function GuideScreen() {
 
           <FeatureCard icon="🏠" title="Home Dashboard" desc="Navigation hub with cards for Shopping, Memos, Todos, Preferences, and this Guide." colors={colors} />
           <FeatureCard icon="🛒" title="Shopping" desc="Create one active shopping list with multiple shop tabs. Auto-populate from default shops in Settings. Track remaining items per shop." colors={colors} />
-          <FeatureCard icon="📝" title="Memos" desc="Create multiple memo lists with checkable or plain notes. Inline editing for titles and items." colors={colors} />
+          <FeatureCard icon="📝" title="Memos" desc="Create multiple memo lists with checkable or plain notes. Search, pin favorites, reorder items. Inline editing for titles and items." colors={colors} />
           <FeatureCard icon="✓" title="Todos" desc="Full task management with due dates, priority levels (Low/Med/High), auto-sort by date, and local notification reminders." colors={colors} iconColor={colors.todoIconBg} />
           <FeatureCard icon="⚙️" title="Preferences" desc="Three themes (Dark, Green, Light). Configure notification intervals. Manage default shops." colors={colors} />
           <FeatureCard icon="📖" title="Guide" desc="This page — a reference for all app features and behavior." colors={colors} />
@@ -81,6 +81,9 @@ export default function GuideScreen() {
           <SectionHeader title="Memos" color={colors.accentColor} />
 
           <FeatureCard icon="📝" title="Notes" desc="Add text lines to any memo. Lines start as plain text — tap the ☐ icon to turn one into a checklist item, or use the edit modal." colors={colors} />
+          <FeatureCard icon="🔍" title="Search" desc="Search across all memo titles and note content from the Memos tab." colors={colors} />
+          <FeatureCard icon="📌" title="Pin" desc="Tap the pin icon on any memo to keep it at the top of the list." colors={colors} />
+          <FeatureCard icon="↕️" title="Reorder" desc="Use the ▲/▼ buttons on any note to reorder it within a memo." colors={colors} />
           <FeatureCard icon="✏️" title="Inline Editing" desc="Tap the memo title to rename. Tap any note text to edit it." colors={colors} />
 
           <SectionHeader title="Navigation" color={colors.accentColor} />

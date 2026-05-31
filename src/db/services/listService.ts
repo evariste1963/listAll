@@ -17,6 +17,10 @@ export async function create(db: any, table: any, values: any): Promise<any> {
   return row;
 }
 
+export async function togglePin(db: any, table: any, id: number, currentPinned: boolean | null): Promise<void> {
+  await db.update(table).set({ isPinned: !currentPinned }).where(eq(table.id, id)).run();
+}
+
 export async function updateTitle(db: any, table: any, id: number, title: string): Promise<void> {
   await db.update(table).set({ title }).where(eq(table.id, id)).run();
 }

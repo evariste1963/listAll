@@ -66,6 +66,26 @@ export default function MemoDetailScreen() {
     await itemService.toggleCheckable(db, schema.memoItem, itemId, currentCheckable);
   };
 
+  const handleMoveUp = async (itemId: number) => {
+    const index = items.findIndex(i => i.id === itemId);
+    if (index <= 0) return;
+    const current = items[index];
+    const above = items[index - 1];
+    const tempOrder = current.order;
+    await itemService.update(db, schema.memoItem, current.id, { order: above.order });
+    await itemService.update(db, schema.memoItem, above.id, { order: tempOrder });
+  };
+
+  const handleMoveDown = async (itemId: number) => {
+    const index = items.findIndex(i => i.id === itemId);
+    if (index < 0 || index >= items.length - 1) return;
+    const current = items[index];
+    const below = items[index + 1];
+    const tempOrder = current.order;
+    await itemService.update(db, schema.memoItem, current.id, { order: below.order });
+    await itemService.update(db, schema.memoItem, below.id, { order: tempOrder });
+  };
+
   const handleDeleteItem = (itemId: number) => {
     Alert.alert(
       'Delete Note',
@@ -172,6 +192,8 @@ export default function MemoDetailScreen() {
               item={item}
               onToggle={handleToggleItem}
               onToggleCheckable={handleToggleCheckable}
+              onMoveUp={handleMoveUp}
+              onMoveDown={handleMoveDown}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
               colors={colors}
