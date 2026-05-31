@@ -39,7 +39,8 @@
           "sounds": []
         }
       ],
-      "./plugins/withAndroidBuildOptimizations"
+      "./plugins/withAndroidBuildOptimizations",
+      "expo-image"
     ]
   }
 }

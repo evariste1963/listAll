@@ -44,6 +44,10 @@ export const memoItem = sqliteTable('memo_item', {
   isDone: integer('is_done', { mode: 'boolean' }).default(false),
   isCheckable: integer('is_checkable', { mode: 'boolean' }).default(false),
   order: integer('order').default(0),
+  itemType: text('item_type').default('note'),
+  url: text('url'),
+  imagePath: text('image_path'),
+  description: text('description'),
 });
 
 export const todoItem = sqliteTable('todo_item', {

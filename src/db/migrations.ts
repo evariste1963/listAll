@@ -64,6 +64,10 @@ export const alterStatements = [
   `ALTER TABLE \`memo_list\` ADD COLUMN \`is_pinned\` integer DEFAULT false;`,
   `ALTER TABLE \`memo_list\` ADD COLUMN \`is_archived\` integer DEFAULT false;`,
   `ALTER TABLE \`memo_list\` ADD COLUMN \`tags\` text;`,
+  `ALTER TABLE \`memo_item\` ADD COLUMN \`item_type\` text DEFAULT 'note';`,
+  `ALTER TABLE \`memo_item\` ADD COLUMN \`url\` text;`,
+  `ALTER TABLE \`memo_item\` ADD COLUMN \`image_path\` text;`,
+  `ALTER TABLE \`memo_item\` ADD COLUMN \`description\` text;`,
 ];
 
 export default migrationStatements;

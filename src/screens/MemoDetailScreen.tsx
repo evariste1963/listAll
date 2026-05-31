@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal
+  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Image, Linking, ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
@@ -12,6 +12,46 @@ import { createThemedStyles, spacing } from '../styles/global';
 import { itemService, listService } from '../db/services';
 import ItemRow from '../components/ItemRow';
 import type { MemoDetailProps } from '../navigation/types';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+
+const URL_REGEX = /^https?:\/\/.+/;
+
+function parseOgTag(html: string, property: string): string | null {
+  const patterns = [
+    new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["'][^>]*>`, 'i'),
+    new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+property=["']${property}["'][^>]*>`, 'i'),
+    new RegExp(`<meta[^>]+name=["']${property}["'][^>]+content=["']([^"']*)["'][^>]*>`, 'i'),
+    new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+name=["']${property}["'][^>]*>`, 'i'),
+  ];
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match) return match[1].replace(/&#?\w+;/g, '').trim();
+  }
+  return null;
+}
+
+interface LinkPreview {
+  title: string;
+  description: string;
+  image: string | null;
+}
+
+async function fetchLinkPreview(url: string): Promise<LinkPreview> {
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ListAll/1.0)' },
+    });
+    const html = await response.text();
+    return {
+      title: parseOgTag(html, 'og:title') || parseOgTag(html, 'twitter:title') || url,
+      description: parseOgTag(html, 'og:description') || parseOgTag(html, 'twitter:description') || '',
+      image: parseOgTag(html, 'og:image') || parseOgTag(html, 'twitter:image') || null,
+    };
+  } catch {
+    return { title: url, description: '', image: null };
+  }
+}
 
 export default function MemoDetailScreen() {
   const route = useRoute<MemoDetailProps['route']>();
@@ -28,6 +68,17 @@ export default function MemoDetailScreen() {
   const [editItemCheckable, setEditItemCheckable] = useState(false);
   const [editTags, setEditTags] = useState(false);
   const [tagsInput, setTagsInput] = useState('');
+
+  const [linkPreview, setLinkPreview] = useState<LinkPreview | null>(null);
+  const [linkPreviewUrl, setLinkPreviewUrl] = useState('');
+  const [linkPreviewLoading, setLinkPreviewLoading] = useState(false);
+
+  const [viewImagePath, setViewImagePath] = useState<string | null>(null);
+  const [viewImageDesc, setViewImageDesc] = useState<string | null>(null);
+
+  const [captionModal, setCaptionModal] = useState(false);
+  const [captionText, setCaptionText] = useState('');
+  const [pickedImagePath, setPickedImagePath] = useState<string | null>(null);
 
   const editInputRef = useRef<TextInput>(null);
 
@@ -47,17 +98,89 @@ export default function MemoDetailScreen() {
   const items: any[] = itemsResult.data ?? [];
 
   const handleAddItem = async () => {
-    if (!newItemText.trim()) return;
+    const text = newItemText.trim();
+    if (!text) return;
+
+    if (URL_REGEX.test(text)) {
+      setLinkPreviewUrl(text);
+      setLinkPreviewLoading(true);
+      setNewItemText('');
+      const preview = await fetchLinkPreview(text);
+      setLinkPreview(preview);
+      setLinkPreviewLoading(false);
+      return;
+    }
 
     const maxOrder = items.length;
     await itemService.create(db, schema.memoItem, {
       listId,
-      title: newItemText.trim(),
+      title: text,
       isDone: false,
       order: maxOrder + 1,
     });
 
     setNewItemText('');
+  };
+
+  const handleConfirmLink = async () => {
+    if (!linkPreview) return;
+    const maxOrder = items.length;
+    await itemService.create(db, schema.memoItem, {
+      listId,
+      title: linkPreview.title,
+      isDone: false,
+      order: maxOrder + 1,
+      itemType: 'link',
+      url: linkPreviewUrl,
+      imagePath: linkPreview.image,
+      description: linkPreview.description,
+    });
+    setLinkPreview(null);
+    setLinkPreviewUrl('');
+  };
+
+  const handlePickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Gallery access is required to add images.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const sourceUri = result.assets[0].uri;
+    const ext = sourceUri.split('.').pop() || 'jpg';
+    const filename = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const dest = `${FileSystem.documentDirectory}images/${filename}`;
+
+    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}images`, { intermediates: true });
+    await FileSystem.copyAsync({ from: sourceUri, to: dest });
+
+    setPickedImagePath(dest);
+    setCaptionText('');
+    setCaptionModal(true);
+  };
+
+  const handleConfirmImage = async () => {
+    if (!pickedImagePath) return;
+    const maxOrder = items.length;
+    await itemService.create(db, schema.memoItem, {
+      listId,
+      title: captionText.trim() || 'Image',
+      isDone: false,
+      order: maxOrder + 1,
+      itemType: 'image',
+      imagePath: pickedImagePath,
+      description: captionText.trim() || null,
+    });
+    setPickedImagePath(null);
+    setCaptionText('');
+    setCaptionModal(false);
   };
 
   const handleToggleItem = async (itemId: number, currentDone: boolean | null) => {
@@ -107,6 +230,7 @@ export default function MemoDetailScreen() {
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
     const item = items.find(i => i.id === itemId);
+    if (item && (item.itemType === 'link' || item.itemType === 'image')) return;
     setEditItemId(itemId);
     setEditItemText(currentTitle);
     setEditItemCheckable(item?.isCheckable ?? false);
@@ -233,7 +357,7 @@ export default function MemoDetailScreen() {
         <View style={s.inputRow}>
           <TextInput
             style={[s.itemInput, { backgroundColor: colors.cardBackground, color: colors.primaryText }]}
-            placeholder="Add note..."
+            placeholder="Add note or paste a link..."
             placeholderTextColor={colors.mutedText}
             value={newItemText}
             onChangeText={setNewItemText}
@@ -246,7 +370,20 @@ export default function MemoDetailScreen() {
           >
             <Text style={[s.addIconButtonText, { color: colors.accentText }]}>+</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[s.addIconButton, { backgroundColor: colors.accentColor, marginLeft: 6 }]}
+            onPress={handlePickImage}
+          >
+            <Text style={[s.addIconButtonText, { color: colors.accentText }]}>🖼</Text>
+          </TouchableOpacity>
         </View>
+
+        {linkPreviewLoading && (
+          <View style={{ padding: spacing.lg, alignItems: 'center' }}>
+            <ActivityIndicator color={colors.accentColor} />
+            <Text style={{ color: colors.tertiaryText, marginTop: spacing.sm }}>Fetching preview...</Text>
+          </View>
+        )}
 
         <FlatList
           data={items}
@@ -261,6 +398,7 @@ export default function MemoDetailScreen() {
               onMoveDown={handleMoveDown}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
+              onViewImage={(path, desc) => { setViewImagePath(path); setViewImageDesc(desc ?? null); }}
               colors={colors}
               s={s}
               renderMarkdown
@@ -307,6 +445,110 @@ export default function MemoDetailScreen() {
                   disabled={!editItemText.trim()}
                 >
                   <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={linkPreview !== null} transparent animationType="fade">
+          <View style={s.modalOverlay}>
+            <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+              <Text style={[s.modalTitle, { color: colors.primaryText }]}>Link Preview</Text>
+              {linkPreview && (
+                <View>
+                  {linkPreview.image && (
+                    <Image
+                      source={{ uri: linkPreview.image }}
+                      style={{ width: '100%', height: 140, borderRadius: 8, marginBottom: spacing.md }}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <Text style={[{ color: colors.primaryText, fontSize: 16, fontWeight: '600', marginBottom: 4 }]}>
+                    {linkPreview.title}
+                  </Text>
+                  {linkPreview.description ? (
+                    <Text style={{ color: colors.secondaryText, fontSize: 14, marginBottom: 8 }}>
+                      {linkPreview.description}
+                    </Text>
+                  ) : null}
+                  <Text style={{ color: colors.mutedText, fontSize: 12, marginBottom: spacing.lg }} numberOfLines={1}>
+                    {linkPreviewUrl}
+                  </Text>
+                </View>
+              )}
+              <View style={s.modalButtons}>
+                <TouchableOpacity
+                  style={s.modalButton}
+                  onPress={() => { setLinkPreview(null); setLinkPreviewUrl(''); }}
+                >
+                  <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.modalButton, s.modalButtonPrimary, { backgroundColor: colors.accentColor }]}
+                  onPress={handleConfirmLink}
+                >
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Add Link</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={viewImagePath !== null} transparent animationType="fade">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity
+              style={{ position: 'absolute', top: 50, right: 20, zIndex: 10 }}
+              onPress={() => setViewImagePath(null)}
+            >
+              <Text style={{ fontSize: 24, color: '#fff' }}>✕</Text>
+            </TouchableOpacity>
+            {viewImagePath && (
+              <Image
+                source={{ uri: viewImagePath }}
+                style={{ width: '90%', height: '70%' }}
+                resizeMode="contain"
+              />
+            )}
+            {viewImageDesc ? (
+              <Text style={{ color: '#ccc', fontSize: 15, marginTop: spacing.lg, paddingHorizontal: spacing.xxl, textAlign: 'center' }}>
+                {viewImageDesc}
+              </Text>
+            ) : null}
+          </View>
+        </Modal>
+
+        <Modal visible={captionModal} transparent animationType="fade">
+          <View style={s.modalOverlay}>
+            <View style={[s.modalContent, { backgroundColor: colors.cardBackground }]}>
+              <Text style={[s.modalTitle, { color: colors.primaryText }]}>Add Caption</Text>
+              {pickedImagePath && (
+                <Image
+                  source={{ uri: pickedImagePath }}
+                  style={{ width: '100%', height: 120, borderRadius: 8, marginBottom: spacing.md }}
+                  resizeMode="cover"
+                />
+              )}
+              <TextInput
+                style={[s.modalInput, { backgroundColor: colors.inputBackground, color: colors.primaryText }]}
+                placeholder="Caption (optional)"
+                placeholderTextColor={colors.mutedText}
+                value={captionText}
+                onChangeText={setCaptionText}
+                autoFocus
+              />
+              <View style={s.modalButtons}>
+                <TouchableOpacity
+                  style={s.modalButton}
+                  onPress={() => { setPickedImagePath(null); setCaptionText(''); setCaptionModal(false); }}
+                >
+                  <Text style={[s.modalButtonText, { color: colors.secondaryText }]}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.modalButton, s.modalButtonPrimary, { backgroundColor: colors.accentColor }]}
+                  onPress={handleConfirmImage}
+                >
+                  <Text style={[s.modalButtonTextPrimary, { color: colors.accentText }]}>Add Image</Text>
                 </TouchableOpacity>
               </View>
             </View>
