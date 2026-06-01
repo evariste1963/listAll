@@ -16,9 +16,8 @@ interface ItemRowProps {
     description?: string | null;
   };
   onToggle: (id: number, isDone: boolean | null) => void;
-  onToggleCheckable?: (id: number, isCheckable: boolean | null) => void;
-  onMoveUp?: (id: number) => void;
-  onMoveDown?: (id: number) => void;
+  isSelected?: boolean;
+  onSelect?: (id: number) => void;
   onEdit: (id: number, title: string) => void;
   onDelete: (id: number) => void;
   onViewImage?: (imagePath: string, description?: string | null) => void;
@@ -45,7 +44,7 @@ const markdownStyles = {
   list_item: { marginVertical: 0 },
 };
 
-export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, onMoveDown, onEdit, onDelete, onViewImage, colors, s, metaSlot, renderMarkdown }: ItemRowProps) {
+export default function ItemRow({ item, onToggle, isSelected, onSelect, onEdit, onDelete, onViewImage, colors, s, metaSlot, renderMarkdown }: ItemRowProps) {
   const titleStyle = [
     renderMarkdown ? null : s.itemText,
     { color: colors.primaryText, marginBottom: spacing.xs },
@@ -54,9 +53,20 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
 
   const type = item.itemType || 'note';
 
+  const renderSelectCircle = () => (
+    <TouchableOpacity
+      style={{ width: 32, height: 32, justifyContent: 'center', alignItems: 'center' }}
+      onPress={() => onSelect?.(item.id)}
+    >
+      <Text style={{ fontSize: 20, color: isSelected ? colors.accentColor : colors.mutedText }}>
+        {isSelected ? '●' : '○'}
+      </Text>
+    </TouchableOpacity>
+  );
+
   const renderCheckbox = () => (
     <TouchableOpacity
-      style={s.checkbox}
+      style={{ width: 32, height: 32, justifyContent: 'center', alignItems: 'center' }}
       onPress={() => {
         if (item.isCheckable !== false) {
           onToggle(item.id, item.isDone);
@@ -64,17 +74,24 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
       }}
     >
       {item.isCheckable !== false ? (
-        <Text style={item.isDone ? [s.checkboxChecked, { color: colors.completedColor }] : [s.checkboxUnchecked, { color: colors.secondaryText }]}>
+        <Text style={[{ fontSize: 20 }, item.isDone ? { color: colors.completedColor } : { color: colors.secondaryText }]}>
           {item.isDone ? '✓' : '○'}
         </Text>
       ) : null}
     </TouchableOpacity>
   );
 
+  const renderControlColumn = () => (
+    <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginRight: spacing.sm }}>
+      {onSelect && renderSelectCircle()}
+      {renderCheckbox()}
+    </View>
+  );
+
   if (type === 'link') {
     return (
       <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
-        {renderCheckbox()}
+        {renderControlColumn()}
         <TouchableOpacity
           style={[s.itemTitle, { flexDirection: 'row', alignItems: 'flex-start' }]}
           onPress={() => item.url ? Linking.openURL(item.url) : null}
@@ -103,16 +120,6 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
           </View>
           {metaSlot}
         </TouchableOpacity>
-        {onMoveUp && onMoveDown && (
-          <View style={s.moveButtons}>
-            <TouchableOpacity style={s.moveButton} onPress={() => onMoveUp(item.id)}>
-              <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▲</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.moveButton} onPress={() => onMoveDown(item.id)}>
-              <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▼</Text>
-            </TouchableOpacity>
-          </View>
-        )}
         <TouchableOpacity
           style={s.deleteItem}
           onPress={() => onDelete(item.id)}
@@ -127,7 +134,7 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
     return (
       <View style={[s.itemRow, { borderBottomColor: colors.cardBackground, flexDirection: 'column', alignItems: 'stretch' }]}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-          {renderCheckbox()}
+          {renderControlColumn()}
           <TouchableOpacity
             style={s.itemTitle}
             onPress={() => onViewImage?.(item.imagePath ?? '', item.description)}
@@ -148,16 +155,12 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: spacing.xs }}>
-          {onMoveUp && onMoveDown && (
-            <View style={s.moveButtons}>
-              <TouchableOpacity style={s.moveButton} onPress={() => onMoveUp(item.id)}>
-                <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▲</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={s.moveButton} onPress={() => onMoveDown(item.id)}>
-                <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▼</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <TouchableOpacity
+            style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.xs }}
+            onPress={() => onEdit(item.id, item.title)}
+          >
+            <Text style={{ fontSize: 14, color: colors.secondaryText }}>Edit</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={s.deleteItem}
             onPress={() => onDelete(item.id)}
@@ -171,7 +174,7 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
 
   return (
     <View style={[s.itemRow, { borderBottomColor: colors.cardBackground }]}>
-      {renderCheckbox()}
+      {renderControlColumn()}
       <TouchableOpacity
         style={s.itemTitle}
         onPress={() => onEdit(item.id, item.title)}
@@ -191,28 +194,6 @@ export default function ItemRow({ item, onToggle, onToggleCheckable, onMoveUp, o
         )}
         {metaSlot}
       </TouchableOpacity>
-
-      {onMoveUp && onMoveDown && (
-        <View style={s.moveButtons}>
-          <TouchableOpacity style={s.moveButton} onPress={() => onMoveUp(item.id)}>
-            <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▲</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={s.moveButton} onPress={() => onMoveDown(item.id)}>
-            <Text style={[s.moveButtonText, { color: colors.secondaryText }]}>▼</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {onToggleCheckable && (
-        <TouchableOpacity
-          style={s.toggleModeButton}
-          onPress={() => onToggleCheckable(item.id, item.isCheckable ?? false)}
-        >
-          <Text style={[s.toggleModeIcon, { color: colors.secondaryText }]}>
-            {item.isCheckable !== false ? '☑' : '☐'}
-          </Text>
-        </TouchableOpacity>
-      )}
 
       <TouchableOpacity
         style={s.deleteItem}

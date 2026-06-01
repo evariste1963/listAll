@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -109,15 +110,17 @@ function AppNavigator() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <DBProvider>
-        <ThemeProvider>
-          <PreferencesProvider>
-            <NotificationInitializer />
-            <AppNavigator />
-          </PreferencesProvider>
-        </ThemeProvider>
-      </DBProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <DBProvider>
+          <ThemeProvider>
+            <PreferencesProvider>
+              <NotificationInitializer />
+              <AppNavigator />
+            </PreferencesProvider>
+          </ThemeProvider>
+        </DBProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

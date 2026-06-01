@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Image, Linking, ActivityIndicator
+  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Image, ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
@@ -79,6 +79,16 @@ export default function MemoDetailScreen() {
   const [captionModal, setCaptionModal] = useState(false);
   const [captionText, setCaptionText] = useState('');
   const [pickedImagePath, setPickedImagePath] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const selectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (selectTimerRef.current) clearTimeout(selectTimerRef.current);
+    if (selectedItemId !== null) {
+      selectTimerRef.current = setTimeout(() => setSelectedItemId(null), 10000);
+    }
+    return () => { if (selectTimerRef.current) clearTimeout(selectTimerRef.current); };
+  }, [selectedItemId]);
 
   const editInputRef = useRef<TextInput>(null);
 
@@ -187,28 +197,28 @@ export default function MemoDetailScreen() {
     await itemService.toggleDone(db, schema.memoItem, itemId, currentDone);
   };
 
-  const handleToggleCheckable = async (itemId: number, currentCheckable: boolean | null) => {
-    await itemService.toggleCheckable(db, schema.memoItem, itemId, currentCheckable);
+  const handleSelectItem = (itemId: number) => {
+    setSelectedItemId(prev => prev === itemId ? null : itemId);
   };
 
-  const handleMoveUp = async (itemId: number) => {
-    const index = items.findIndex(i => i.id === itemId);
+  const handleMoveSelectedUp = async () => {
+    if (selectedItemId === null) return;
+    const index = items.findIndex(i => i.id === selectedItemId);
     if (index <= 0) return;
     const current = items[index];
     const above = items[index - 1];
-    const tempOrder = current.order;
     await itemService.update(db, schema.memoItem, current.id, { order: above.order });
-    await itemService.update(db, schema.memoItem, above.id, { order: tempOrder });
+    await itemService.update(db, schema.memoItem, above.id, { order: current.order });
   };
 
-  const handleMoveDown = async (itemId: number) => {
-    const index = items.findIndex(i => i.id === itemId);
+  const handleMoveSelectedDown = async () => {
+    if (selectedItemId === null) return;
+    const index = items.findIndex(i => i.id === selectedItemId);
     if (index < 0 || index >= items.length - 1) return;
     const current = items[index];
     const below = items[index + 1];
-    const tempOrder = current.order;
     await itemService.update(db, schema.memoItem, current.id, { order: below.order });
-    await itemService.update(db, schema.memoItem, below.id, { order: tempOrder });
+    await itemService.update(db, schema.memoItem, below.id, { order: current.order });
   };
 
   const handleDeleteItem = (itemId: number) => {
@@ -230,7 +240,6 @@ export default function MemoDetailScreen() {
 
   const handleEditItem = (itemId: number, currentTitle: string) => {
     const item = items.find(i => i.id === itemId);
-    if (item && (item.itemType === 'link' || item.itemType === 'image')) return;
     setEditItemId(itemId);
     setEditItemText(currentTitle);
     setEditItemCheckable(item?.isCheckable ?? false);
@@ -298,8 +307,8 @@ export default function MemoDetailScreen() {
 
   return (
     <ThemedBackground colors={colors}>
-      <SafeAreaView style={s.container}>
-        <View style={{ backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.dividerColor, padding: spacing.lg }}>
+      <SafeAreaView style={s.container} edges={['left', 'right', 'bottom']}>
+        <View style={{ backgroundColor: colors.cardBackground, borderBottomWidth: 1, borderBottomColor: colors.dividerColor, paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.md }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {editTitle ? (
               <TextInput
@@ -378,6 +387,28 @@ export default function MemoDetailScreen() {
           </TouchableOpacity>
         </View>
 
+        {items.length > 0 && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
+            <TouchableOpacity
+              style={[s.moveButton, { opacity: selectedItemId === null ? 0.4 : 1 }]}
+              onPress={handleMoveSelectedUp}
+              disabled={selectedItemId === null}
+            >
+              <Text style={[s.moveButtonText, { color: colors.secondaryText, fontSize: 18 }]}>▲</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.moveButton, { marginLeft: spacing.sm, opacity: selectedItemId === null ? 0.4 : 1 }]}
+              onPress={handleMoveSelectedDown}
+              disabled={selectedItemId === null}
+            >
+              <Text style={[s.moveButtonText, { color: colors.secondaryText, fontSize: 18 }]}>▼</Text>
+            </TouchableOpacity>
+            <Text style={{ marginLeft: spacing.md, fontSize: 12, color: colors.mutedText }}>
+              {selectedItemId ? 'Tap ● to deselect' : 'Select ● to reorder'}
+            </Text>
+          </View>
+        )}
+
         {linkPreviewLoading && (
           <View style={{ padding: spacing.lg, alignItems: 'center' }}>
             <ActivityIndicator color={colors.accentColor} />
@@ -393,9 +424,8 @@ export default function MemoDetailScreen() {
             <ItemRow
               item={item}
               onToggle={handleToggleItem}
-              onToggleCheckable={handleToggleCheckable}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
+              isSelected={selectedItemId === item.id}
+              onSelect={handleSelectItem}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
               onViewImage={(path, desc) => { setViewImagePath(path); setViewImageDesc(desc ?? null); }}
