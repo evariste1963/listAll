@@ -66,7 +66,6 @@ export default function MemoDetailScreen() {
   const [editItemId, setEditItemId] = useState<number | null>(null);
   const [editItemText, setEditItemText] = useState('');
   const [editItemCheckable, setEditItemCheckable] = useState(false);
-  const [editTags, setEditTags] = useState(false);
   const [tagsInput, setTagsInput] = useState('');
 
   const [linkPreview, setLinkPreview] = useState<LinkPreview | null>(null);
@@ -263,11 +262,18 @@ export default function MemoDetailScreen() {
     setEditItemText('');
   };
 
-  const handleUpdateTags = async () => {
-    if (list) {
-      await listService.updateTags(db, schema.memoList, listId, tagsInput.trim());
-      setEditTags(false);
+  const handleAddTag = async () => {
+    if (!list) return;
+    const trimmed = tagsInput.trim().toLowerCase();
+    if (!trimmed) return;
+    const currentTags = (list.tags ?? '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    if (currentTags.includes(trimmed)) {
+      setTagsInput('');
+      return;
     }
+    const newTags = currentTags.length > 0 ? [...currentTags, trimmed].join(', ') : trimmed;
+    await listService.updateTags(db, schema.memoList, listId, newTags);
+    setTagsInput('');
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -360,32 +366,22 @@ export default function MemoDetailScreen() {
             )}
           </View>
 
-          {editTags ? (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', paddingTop: 8 }}>
+            {(list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string, i: number) => (
+              <TouchableOpacity key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30', flexDirection: 'row', alignItems: 'center' }]} onPress={() => handleRemoveTag(tag)}>
+                <Text style={[s.tagChipText, { color: colors.accentColor }]}>{tag}</Text>
+                <Text style={{ fontSize: 12, color: colors.accentColor, marginLeft: 4 }}>✕</Text>
+              </TouchableOpacity>
+            ))}
             <TextInput
-              style={[s.tagInput, { backgroundColor: colors.inputBackground, color: colors.primaryText, borderColor: colors.dividerColor, marginTop: 8 }]}
+              style={[s.tagInput, { backgroundColor: colors.inputBackground, color: colors.primaryText, borderColor: colors.dividerColor, marginTop: 4, minWidth: 100, flex: 1 }]}
               value={tagsInput}
               onChangeText={setTagsInput}
-              onBlur={handleUpdateTags}
-              onSubmitEditing={handleUpdateTags}
-              placeholder="tag1, tag2, tag3"
+              onSubmitEditing={handleAddTag}
+              placeholder={(list.tags ?? '').trim() ? '+ add another tag' : '+ add tag'}
               placeholderTextColor={colors.mutedText}
-              autoFocus
             />
-          ) : (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', paddingTop: 8 }}>
-              {(list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string, i: number) => (
-                <TouchableOpacity key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30', flexDirection: 'row', alignItems: 'center' }]} onPress={() => handleRemoveTag(tag)}>
-                  <Text style={[s.tagChipText, { color: colors.accentColor }]}>{tag}</Text>
-                  <Text style={{ fontSize: 12, color: colors.accentColor, marginLeft: 4 }}>✕</Text>
-                </TouchableOpacity>
-              ))}
-              <TouchableOpacity onPress={() => { const existing = list.tags ?? ''; setTagsInput(existing ? existing + ', ' : ''); setEditTags(true); }}>
-                <Text style={{ fontSize: 14, color: colors.mutedText, marginLeft: 4 }}>
-                  + add tags
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          </View>
         </View>
 
         <View style={s.inputRow}>
