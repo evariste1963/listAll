@@ -108,8 +108,11 @@ export default function GuideScreen() {
           <FeatureCard icon="🔒" title="Local Storage" desc="All data is stored in a local SQLite database on your device. No data is transmitted to any server." colors={colors} />
           <FeatureCard icon="📡" title="No Network" desc="listAll operates fully offline. No internet permission, no analytics, no tracking, no account required." colors={colors} />
           <FeatureCard icon="🗑️" title="Data Cleanup" desc="Deleted items are fully removed from the database. The database is auto-vacuumed in the background to reclaim space." colors={colors} />
+          <TouchableOpacity onPress={() => Linking.openURL('https://github.com/evariste1963/listAll/blob/main/SECURITY.md')}>
+            <FeatureCard icon="🛡️" title="Security Policy" desc="Data handling, permissions, and vulnerability reporting." colors={colors} titleColor={colors.priorityMedium} descColor={colors.priorityMedium} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => Linking.openURL('https://github.com/evariste1963/listAll/blob/main/PRIVACY.md')}>
-            <FeatureCard icon="📄" title="Privacy Policy" desc="Press here to read the full privacy policy covering data collection, permissions, and local-only storage." colors={colors} titleColor={colors.priorityMedium} descColor={colors.priorityMedium} />
+            <FeatureCard icon="📄" title="Privacy Policy" desc="Data collection, permissions, and local-only storage." colors={colors} titleColor={colors.priorityMedium} descColor={colors.priorityMedium} />
           </TouchableOpacity>
 
           <SectionHeader title="Database" color={colors.accentColor} />
