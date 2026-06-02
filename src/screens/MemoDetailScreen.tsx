@@ -181,6 +181,7 @@ export default function MemoDetailScreen() {
     const maxOrder = items.length;
     await itemService.create(db, schema.memoItem, {
       listId,
+      // title + description both store caption; title used as modal initial value, description rendered in ItemRow
       title: captionText.trim() || 'Image',
       isDone: false,
       order: maxOrder + 1,
@@ -249,6 +250,10 @@ export default function MemoDetailScreen() {
     if (editItemId && editItemText.trim()) {
       const item = items.find(i => i.id === editItemId);
       const updates: any = { title: editItemText.trim() };
+      if (item?.itemType === 'image') {
+        // image: caption reads from `description` in ItemRow, not `title`
+        updates.description = editItemText.trim()
+      }
       if (item && item.isCheckable !== editItemCheckable) {
         updates.isCheckable = editItemCheckable;
       }

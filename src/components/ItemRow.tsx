@@ -147,6 +147,7 @@ export default function ItemRow({ item, onToggle, isSelected, onSelect, onEdit, 
               />
             ) : null}
             {item.description ? (
+              // image caption: rendered from `description`, not `title`
               <Text style={[s.itemText, { color: colors.primaryText, marginTop: spacing.xs }, item.isDone && { color: colors.mutedText, textDecorationLine: 'line-through' }]}>
                 {item.description}
               </Text>
