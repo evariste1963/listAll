@@ -399,14 +399,14 @@ export default function MemoDetailScreen() {
               onPress={handleMoveSelectedUp}
               disabled={selectedItemId === null}
             >
-              <Text style={[s.moveButtonText, { color: colors.secondaryText, fontSize: 18 }]}>▲</Text>
+              <Text style={[s.moveButtonText, { color: colors.secondaryText, fontSize: 24 }]}>▲</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.moveButton, { marginLeft: spacing.sm, opacity: selectedItemId === null ? 0.4 : 1 }]}
               onPress={handleMoveSelectedDown}
               disabled={selectedItemId === null}
             >
-              <Text style={[s.moveButtonText, { color: colors.secondaryText, fontSize: 18 }]}>▼</Text>
+              <Text style={[s.moveButtonText, { color: colors.secondaryText, fontSize: 24 }]}>▼</Text>
             </TouchableOpacity>
             <Text style={{ marginLeft: spacing.md, fontSize: 12, color: colors.mutedText }}>
               {selectedItemId ? 'Tap ● to deselect' : 'Select ● to reorder'}
