@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -22,17 +22,42 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
-  
+
+  const searchInputRef = useRef<TextInput>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setSearchQuery('');
+    }, [])
+  );
+
   const result = useLiveQuery(db.select().from(schema.todoList).orderBy(schema.todoList.createdAt));
 
   const itemsResult = useLiveQuery(db.select().from(schema.todoItem));
 
   const todos = useMemo(() => {
     if (!result.data || !itemsResult.data) return [];
+    let lists = result.data;
+    const allItems = itemsResult.data;
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchingItemListIds = new Set(
+        allItems.filter(i => i.title.toLowerCase().includes(q)).map(i => i.listId)
+      );
+      const matchingListIds = new Set(
+        lists.filter(l => l.title.toLowerCase().includes(q)).map(l => l.id)
+      );
+      const activeIds = new Set([...matchingItemListIds, ...matchingListIds]);
+      lists = lists.filter(l => activeIds.has(l.id));
+    }
+
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
-    return result.data.map(list => {
-      const listItems = itemsResult.data.filter(i => i.listId === list.id);
+    return lists.map(list => {
+      const listItems = allItems.filter(i => i.listId === list.id);
       const remaining = listItems.filter(i => !i.isDone);
       return {
         ...list,
@@ -44,7 +69,7 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
         remainingOverdue: remaining.filter(i => i.dueDate && new Date(i.dueDate) < startOfToday).length,
       };
     });
-  }, [result.data, itemsResult.data]);
+  }, [result.data, itemsResult.data, searchQuery]);
 
   const handleCreate = () => {
     navigation.navigate('CreateTodoList');
@@ -102,16 +127,47 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
           </TouchableOpacity>
         </View>
 
+        <View style={[s.searchBar, { backgroundColor: colors.inputBackground, borderColor: isFocused ? colors.accentColor : colors.dividerColor }]}>
+          <Text style={s.searchIcon}>🔍</Text>
+          <TextInput
+            ref={searchInputRef}
+            style={[s.searchInput, { color: colors.primaryText }]}
+            placeholder="Search todos..."
+            placeholderTextColor={colors.mutedText}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              style={s.clearButton}
+              onPress={() => {
+                setSearchQuery('');
+                searchInputRef.current?.focus();
+              }}
+            >
+              <Text style={[s.clearButtonText, { color: colors.mutedText }]}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         {todos.length === 0 ? (
           <View style={s.emptyState}>
             <View style={[s.emptyIconContainer, { backgroundColor: colors.priorityLow }]}>
               <Text style={s.emptyIconLarge}>✓</Text>
             </View>
-            <Text style={[s.emptyTitle, { color: colors.primaryText }]}>No Todo Lists Yet</Text>
-            <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>Create a todo list to track tasks</Text>
-            <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
-              <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Todo List</Text>
-            </TouchableOpacity>
+            <Text style={[s.emptyTitle, { color: colors.primaryText }]}>
+              {searchQuery.trim() ? 'No Results' : 'No Todo Lists Yet'}
+            </Text>
+            <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>
+              {searchQuery.trim() ? 'Try a different search' : 'Create a todo list to track tasks'}
+            </Text>
+            {!searchQuery.trim() && (
+              <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
+                <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Todo List</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           <FlatList
