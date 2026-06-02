@@ -94,8 +94,8 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
       `Delete "${title}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             await listService.cascadeDelete(db, schema.todoList, schema.todoItem, listId, schema.todoItem.listId);
@@ -173,10 +173,10 @@ export default function TodosTabScreen({ onTabChange }: TodosTabScreenProps = {}
           <FlatList
             data={todos}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={s.list}
+            contentContainerStyle={[s.list, { paddingTop: 10 }]}
             style={{ flex: 1 }}
             renderItem={({ item }) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[s.card, s.cardRow, { backgroundColor: colors.cardBackground }]}
                 onPress={() => handleOpen(item.id)}
                 onLongPress={() => handleDelete(item.id, item.title, item.totalItems)}
