@@ -108,7 +108,7 @@ export default function TodoDetailScreen() {
   const handleAddItem = async () => {
     if (!newItemText.trim()) return;
 
-    const maxOrder = items.length;
+    const maxOrder = Math.max(0, ...items.map(i => i.order ?? 0));
     const dueDateTimestamp = newDueDate ? newDueDate.getTime() : null;
     const insertedId = await itemService.create(db, schema.todoItem, {
       listId,

@@ -121,7 +121,7 @@ export default function MemoDetailScreen() {
       return;
     }
 
-    const maxOrder = items.length;
+    const maxOrder = Math.max(0, ...items.map(i => i.order ?? 0));
     await itemService.create(db, schema.memoItem, {
       listId,
       title: text,
@@ -134,7 +134,7 @@ export default function MemoDetailScreen() {
 
   const handleConfirmLink = async () => {
     if (!linkPreview) return;
-    const maxOrder = items.length;
+    const maxOrder = Math.max(0, ...items.map(i => i.order ?? 0));
     await itemService.create(db, schema.memoItem, {
       listId,
       title: linkPreview.title,
@@ -178,7 +178,7 @@ export default function MemoDetailScreen() {
 
   const handleConfirmImage = async () => {
     if (!pickedImagePath) return;
-    const maxOrder = items.length;
+    const maxOrder = Math.max(0, ...items.map(i => i.order ?? 0));
     await itemService.create(db, schema.memoItem, {
       listId,
       // title + description both store caption; title used as modal initial value, description rendered in ItemRow
@@ -270,6 +270,26 @@ export default function MemoDetailScreen() {
     }
   };
 
+  const handleRemoveTag = (tagToRemove: string) => {
+    if (!list) return;
+    Alert.alert(
+      'Remove Tag',
+      `Remove tag "${tagToRemove}" from this list?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            const currentTags = (list.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
+            const newTags = currentTags.filter(t => t !== tagToRemove).join(', ');
+            await listService.updateTags(db, schema.memoList, listId, newTags);
+          },
+        },
+      ]
+    );
+  };
+
   const handleDeleteCompleted = () => {
     const done = items.filter(i => i.isDone);
     if (done.length === 0) return;
@@ -352,19 +372,19 @@ export default function MemoDetailScreen() {
               autoFocus
             />
           ) : (
-            <TouchableOpacity
-              style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', paddingTop: 8 }}
-              onPress={() => { setTagsInput(list.tags ?? ''); setEditTags(true); }}
-            >
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', paddingTop: 8 }}>
               {(list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string, i: number) => (
-                <View key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30' }]}>
+                <TouchableOpacity key={i} style={[s.tagChip, { backgroundColor: colors.accentColor + '30', flexDirection: 'row', alignItems: 'center' }]} onPress={() => handleRemoveTag(tag)}>
                   <Text style={[s.tagChipText, { color: colors.accentColor }]}>{tag}</Text>
-                </View>
+                  <Text style={{ fontSize: 12, color: colors.accentColor, marginLeft: 4 }}>✕</Text>
+                </TouchableOpacity>
               ))}
-              <Text style={{ fontSize: 14, color: colors.mutedText, marginLeft: 4 }}>
-                {(list.tags ?? '').trim() ? '' : '+ add tags'}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={() => { const existing = list.tags ?? ''; setTagsInput(existing ? existing + ', ' : ''); setEditTags(true); }}>
+                <Text style={{ fontSize: 14, color: colors.mutedText, marginLeft: 4 }}>
+                  + add tags
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
 

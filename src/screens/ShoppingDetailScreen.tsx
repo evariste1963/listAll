@@ -97,7 +97,7 @@ export default function ShoppingDetailScreen() {
       return;
     }
 
-    const maxOrder = activeShop?.items?.length || 0;
+    const maxOrder = Math.max(0, ...(activeShop?.items?.map(i => i.order ?? 0) ?? [0]));
     await itemService.create(db, schema.shoppingItem, {
       shopTabId: activeTabId,
       title: newItemText.trim(),
@@ -160,7 +160,7 @@ export default function ShoppingDetailScreen() {
       return;
     }
 
-    const maxOrder = shops.length;
+    const maxOrder = Math.max(0, ...shops.map(s => s.order ?? 0));
     const result = await db.insert(schema.shopTab).values({
       listId,
       name: trimmedName,

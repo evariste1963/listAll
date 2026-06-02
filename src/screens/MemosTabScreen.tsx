@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -32,6 +32,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   useFocusEffect(
     useCallback(() => {
       setSearchQuery('');
+      setSelectedTag(null);
     }, [])
   );
 
@@ -49,6 +50,12 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
     }
     return Array.from(tagSet).sort();
   }, [result.data]);
+
+  useEffect(() => {
+    if (selectedTag && !allTags.includes(selectedTag)) {
+      setSelectedTag(null);
+    }
+  }, [allTags, selectedTag]);
 
   const memos = useMemo(() => {
     if (!result.data || !itemsResult.data) return [];
@@ -230,12 +237,12 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           <View style={s.emptyState}>
             <Text style={s.emptyIcon}>📝</Text>
             <Text style={[s.emptyTitle, { color: colors.primaryText }]}>
-              {searchQuery.trim() ? 'No Results' : showArchived ? 'No Archived Memos' : 'No Memos Yet'}
+              {searchQuery.trim() || selectedTag ? 'No Results' : showArchived ? 'No Archived Memos' : 'No Memos Yet'}
             </Text>
             <Text style={[s.emptySubtitle, { color: colors.tertiaryText }]}>
-              {searchQuery.trim() ? 'Try a different search' : showArchived ? 'Archive a memo to see it here' : 'Create a memo to remember things'}
+              {searchQuery.trim() ? 'Try a different search' : selectedTag ? 'Try a different filter' : showArchived ? 'Archive a memo to see it here' : 'Create a memo to remember things'}
             </Text>
-            {!searchQuery.trim() && !showArchived && (
+            {!searchQuery.trim() && !showArchived && !selectedTag && (
               <TouchableOpacity style={[s.createButton, { backgroundColor: colors.accentColor }]} onPress={handleCreate}>
                 <Text style={[s.createButtonText, { color: colors.accentText }]}>+ Create Memo</Text>
               </TouchableOpacity>
