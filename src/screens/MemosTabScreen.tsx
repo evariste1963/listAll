@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
@@ -23,9 +23,17 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   const { colors } = useTheme();
   const s = createThemedStyles(colors);
 
+  const searchInputRef = useRef<TextInput>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setSearchQuery('');
+    }, [])
+  );
 
   const result = useLiveQuery(db.select().from(schema.memoList).orderBy(schema.memoList.createdAt));
 
@@ -110,15 +118,11 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
       onPress: () => handleToggleArchive(listId, isArchived),
     });
 
-    if (itemCount === 0) {
-      buttons.push({
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await listService.cascadeDelete(db, schema.memoList, schema.memoItem, listId, schema.memoItem.listId);
-        },
-      });
-    }
+    buttons.push({
+      text: 'Delete',
+      style: 'destructive',
+      onPress: () => handleDelete(listId, title, itemCount),
+    });
 
     buttons.push({ text: 'Cancel', style: 'cancel' });
 
@@ -166,14 +170,29 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           </TouchableOpacity>
         </View>
 
-        <View style={[s.searchBar, { backgroundColor: colors.inputBackground, borderColor: colors.dividerColor }]}>
+        <View style={[s.searchBar, { backgroundColor: colors.inputBackground, borderColor: isFocused ? colors.accentColor : colors.dividerColor }]}>
+          <Text style={s.searchIcon}>🔍</Text>
           <TextInput
+            ref={searchInputRef}
             style={[s.searchInput, { color: colors.primaryText }]}
             placeholder="Search memos..."
             placeholderTextColor={colors.mutedText}
             value={searchQuery}
             onChangeText={setSearchQuery}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              style={s.clearButton}
+              onPress={() => {
+                setSearchQuery('');
+                searchInputRef.current?.focus();
+              }}
+            >
+              <Text style={[s.clearButtonText, { color: colors.mutedText }]}>✕</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {allTags.length > 0 && (
@@ -226,7 +245,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
           <FlatList
             data={memos}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={s.list}
+            contentContainerStyle={[s.list, { paddingTop: 10 }]}
             style={{ flex: 1 }}
             renderItem={({ item }) => (
               <TouchableOpacity

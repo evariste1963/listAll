@@ -177,6 +177,7 @@ export const createThemedStyles = (theme: ThemeColors) => ({
   },
   card: {
     padding: spacing.lg,
+    paddingTop: spacing.md,
     borderRadius: borderRadius.lg,
     marginBottom: spacing.md,
   },
@@ -219,15 +220,31 @@ export const createThemedStyles = (theme: ThemeColors) => ({
     fontSize: fontSize.base,
   },
   searchBar: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.xl,
+    borderWidth: 1,
   },
   searchInput: {
+    flex: 1,
     fontSize: fontSize.base,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.xs,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: spacing.sm,
+  },
+  clearButton: {
+    padding: spacing.xs,
+    marginLeft: spacing.xs,
+  },
+  clearButtonText: {
+    fontSize: 16,
+    fontWeight: fontWeight.semibold,
   },
   inputRow: {
     flexDirection: 'row' as const,
