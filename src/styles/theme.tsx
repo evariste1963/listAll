@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { View, ImageBackground, StyleSheet } from 'react-native';
 import { ThemeName, ThemeColors, getTheme, themes } from './global';
+import { useDB } from '../db/provider';
+import { schema } from '../db/index';
+import { eq } from 'drizzle-orm';
 
 interface ThemeContextType {
   theme: ThemeName;
@@ -15,12 +18,34 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const db = useDB();
   const [theme, setThemeState] = useState<ThemeName>('dark');
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const row = await db.select().from(schema.preference)
+          .where(eq(schema.preference.key, 'defaultTheme'))
+          .get();
+        if (row && (row.value === 'dark' || row.value === 'green' || row.value === 'light')) {
+          setThemeState(row.value as ThemeName);
+        }
+      } catch {}
+    }
+    load();
+  }, [db]);
 
   const colors = getTheme(theme);
 
   const setTheme = (newTheme: ThemeName) => {
     setThemeState(newTheme);
+    db.insert(schema.preference)
+      .values({ key: 'defaultTheme', value: newTheme })
+      .onConflictDoUpdate({
+        target: schema.preference.key,
+        set: { value: newTheme },
+      })
+      .run();
   };
 
   return (
