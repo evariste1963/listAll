@@ -52,7 +52,7 @@ export default function GuideScreen() {
             <Text style={{ fontSize: 12, color: colors.tertiaryText, letterSpacing: 0.3, marginTop: 2 }}>Version {APP_VERSION}</Text>
           </View>
 
-          <SectionHeader title="Getting Started" color={colors.accentColor} />
+          <SectionHeader title="OVERVIEW - TL;DR" color={colors.accentColor} />
 
           <FeatureCard icon="🏠" title="Home Dashboard" desc="Navigation hub with cards for Shopping, Memos, Todos, Preferences, and this Guide." colors={colors} />
           <FeatureCard icon="🛒" title="Shopping" desc="One active shopping list with shop tabs, default shops auto-sync, item CRUD, bulk delete completed, and duplicate prevention." colors={colors} />
