@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
@@ -31,7 +31,7 @@ interface NavigationCardProps {
   iconBgColor?: string;
   iconColor?: string;
   colors: ReturnType<typeof useTheme>['colors'];
-  s: ReturnType<typeof createThemedStyles>;
+  s: ReturnType<typeof useThemedStyles>;
 }
 
 function NavigationCard({ tab, onPress, iconBgColor, iconColor, colors, s }: NavigationCardProps) {
@@ -58,7 +58,7 @@ interface HomeTabScreenProps {
 export default function HomeTabScreen({ onTabChange }: HomeTabScreenProps) {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
 
   return (
     <ThemedBackground colors={colors}>

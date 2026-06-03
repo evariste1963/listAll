@@ -9,8 +9,8 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
-import { eq } from 'drizzle-orm';
+import { useThemedStyles } from '../styles/useThemedStyles';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { itemService, listService } from '../db/services';
 import ItemRow from '../components/ItemRow';
 import type { ShoppingDetailProps } from '../navigation/types';
@@ -19,7 +19,7 @@ export default function ShoppingDetailScreen() {
   const route = useRoute<ShoppingDetailProps['route']>();
   const db = useDB();
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
   const { listId, activeTabId: initialActiveTabId, showAddShop: initialShowAddShop } = route.params;
 
   const [activeTabId, setActiveTabId] = useState<number | null>(initialActiveTabId || null);
@@ -50,8 +50,20 @@ export default function ShoppingDetailScreen() {
       .orderBy(schema.shopTab.order)
   );
 
+  const shopIds = useMemo(
+    () => shopsResult.data?.map(s => s.id) ?? [],
+    [shopsResult.data]
+  );
+
   const itemsResult = useLiveQuery(
-    db.select().from(schema.shoppingItem).orderBy(schema.shoppingItem.order)
+    db.select().from(schema.shoppingItem)
+      .where(
+        shopIds.length > 0
+          ? inArray(schema.shoppingItem.shopTabId, shopIds)
+          : sql`0=1`
+      )
+      .orderBy(schema.shoppingItem.order),
+  [shopIds]
   );
 
   const list = listResult.data?.[0] ?? null;

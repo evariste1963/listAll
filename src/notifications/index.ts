@@ -88,7 +88,7 @@ export async function cancelTodoNotifications(todoId: number): Promise<void> {
   const todoIdStr = String(todoId);
   for (const n of existing) {
     const dataTodoId = n.notification.data?.todoId;
-    if (String(dataTodoId) === todoIdStr && n.notification.id) {
+    if (dataTodoId != null && String(dataTodoId) === todoIdStr && n.notification.id) {
       await notifee.cancelTriggerNotification(n.notification.id);
     }
   }

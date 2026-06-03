@@ -8,7 +8,8 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles, spacing } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
+import { spacing } from '../styles/global';
 import { itemService, listService } from '../db/services';
 import ItemRow from '../components/ItemRow';
 import type { MemoDetailProps } from '../navigation/types';
@@ -57,7 +58,7 @@ export default function MemoDetailScreen() {
   const route = useRoute<MemoDetailProps['route']>();
   const db = useDB();
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
   const { listId } = route.params;
 
   const [newItemText, setNewItemText] = useState('');
@@ -266,7 +267,7 @@ export default function MemoDetailScreen() {
     if (!list) return;
     const trimmed = tagsInput.trim().toLowerCase();
     if (!trimmed) return;
-    const currentTags = (list.tags ?? '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    const currentTags = (list.tags ?? '').split(',').map((t: string) => t.trim().toLowerCase()).filter(Boolean);
     if (currentTags.includes(trimmed)) {
       setTagsInput('');
       return;
@@ -287,8 +288,8 @@ export default function MemoDetailScreen() {
           text: 'Remove',
           style: 'destructive',
           onPress: async () => {
-            const currentTags = (list.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
-            const newTags = currentTags.filter(t => t !== tagToRemove).join(', ');
+            const currentTags = (list.tags ?? '').split(',').map((t: string) => t.trim()).filter(Boolean);
+            const newTags = currentTags.filter((t: string) => t !== tagToRemove).join(', ');
             await listService.updateTags(db, schema.memoList, listId, newTags);
           },
         },

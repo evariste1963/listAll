@@ -1,13 +1,13 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, ThemedBackground } from './src/styles/theme';
-import { createThemedStyles } from './src/styles/global';
-import HomeTabScreen from './src/screens/HomeTabScreen';
-import ShoppingTabScreen from './src/screens/ShoppingTabScreen';
-import MemosTabScreen from './src/screens/MemosTabScreen';
-import TodosTabScreen from './src/screens/TodosTabScreen';
-import PreferencesTabScreen from './src/screens/PreferencesTabScreen';
+import { useTheme, ThemedBackground } from '../styles/theme';
+import { useThemedStyles } from '../styles/useThemedStyles';
+import HomeTabScreen from '../screens/HomeTabScreen';
+import ShoppingTabScreen from '../screens/ShoppingTabScreen';
+import MemosTabScreen from '../screens/MemosTabScreen';
+import TodosTabScreen from '../screens/TodosTabScreen';
+import PreferencesTabScreen from '../screens/PreferencesTabScreen';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -22,7 +22,7 @@ const TABS = [
 export default function SwipeableTabs() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
   
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);

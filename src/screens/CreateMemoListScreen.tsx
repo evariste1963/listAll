@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
 import { listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -16,7 +16,7 @@ export default function CreateMemoListScreen() {
   const db = useDB();
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
 

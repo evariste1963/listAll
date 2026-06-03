@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, ScrollView, View, Image, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
 import { APP_VERSION } from '../config';
 
 function SectionHeader({ title, color }: { title: string; color: string }) {
@@ -39,7 +39,7 @@ function FeatureCard({ icon, title, desc, colors, iconColor, titleColor, descCol
 
 export default function GuideScreen() {
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
 
   return (
     <ThemedBackground colors={colors}>

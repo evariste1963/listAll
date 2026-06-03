@@ -9,7 +9,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
 import { itemService, listService } from '../db/services';
 import ItemRow from '../components/ItemRow';
 import type { TodoDetailProps } from '../navigation/types';
@@ -34,7 +34,7 @@ export default function TodoDetailScreen() {
   const db = useDB();
   const { colors } = useTheme();
   const { notificationIntervals } = usePreferences();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
   const { listId, filter } = route.params;
 
   const [newItemText, setNewItemText] = useState('');

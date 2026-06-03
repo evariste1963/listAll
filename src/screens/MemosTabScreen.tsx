@@ -7,7 +7,7 @@ import { useDB } from '../db/provider';
 import { schema } from '../db/index';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useTheme, ThemedBackground } from '../styles/theme';
-import { createThemedStyles } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
 import { listService } from '../db/services';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -21,7 +21,7 @@ export default function MemosTabScreen({ onTabChange }: MemosTabScreenProps = {}
   const db = useDB();
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
 
   const searchInputRef = useRef<TextInput>(null);
   const [searchQuery, setSearchQuery] = useState('');

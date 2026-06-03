@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDB } from '../db/provider';
 import { useTheme, ThemedBackground } from '../styles/theme';
 import type { ThemeName } from '../styles/global';
-import { createThemedStyles } from '../styles/global';
+import { useThemedStyles } from '../styles/useThemedStyles';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { defaultShopService } from '../db/services';
 import { usePreferences } from '../preferences/provider';
@@ -13,11 +13,15 @@ import { APP_VERSION } from '../config';
 
 const THEMES: ThemeName[] = ['dark', 'green', 'light'];
 
-export default function PreferencesTabScreen() {
+interface PreferencesTabScreenProps {
+  onTabChange?: (index: number, animated?: boolean) => void;
+}
+
+export default function PreferencesTabScreen({ onTabChange }: PreferencesTabScreenProps = {}) {
   const db = useDB();
   const { theme, setTheme, colors } = useTheme();
   const { notificationIntervals, setNotificationIntervals } = usePreferences();
-  const s = createThemedStyles(colors);
+  const s = useThemedStyles();
 
   const [showAddShop, setShowAddShop] = useState(false);
   const [newShopName, setNewShopName] = useState('');
@@ -70,7 +74,9 @@ export default function PreferencesTabScreen() {
     <ThemedBackground colors={colors}>
       <SafeAreaView style={s.container}>
         <View style={[s.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.dividerColor }]}>
+          <Text style={[s.addButton, { opacity: 0, color: colors.accentColor }]}>+</Text>
           <Text style={[s.headerTitle, { color: colors.primaryText }]}>⚙️ Preferences</Text>
+          <Text style={[s.addButton, { opacity: 0, color: colors.accentColor }]}>+</Text>
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 16 }}>

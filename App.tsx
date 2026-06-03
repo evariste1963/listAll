@@ -9,7 +9,7 @@ import { DBProvider } from './src/db/provider';
 import { ThemeProvider, useTheme } from './src/styles/theme';
 import { PreferencesProvider } from './src/preferences/provider';
 import { initNotifications } from './src/notifications';
-import SwipeableTabs from './SwipeableTabs';
+import SwipeableTabs from './src/components/SwipeableTabs';
 import CreateMemoListScreen from './src/screens/CreateMemoListScreen';
 import CreateTodoListScreen from './src/screens/CreateTodoListScreen';
 import ShoppingDetailScreen from './src/screens/ShoppingDetailScreen';
