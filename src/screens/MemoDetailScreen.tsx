@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Image, ActivityIndicator
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, Alert, Modal, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useDB } from '../db/provider';
